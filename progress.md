@@ -781,3 +781,24 @@ and the compare URL emitted for manual PR creation. `main` untouched
   (73→72 etc.) into a tiny develop fix-forward commit before steps 7-8, or let them
   ride as routed notes (they are inside files this story already rewrote — cheap to
   fix now; A10 says never blocking either way).
+
+## 2026-09-20 — e02s03 gate r1 PASS (100/100); docs fix-forward dispatched
+
+- gate (8a6c1d36) r1: PASS 100 (41/41), hard sections all PASS, 0 HIGH findings,
+  F.I.R.S.T clean, Preflight reproduced 1027/2/88, 12 docs-accuracy spot-checks vs
+  code, QF-A precedence preserved (#977) + single env notice, QF-B disclosure adequate,
+  no secrets, caps/scripts/pyproject untouched. Report: AUDIT-e02-e02s03.md in worktree.
+- A10 routed (never blocking): R1 73→72 console.print; R2 74/426/12609 → 75/428/12612;
+  R3 "widest 39" defends to 37 (docs state 31 — no change); R4 NEW README:193
+  "walkthrough ends with" → Step 5b of 1-8; R5 NEW Signal 1 "2×" → ~1.8×; R6 NEW
+  CHANGELOG:29 thin-report WARNING claim wrong (held via low-confidence, no WARNING;
+  README:272 is the model). O2 epic-close: AGENTS.md "1460-line module" → 1276;
+  tech-stack Signal 2 + gate= term. O1 pre-existing: check-import-boundaries.sh fails
+  repo-wide (import-boundaries.json untracked; boundary manually clean) — tooling gap
+  stays routed post-e02.
+- ORCHESTRATOR DECISION: because this is the DOCS story and R4/R6 are user-facing
+  behavior misstatements, land ONE docs-only fix-forward commit (R1/R2/R4/R5/R6 + O2;
+  R3 needs no edit) BEFORE steps 7-8 — dispatched to the SAME develop id as step 4
+  round 2, then a delta-only gate round 2 (new commits land ⇒ re-gate per the gate's
+  own rule).
+- state: epic_cycle.step=4 (root+worktree) during the fix round.
