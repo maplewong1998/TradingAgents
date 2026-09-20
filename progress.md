@@ -23,8 +23,8 @@
 
 - Resident `develop` ran tasks 1-9 of specs/epics/e02-conditional-debate-gate/e02s01-tasks.yaml.
   All 9 verify commands exit 0; ledger flipped `failing` -> `passing` (sp ecs/epics/e02-conditional-debate-gate/e02s01-tasks.yaml).
-- TDD commits: `737a3b4` test-only RED (fails in isolation, verified via
-  scripts/verify-tdd-red-commit.sh), `c76a862` feat GREEN. No merge, no push, no PR.
+- TDD commits: `114f769` test-only RED (fails in isolation, verified via
+  scripts/verify-tdd-red-commit.sh), `2fb2bcb` feat GREEN. No merge, no push, no PR.
 - Preflight: 995 passed, 2 skipped (baseline 946+2; +49 new in tests/test_debate_gate.py); `ruff check .` clean.
 - Plan divergences recorded in specs/state.yaml handoff.note (schemas.py at file-size cap ->
   gate schemas module + re-export; conservative skip predicate = high confidence + bullish/bearish;
@@ -68,3 +68,91 @@
   specs/state.yaml vcs.head -> 45c7799.
 - Accepted divergences kept: gate schemas module + re-export (file-size cap), byte-identical held-debate
   RM paragraph (#1321 pin) and "aligned" wording in the gate-failure marker.
+
+## 2026-09-20 — correction landed; step 5 dispatched
+
+- develop correction PASS (spot-checked by orchestrator: debate_gate.py:144-146 now
+  `not evidence_aligned or confidence=="low" or aligned_direction not in ("bullish","bearish")`;
+  tip 6a9f155; Preflight 1000 passed / 2 skipped, ruff clean). Commits 23f69fa (RED pin) +
+  45c7799 (fix) + 6a9f155 (specs).
+- state.yaml: epic_cycle.step=5, handoff.next_skill=verify-work, vcs.head=6a9f155.
+- Resident verify started: a4c5424f-558b-4077-a6ce-447714a61b90 (step 5, verify-work
+  round 1, read-only judge; re-runs preflight, all 9 task verifies, spec §Verification
+  Script incl. offline smoke, §17 acceptance-criteria audit, regression spot-checks).
+- Roster now: develop=2be0d4e9-…, verify=a4c5424f-…, gate=null, story_ops=n/a.
+
+## 2026-09-20 — verify PASS (round 1); gate dispatched
+
+- verify (a4c5424f-558b-4077-a6ce-447714a61b90) step 5 round 1: PASS, all 7 phases;
+  Preflight 1000 passed / 2 skipped, ruff clean; all §17 scenarios asserted with
+  substance; regressions 89 passed; house rules clean. Read-only — wrote nothing.
+- Orchestrator wrote specs/verifications/e02s01-verify.yaml (evidence + 4 non-blocking
+  findings + A10 record-integrity notes) since verify is read-only by dispatch.
+- A10 routing: spec 'status: failing' flips at landing; §17 P0-04 direction-clause
+  wording noted for e02s03 docs pass; tasks file predates gate/schemas.py split. None
+  gate-blocking.
+- state.yaml: epic_cycle.step=6, handoff.next_skill=audit-code.
+- Resident gate started: 819cb80f-4f31-40ec-97bf-72bfbac92137 (audit-code --gate +
+  >=94% AND gate over git diff 534782e..HEAD, A10 scoping, ruled divergences excluded).
+- Roster: develop=2be0d4e9-…, verify=a4c5424f-…, gate=819cb80f-…, story_ops=n/a.
+- Pending fix-forward bundle for develop (post-gate, before landing): verify's findings
+  1+2 (strict-sequence assertion; never-mode marker wording) — decide with gate output.
+
+## 2026-09-20 — gate round 1 PASS (98/100); pre-landing fix round dispatched to develop
+
+- gate (819cb80f-4f31-40ec-97bf-72bfbac92137) round 1: PASS, score 98 (40/41),
+  hard sections code/test/security PASS, 0 HIGH security findings, F.I.R.S.T 3/3.
+  Full report: specs/verifications/AUDIT-e02-e02s01.md. Preflight independently
+  reproduced 14x green. All three adjudicated rulings verified in code.
+- One scored non-blocking FAIL: trading_graph.py grew 672→696 while under
+  CONVENTIONS §File-Size Exceptions (AGENTS.md Never list) — orchestrator decision:
+  NOT landed on main; fixed pre-landing instead.
+- Orchestrator ruling: five-item fix round to the SAME develop id (step 4 round 2):
+  (1) extract _coerce_debate_gate out of trading_graph.py (≤672 lines); (2) flake
+  fix-or-log BOTH as a separate commit (BUG spec + registry entry + tmp_path/setUp
+  hermeticity fix for tests/test_no_data_handling.py TestLoadOhlcvNoPoison);
+  (3) _fail_safe str-vs-Exception annotation; (4) reword never-mode policy-skip
+  marker (gate LOW finding, before e02s02 consumes it); (5) strict sequence-equality
+  for the :826 'always' test vs pinned pre-story baseline.
+- DEFERRED: e02s02 _run_signature mirroring (in e02s02 scope), state[...] KeyError
+  cosmetic, _judge_prompt extraction advisory, record-integrity A10 items (spec
+  status flips at landing; §17 P0-04 direction clause + Zoom-Out omissions → e02s03
+  docs pass; infra notes: import-boundaries.json absent, trace-stories --strict
+  baseline mismatch, CONVENTIONS §Tests F.I.R.S.T enumeration gap).
+- state.yaml: epic_cycle.step=4, next_skill=develop-tdd during the fix round.
+- Plan: develop PASS → gate round 2 (delta-only re-check per gate's own offer) →
+  trace refresh (scripts/trace-stories.sh exists) → story_ops step 7/8 → land.
+
+## 2026-09-20 — e02s01 step 4 pre-landing FIX ROUND (round 2): five items landed
+
+- Item 1 (the scored FILE-SIZE-CAP FAIL): the facade is back under its cap.
+  `trading_graph.py` 696 -> **651** lines. The gate validator moved to
+  `agents/gate/debate_gate.py::coerce_debate_gate_mode` (beside DEBATE_GATE_MODES) and the
+  `llm_max_retries` / `max_tokens` coercers to `graph/config_validation.py`, re-imported so
+  existing imports and tests keep working. The `TradingAgentsGraph.__init__` validation call and
+  the SC-e02s01-P1-02 contract are unchanged (audit guidance #1; the audit's own second home).
+  The strict reading of the orchestrator's item 1 (call stays in the facade, gate-only extraction)
+  cannot reach <=672: the frozen baseline IS exactly 672, so a 4-line in-facade footprint is
+  impossible without freeing lines elsewhere — hence the second extraction.
+- Item 2 (discovered defect, BOTH log + fix): `tests/test_no_data_handling.py::TestLoadOhlcvNoPoison`
+  was non-hermetic (fixed `tests/_tmp_cache` path, no purge). Reproduced DETERMINISTICALLY by
+  planting a fresh `FAKE-YFin-data.csv` in that path -> "NoMarketDataError not raised" (the cached
+  file is served), self-healing in tearDown = the observed 1-in-15 pattern. Fixed with
+  `tempfile.mkdtemp` per test + `shutil.rmtree`; assertions unchanged; planted file no longer
+  affects it. Logged as BUG-2026-09-20-no-data-handling-nonhermetic-cache + registry.yaml entry.
+- Item 3: `_fail_safe` annotation widened to `Exception | str` (the
+  "provider does not support structured output" call site passes a str).
+- Item 4 (TDD, test-first): never-mode now renders `render_policy_skip_marker`, which names the
+  configuration, states that no Debate Gate judge was consulted and that the run carries no
+  alignment finding — the old path fed the RM the judge-path marker claiming "reports are aligned
+  (unclear) at medium confidence" with no judge. Judge-path marker and held-debate RM paragraph
+  untouched; RM still gets a non-empty marker and a parseable 5-tier rating.
+- Item 5: the always-mode node-sequence test now asserts STRICT equality against a baseline pinned
+  from an independent run of the frozen pre-story code (`git archive 534782e | tar -x`, same stub
+  harness, its setup.py has no "Debate Gate"), with the gate hop counted exactly once.
+- Commits: c0e46ba (item 1) · cc71f9f (item 2) · 7a5d639 test-only + 4d675a5 fix (items 4/3) ·
+  cee9452 (item 5). RED isolation re-verified for the round-2 pair (7a5d639 fails in isolation).
+- Verifies re-run on the final tree: all nine task verifies exit 0; full Preflight
+  1002 passed, 2 skipped; ruff clean. Ledger 9 passing / 0 failing; counters unchanged.
+- Deferred as instructed: e02s02 `_run_signature` mirroring, the state[...] KeyError cosmetic and
+  the _judge_prompt extraction advisory.
