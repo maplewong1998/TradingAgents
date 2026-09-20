@@ -4,7 +4,7 @@ development_status:
   e01s02: done
   e02: in_progress
   e02s01: done
-  e02s02: in_progress
+  e02s02: done
   e02s03: todo
 epics:
   e01:
@@ -56,16 +56,25 @@ stories:
     attributed_by_trailer: true   # `Story: e02s01` trailer on d7557e4
     landed_via: 'step 8 — squash-merged to main d7557e4 and pushed to origin (CI unverified: gh absent)'
   e02s02:
-    status: in_progress
+    status: done
     title: Checkpoint policy keying + CLI surface (prompt step, skipped status, report
       section)
     bcps: 5
     epic: e02
     tasks_total: 6
-    tasks_passing: 0
-    tasks_failing: 6
+    tasks_passing: 6
+    tasks_failing: 0
     risk_max: P1
     started_at: '2026-09-20T07:42:23Z'
+    completed_at: '2026-09-20T08:33:00Z'
+    # Wall-clock cycle time (story_start → step-8 write), the same basis as e02s01. The
+    # git-hours column is deliberately not claimed: it degenerates to 0.0 on a squash landing
+    # (e02s01) and was not measured on this push-only branch.
+    cycle_minutes: 55.5
+    bcp_per_hour: 5.41              # 5 bcps / 55.5 min * 60 — wall-clock basis
+    cycle_time_source: wall-clock
+    landed_via: 'step 8 — branch feat/e02s02 pushed to origin for a PR decision; NOT merged
+      (gh absent, so the merge stays the user Safety gate; CI unverified)'
   e02s03:
     status: todo
     title: Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack,

@@ -6,7 +6,7 @@
 **risk:** P1 (checkpoint resume correctness + user-visible display)
 **context:** domain
 **bcps:** 5
-**status:** failing (e45s06 ledger)
+**status:** done (e45s06 ledger 6/6 passing; verified 9/9 phases, gate 100/100)
 
 **Context:** e02s01 made the debate conditional at the library level. This story makes the
 policy safe across **resumed** runs and visible to **interactive** users: the gate mode

@@ -934,3 +934,190 @@ def test_gate_failure_end_to_end_falls_back_to_the_debate():
         visited, _final = _run(graph)
     assert BULL in visited
     assert BEAR in visited
+
+
+# ---------------------------------------------------------------------------
+# Report surface (e02s02, SC-e02s02-P2-02)
+#
+# The gate's outcome reaches the saved report tree and the on-screen report.
+# Skip vs held is read from the debate transcript, never from the
+# ``debate_gate_verdict`` marker: the held path writes that key too, with the same
+# sentence, so its presence cannot discriminate (spec e02s02-checkpoint-cli.md:55
+# is ruled wrong on this point).
+# ---------------------------------------------------------------------------
+
+
+def _report_state(**debate):
+    """A completed run's final state, shaped as ``propagate`` leaves it."""
+    return {
+        "market_report": "MKT",
+        "news_report": "NEWS",
+        "investment_plan": "RM PLAN",
+        "trader_investment_plan": "TRADE",
+        "risk_debate_state": {"judge_decision": "PM DECISION"},
+        "investment_debate_state": {
+            "bull_history": "", "bear_history": "", "history": "",
+            "current_response": "", "judge_decision": "RM PLAN", "count": 0,
+            **debate,
+        },
+    }
+
+
+def _complete_report(state, tmp_path) -> str:
+    from tradingagents.reporting import write_report_tree
+
+    return write_report_tree(state, "NVDA", tmp_path).read_text(encoding="utf-8")
+
+
+@pytest.mark.unit
+def test_report_tree_states_a_skipped_debate_with_its_rationale(tmp_path):
+    # scenario: SC-e02s02-P2-02 — the gate's alignment finding reaches the report,
+    # so a reader can tell why no debate transcript exists.
+    from tradingagents.agents.schemas import render_debate_gate_marker
+
+    marker = render_debate_gate_marker(_hold_verdict())
+    state = _report_state(
+        history=marker, current_response=marker, debate_gate_verdict=marker
+    )
+
+    report = _complete_report(state, tmp_path)
+
+    assert "Debate Gate" in report
+    assert _hold_verdict().rationale in report
+    assert "bullish" in report  # the direction the gate found
+
+
+@pytest.mark.unit
+def test_report_tree_counts_a_held_debate_in_turns(tmp_path):
+    # scenario: SC-e02s02-P2-02 — a held debate reports its turn count, and the
+    # marker the held path also writes must not turn it into a "skipped" report.
+    from tradingagents.agents.schemas import render_debate_gate_marker
+
+    held_marker = render_debate_gate_marker(_debate_verdict())
+    state = _report_state(
+        bull_history="BULL ARGUMENT",
+        bear_history="BEAR ARGUMENT",
+        history="BULL ARGUMENT\nBEAR ARGUMENT",
+        current_response="BEAR ARGUMENT",
+        count=2,
+        debate_gate_verdict=held_marker,
+    )
+
+    report = _complete_report(state, tmp_path)
+
+    assert "Debate Gate" in report
+    assert "Debate held (2 turns)" in report
+    assert "skipped" not in report.lower()
+
+
+@pytest.mark.unit
+def test_report_tree_names_a_configuration_skip(tmp_path):
+    # scenario: SC-e02s02-P2-02 — debate_gate=never: no judge ran, and the report
+    # says the configuration disabled the debate instead of inventing a finding.
+    from tradingagents.agents.gate.schemas import render_policy_skip_marker
+
+    marker = render_policy_skip_marker("debate_gate=never")
+    state = _report_state(history=marker, current_response=marker, debate_gate_verdict=marker)
+
+    report = _complete_report(state, tmp_path).lower()
+
+    assert "debate gate" in report
+    assert "skipped by configuration" in report
+    assert "debate_gate=never" in report
+
+
+@pytest.mark.unit
+def test_report_tree_omits_the_gate_section_when_nothing_was_recorded(tmp_path):
+    # A state that predates the gate (or a partial one built by an API caller) has
+    # no outcome to report: an invented "held (0 turns)" would be a false claim.
+    report = _complete_report(_report_state(), tmp_path)
+    assert "Debate Gate" not in report
+
+
+@pytest.mark.unit
+def test_the_complete_report_display_carries_the_gate_section(monkeypatch):
+    # scenario: SC-e02s02-P2-02 — the same section, on screen, where the user
+    # reads the run's outcome.
+    from io import StringIO
+
+    from rich.console import Console
+
+    import cli.complete_report as complete_report
+    from tradingagents.agents.schemas import render_debate_gate_marker
+
+    marker = render_debate_gate_marker(_hold_verdict())
+    state = _report_state(
+        history=marker, current_response=marker, debate_gate_verdict=marker
+    )
+    rendered = StringIO()
+    monkeypatch.setattr(complete_report, "console", Console(file=rendered, width=100))
+
+    complete_report.display_complete_report(state)
+
+    shown = rendered.getvalue()
+    assert "Debate Gate" in shown
+    assert "All four reports point the same way." in shown
+
+
+# ---------------------------------------------------------------------------
+# Gate decisions are observable at INFO (e02s02, SC-e02s02-P3-01)
+#
+# The frozen scenario asks for the verdict + rationale at INFO *with the ticker
+# context*, matching the failure WARNING. A decision nobody can attribute to an
+# instrument is not auditable in a log that interleaves concurrent runs.
+# ---------------------------------------------------------------------------
+
+_GATE_LOGGER = "tradingagents.agents.gate.debate_gate"
+
+
+def _info_text(caplog) -> str:
+    infos = [r for r in caplog.records if r.levelno == logging.INFO]
+    assert infos, "the gate decision must be observable at INFO, not only on failure"
+    return " ".join(r.getMessage() for r in infos)
+
+
+@pytest.mark.unit
+def test_gate_logging_names_the_ticker_and_the_rationale_on_a_skip(caplog):
+    # scenario: SC-e02s02-P3-01 — skip: the alignment finding and whose run it is.
+    llm = _GateLLM(result=_hold_verdict())
+    state = _state(company_of_interest="MSFT")
+
+    with _policy("auto"), caplog.at_level(logging.INFO, logger=_GATE_LOGGER):
+        command = create_debate_gate(llm)(state)
+
+    assert _routed(command) == RM
+    text = _info_text(caplog)
+    assert _hold_verdict().rationale in text
+    assert "MSFT" in text
+    # A skip is a decision, not a failure: nothing here is a warning.
+    assert not [r for r in caplog.records if r.levelno >= logging.WARNING]
+
+
+@pytest.mark.unit
+def test_gate_logging_names_the_ticker_on_a_policy_skip(caplog):
+    # scenario: SC-e02s02-P3-01 — the configuration path logs too (no judge call).
+    llm = _GateLLM(result=_hold_verdict())
+    state = _state(company_of_interest="TSLA")
+
+    with _policy("never"), caplog.at_level(logging.INFO, logger=_GATE_LOGGER):
+        command = create_debate_gate(llm)(state)
+
+    assert _routed(command) == RM
+    assert llm.invocations == 0
+    text = _info_text(caplog)
+    assert "TSLA" in text
+    assert "never" in text  # which policy stopped it
+
+
+@pytest.mark.unit
+def test_gate_logging_warning_still_names_the_ticker_on_failure(caplog):
+    # The failure path was already correct; the INFO half had to catch up to it.
+    llm = _GateLLM(error=RuntimeError("provider exploded"))
+
+    with _policy("auto"), caplog.at_level(logging.INFO, logger=_GATE_LOGGER):
+        command = create_debate_gate(llm)(_state(company_of_interest="NVDA"))
+
+    assert _routed(command) == BULL
+    warnings = [r for r in caplog.records if r.levelno >= logging.WARNING]
+    assert warnings
+    assert any("NVDA" in r.getMessage() for r in warnings)

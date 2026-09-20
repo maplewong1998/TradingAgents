@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-20T05:33:08.328341+00:00",
+  "generated_at": "2026-09-20T08:30:17.512069+00:00",
   "matrix_version": "1.0",
   "stories": [
     {
@@ -63,14 +63,8 @@
       "epic_title": "Conditional Bull/Bear Debate Gate",
       "bcp": 0,
       "wsjf": 4.8,
-      "status": "in_progress",
+      "status": "done",
       "links": [
-        {
-          "file": "tests/test_debate_gate.py",
-          "line": 1,
-          "confidence": "high",
-          "method": "explicit_tag"
-        },
         {
           "file": "specs/bugs/BUG-2026-09-20-no-data-handling-nonhermetic-cache.md",
           "line": 3,
@@ -78,8 +72,38 @@
           "method": "explicit_tag"
         },
         {
-          "file": "specs/verifications/e02s01-verify.yaml",
-          "line": 5,
+          "file": "specs/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md",
+          "line": 89,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/epics/e02-conditional-debate-gate/e02s01-tasks.yaml",
+          "line": 11,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md",
+          "line": 88,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s01-tasks.yaml",
+          "line": 11,
           "confidence": "high",
           "method": "explicit_tag"
         },
@@ -96,46 +120,28 @@
           "method": "explicit_tag"
         },
         {
-          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s01-tasks.yaml",
-          "line": 11,
-          "confidence": "high",
-          "method": "explicit_tag"
-        },
-        {
-          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md",
-          "line": 3,
-          "confidence": "high",
-          "method": "explicit_tag"
-        },
-        {
-          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md",
-          "line": 88,
-          "confidence": "high",
-          "method": "explicit_tag"
-        },
-        {
-          "file": "specs/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md",
-          "line": 3,
-          "confidence": "high",
-          "method": "explicit_tag"
-        },
-        {
-          "file": "specs/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md",
-          "line": 88,
-          "confidence": "high",
-          "method": "explicit_tag"
-        },
-        {
-          "file": "specs/epics/e02-conditional-debate-gate/e02s01-tasks.yaml",
-          "line": 11,
-          "confidence": "high",
-          "method": "explicit_tag"
-        },
-        {
-          "file": "specs/fleet-agents.yaml",
+          "file": "specs/verifications/e02s01-verify.yaml",
           "line": 5,
           "confidence": "high",
           "method": "explicit_tag"
+        },
+        {
+          "file": "tests/test_debate_gate.py",
+          "line": 1,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/bugs/BUG-2026-09-20-no-data-handling-live-vendor-probe.md",
+          "line": 0,
+          "confidence": "medium",
+          "method": "file_heuristic"
+        },
+        {
+          "file": "specs/conventions-wiki/dependencies-tradingagents.md",
+          "line": 0,
+          "confidence": "medium",
+          "method": "file_heuristic"
         },
         {
           "file": "tests/test_vendor_errors.py",
@@ -160,9 +166,15 @@
           "line": 0,
           "confidence": "medium",
           "method": "file_heuristic"
+        },
+        {
+          "file": "specs/epics/e02-conditional-debate-gate/e02s02-tasks.yaml",
+          "line": 0,
+          "confidence": "low",
+          "method": "task_reference"
         }
       ],
-      "link_count": 16
+      "link_count": 18
     },
     {
       "id": "e02s02",
@@ -171,10 +183,16 @@
       "epic_title": "Conditional Bull/Bear Debate Gate",
       "bcp": 0,
       "wsjf": 4.8,
-      "status": "todo",
+      "status": "in_progress",
       "links": [
         {
-          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s02-checkpoint-cli.md",
+          "file": "specs/IMPACT-e02-e02s02.md",
+          "line": 4,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/bugs/BUG-2026-09-20-no-data-handling-live-vendor-probe.md",
           "line": 3,
           "confidence": "high",
           "method": "explicit_tag"
@@ -186,13 +204,37 @@
           "method": "explicit_tag"
         },
         {
+          "file": "specs/fleet-agents.yaml",
+          "line": 8,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s02-checkpoint-cli.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/agent-locks.yaml",
+          "line": 11,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/state.yaml",
+          "line": 57,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
           "file": "specs/epics/e02-conditional-debate-gate/e02s02-tasks.yaml",
           "line": 0,
           "confidence": "low",
           "method": "task_reference"
         }
       ],
-      "link_count": 3
+      "link_count": 8
     },
     {
       "id": "e02s03",
@@ -204,13 +246,13 @@
       "status": "todo",
       "links": [
         {
-          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s03-docs.md",
+          "file": "specs/epics/e02-conditional-debate-gate/e02s03-docs.md",
           "line": 3,
           "confidence": "high",
           "method": "explicit_tag"
         },
         {
-          "file": "specs/epics/e02-conditional-debate-gate/e02s03-docs.md",
+          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s03-docs.md",
           "line": 3,
           "confidence": "high",
           "method": "explicit_tag"
@@ -252,13 +294,14 @@
     "orphan_count": 0,
     "stale_tags": [
       "e01s01",
-      "e01s02"
+      "e01s02",
+      "e02s01"
     ],
-    "stale_count": 2,
+    "stale_count": 3,
     "oracle_stats": {
-      "high": 20,
-      "medium": 8,
-      "low": 2
+      "high": 24,
+      "medium": 10,
+      "low": 3
     }
   }
 }

@@ -2,7 +2,7 @@ id: e02
 title: Conditional Bull/Bear Debate Gate
 wsjf: 4.8          # (BV 8 + TC 5 + RR 6) / JS 4 — savings on every aligned run, default-behavior change, checkpoint/CLI coupling
 total_bcps: 16
-status: in_progress   # e02s01 done 2026-09-20; e02s02/e02s03 remain (mirrors execution-status.yaml)
+status: in_progress   # e02s01 done, e02s02 done 2026-09-20 (branch pushed, awaiting the user merge); e02s03 remains (mirrors execution-status.yaml)
 note: >-
   Gate the investment debate on evidence tension (grill-with-docs confirmed
   2026-09-20): LLM-judge node with Command routing, default auto with
@@ -20,7 +20,7 @@ stories:
   - id: e02s02
     title: "Checkpoint policy keying + CLI surface (prompt step, skipped status, report section)"
     bcps: 5
-    status: todo
+    status: done          # verified 9/9 phases (2 rounds), gate 100/100; branch pushed for a PR decision, not merged; mirrors execution-status.yaml
     delta: MODIFIED   # run signature + CLI display/report behavior
     spec: e02s02-checkpoint-cli.md
     tasks: e02s02-tasks.yaml

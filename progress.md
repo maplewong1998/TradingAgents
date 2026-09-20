@@ -456,6 +456,38 @@ and the compare URL emitted for manual PR creation. `main` untouched
   task-1 _run_signature requirement, Story: e02s02 trailer, serial-suite + ps ritual,
   flake --tb=long capture rule, ledger flips require new RED node-ID citations (D3).
 
+## e02s02 STEP 4 (develop-tdd), round 1 — 2026-09-20 (resident `develop`)
+
+- Worktree `.worktrees/e02s02` @ `feat/e02s02`, own venv. Six tasks run RED-first, in
+  frozen order, each flip citing the new test node IDs (ruling D3).
+- Commits (`Story: e02s02` trailer on each; no merge, no push):
+  - `chore(specs)` cockpit pickup (orchestrator's epic_cycle.step=4, untouched)
+  - T1 `test(graph)` RED 6c4a702 → `feat(graph)` bcf0352 — `gate=<mode>` joins
+    `_run_signature` (one line; trading_graph.py 651 → 652).
+  - T2 `test(cli)` RED 790cea3 → `feat(cli)` da4c0b9 — new `cli/gate_policy.py`
+    (prompt step 5b, env precedence) + `debate_gate` in `cli/prefs.py`; report
+    surfaces moved unchanged to `cli/complete_report.py` to satisfy the 1460 cap
+    (main.py 1460 → 1407).
+  - T3 `test(cli)` RED 1950fc1 → `feat(cli)` 3257359 — new `cli/stream_handler.py`
+    owns the per-chunk status mapping; `skipped` is terminal for Bull/Bear
+    (main.py → 1276).
+  - T4 `test(reporting)` RED a772d4f → `feat(reporting)` 265d820 —
+    `render_debate_gate_section` in `tradingagents/reporting.py`, used by the saved
+    report tree and the CLI complete-report display.
+  - T5 `test(cli)` bfe3b9c — end-to-end auto-mode skip through the CLI surfaces.
+- Preflight (T6): 1021 passed / 2 skipped / 88 subtests, ruff clean, twice.
+  FLAKE SIGHTING #4: the first run of this leg failed the known one-shot
+  `TestLoadOhlcvNoPoison` case; the isolated `--tb=long` capture attempt PASSED
+  (no traceback) and both full runs after it were green. Routed, not a story defect.
+- Rulings applied: D1 (skip-vs-held keyed on the debate transcript via
+  `cli.stream_handler.debate_was_skipped` and `reporting.render_debate_gate_section`,
+  never on `debate_gate_verdict` presence/text — spec line 55 ruled wrong), D2 (the
+  report re-renders the persisted marker; no new AgentState field), D3 (per-task
+  `red_tests:`/`added_tests:` evidence in the ledger), D4 (all new CLI code in new
+  modules; `cli/main.py` shrank by 184 lines), D5 (no fabricated RED for the
+  already-landed P3-01 logging), D6 (ledger verify commands authoritative).
+- NEXT: step 5 verify-work.
+
 ## 2026-09-20 — e02s02 develop r1 PASS; verify dispatched
 
 - develop (143f1446) step 4 r1: PASS 6/6 in worktree, tip e9d4f26, 13 commits all with
@@ -501,6 +533,33 @@ and the compare URL emitted for manual PR creation. `main` untouched
 - state: epic_cycle.step=4 (root+worktree), next_skill=develop-tdd. develop round 2
   sent to SAME id 143f1446-0771-4331-b357-6fbe7b0ca67b.
 
+## e02s02 STEP 4 (develop-tdd) ROUND 2 — 2026-09-20 (resident `develop`)
+
+- Trigger: verify round 1 failed the acceptance-criteria phase — SC-e02s02-P3-01's INFO
+  half (frozen test plan:47) was unmet: no INFO assertion existed and both INFO log lines
+  lacked the ticker context the failure WARNING already carried. Waiver denied by the
+  orchestrator.
+- FIX 1 (story scope, TDD): `909a7b5` test RED (three INFO/WARNING assertions under
+  `-k 'report or logging'`; 2 failed) → `7526937` fix(agents) — both INFO lines
+  (judge skip, configuration skip) name the instrument through a shared `_instrument(state)`
+  helper; the WARNING message and level are untouched. Task 4 verify: 10 passed.
+- FIX 2 (quick-fix, NOT story scope): `7aae193` — sighting #4 of the intermittent
+  `TestLoadOhlcvNoPoison` failure is root-caused: `raise_for_empty`
+  (stockstats_utils.py:38) probes the live network via `utils.vendor_reachable`
+  (`requests.head`, 5s), and a transient failure raises `VendorRateLimitError` — a sibling
+  of `NoMarketDataError`, not a subclass — instead of the asserted exception. Capture on
+  the untouched baseline tree (main 5c7a9ac, full-suite `--tb=long`) is
+  /tmp/e02s02_baseline_run.txt; both deterministic reproductions and the pre/post-fix
+  evidence are in `specs/bugs/BUG-2026-09-20-no-data-handling-live-vendor-probe.md`.
+  Test-only fix (stub the probe in setUp); assertion and production behavior unchanged.
+  `tests/_tmp_cache` gitignore follow-up stays open (rides to e02s03/quick-fix).
+- Round-2 verifies (serial, behind the ps concurrency pre-check): T1 15, T2 32, T3 21,
+  T4 10, T5 2, `tests/test_no_data_handling.py` 3 passed; full Preflight
+  `1024 passed / 2 skipped / 88 subtests` + ruff "All checks passed!", exit 0.
+- A10 routed record-integrity notes recorded in the ledger `round2.record_integrity`
+  block (T2/T3 green follow-ups ed6d53e/bfe3b9c, T4's RED import-path correction,
+  T5's corrected isolation citation).
+- NEXT: verify-work round 2.
 ## 2026-09-20 — e02s02 develop r2 PASS; verify r2 dispatched
 
 - develop (143f1446) round 2: PASS, tip efb7517. FIX 1 (story, RED-first 909a7b5 →
@@ -564,3 +623,20 @@ and the compare URL emitted for manual PR creation. `main` untouched
   push branch + compare URL, bookkeeping incl. capsule mirroring in the same pass
   (G-12 lesson) and the main-drift note (branch copy of state.yaml authoritative at
   landing; origin/main 59fe040 vs base 5c7a9ac).
+## 2026-09-20 — e02s02 steps 7-8 PASS (landed=false); user Safety gate: MERGE COMMIT
+
+- story_ops: PR title feat(cli): add the debate-gate policy step and skipped-debate
+  surfaces (MINOR); body at specs/verifications/e02s02-pr-body.md; hygiene 94299b6
+  (AUDIT report + trace artifacts + state reconcile); bookkeeping 2333a1b (e02s02
+  done, 55.5 min wall-clock → 5.41 BCP/h, capsule mirrored same-pass, lock released,
+  e02s03 handoff + routed queue). origin/feat/e02s02 = 2333a1b. origin/main = 3bb54bd.
+- USER DECISIONS (ask_user_question): merge_e02s02 = "Merge commit locally" (preserve
+  git-effort metrics); next_e02s03 = "proceed automatically".
+- Landing dispatched to SAME story_ops id: --no-ff merge with feat subject + Story
+  trailer; conflict rule = branch-authoritative state.yaml/agent-locks, union
+  progress.md, root-newer fleet-agents; Preflight on main green before push; push
+  origin main; bookkeeping (pr.merged, cycle-time re-attribution via trailers,
+  landed_via); worktree removal after merge (ancestry + no tracked changes checked);
+  branches kept; no tag.
+- After landed=true: open e02s03 cycle (roster begin e02s03 e02, lock, step 1, new
+  story_ops for steps 1-2) carrying the consolidated routed queue.
