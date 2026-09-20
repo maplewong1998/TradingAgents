@@ -397,6 +397,31 @@ def test_missing_policy_falls_back_to_auto():
 
 
 @pytest.mark.unit
+def test_never_policy_marker_does_not_claim_a_judge_alignment_finding():
+    # scenario: SC-e02s01-P1-05 — nobody judged this run, so the marker the RM
+    # reads must not report an alignment verdict that was never reached. The
+    # judge-path wording (which does report one) stays as it is.
+    llm = _GateLLM(result=_hold_verdict())
+    with _policy("never"):
+        command = create_debate_gate(llm)(_state())
+    assert _routed(command) == RM
+    assert llm.invocations == 0
+    update = _update(command)
+    marker = update["investment_debate_state"]["history"]
+    assert marker.strip()
+    assert marker == update["debate_gate_verdict"]
+    # It must not claim the reports ARE aligned (the judge-path wording), and it
+    # must say plainly that no alignment finding exists.
+    assert "are aligned" not in marker.lower()
+    assert "no alignment finding" in marker.lower()
+    assert "never" in marker.lower()
+    # It states outright that nobody judged this run.
+    assert "no debate gate judge was consulted" in marker.lower()
+    # ...whereas the judge path still reports what the judge actually decided.
+    assert "aligned" in render_debate_gate_marker(_hold_verdict()).lower()
+
+
+@pytest.mark.unit
 def test_unknown_policy_never_skips_the_debate():
     # A mode the graph did not validate must not become an accidental skip.
     llm = _GateLLM(result=_hold_verdict())
@@ -547,8 +572,8 @@ def _held_state():
     )
 
 
-def _skipped_state():
-    marker = render_debate_gate_marker(_hold_verdict())
+def _skipped_state(marker=None):
+    marker = marker or render_debate_gate_marker(_hold_verdict())
     return _state(
         debate_gate_verdict=marker,
         investment_debate_state={
@@ -605,6 +630,24 @@ def test_research_manager_skip_path_prompt_tells_the_model_what_to_do():
     text = _prompt_text(captured["prompt"]).lower()
     assert "aligned" in text
     assert "do not" in text or "never" in text
+
+
+@pytest.mark.unit
+def test_policy_skip_reaches_the_rm_with_a_marker_and_a_five_tier_rating():
+    # scenario: SC-e02s01-P1-05 — a never-mode skip never asks a judge, so the
+    # RM must still get a non-empty marker and still return a parseable rating.
+    from tradingagents.graph.signal_processing import SignalProcessor
+
+    gate_llm = _GateLLM(result=_hold_verdict())
+    with _policy("never"):
+        command = create_debate_gate(gate_llm)(_state())
+    marker = _update(command)["debate_gate_verdict"]
+    assert marker.strip()
+
+    captured = {}
+    plan = create_research_manager(_rm_llm(captured))(_skipped_state(marker))["investment_plan"]
+    assert SignalProcessor().process_signal(plan) in RATINGS_5_TIER
+    assert marker in _prompt_text(captured["prompt"])
 
 
 # ---------------------------------------------------------------------------
