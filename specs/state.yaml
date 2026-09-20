@@ -45,70 +45,58 @@ metrics:
 epic_cycle:
   ship_epic_step: null
   story_bcps: 5
-  step: 3
+  step: 4
   completed_steps: 1,2
   audit_result: null
   verify_result: null
   story_status: in_progress
   story: e02s02
   metrics:
-    story_start: '2026-09-20T07:37:31Z'   # orchestrator seeded at dispatch; confirmed by step 1 (survey 07:42Z)
+    story_start: '2026-09-20T07:37:31Z'
 handoff:
-  next_skill: kickoff-branch
-  note: >-
-    e02s02 steps 1-2 PASS (2026-09-20 07:42-07:5xZ, main @ 90d16be). Step 1 survey-context:
-    active_flow=build_epic, epic e02 in_progress, story e02s02 opened (execution-status
-    started_at 2026-09-20T07:42:23Z; epic_cycle.metrics.story_start confirmed 07:37:31Z);
-    validate-specs-yaml OK, check-spec-drift OK (5 clean), phase Execute, no blocker.
-    Step 2 plan-work VERIFICATION of the FROZEN plan (no re-plan; capsule artifacts still
-    byte-identical to specs/product/snapshots/release-0.6.0/): 6/6 tasks carry a runnable
-    verify: + risk: + status: failing (e45s06 ledger), all six e02s02 scenario IDs
-    (P1-01, P1-02, P2-01, P2-02, P2-03, P3-01) are covered, plan-consistency-check PASS
-    (CRITICAL=0 HIGH=0 MED=0), assess-impact --lightweight risk score 5/10 (no grill-me
-    gate) recorded in specs/IMPACT-e02-e02s02.md, missing step-0 artifact produced at
-    specs/security/epics/e02/THREAT_MODEL.md (epic risk LOW-MEDIUM, 0 HIGH, mitigations listed).
-    MANDATORY CHECK SATISFIED: the graph-shape mirroring into _run_signature is covered by
-    frozen task 1 (adds gate=<mode>, tests signature-differs-across-modes + resume-fresh +
-    same-mode-resumes) per AUDIT-e02-e02s01.md fix 7 / IMPACT_LATEST.md:48.
-    DRIFT (reported, frozen artifacts NOT rewritten): (1) e02s02-checkpoint-cli.md:55 tells
-    develop to key the `skipped` status on `debate_gate_verdict`, but the CLI streams
-    stream_mode="values" (graph/propagation.py:87) and the HELD path also writes that key
-    (agents/gate/debate_gate.py:158-164) with marker text that starts "Debate skipped by the
-    Debate Gate" (agents/gate/schemas.py:66) — presence/text cannot discriminate. Task 3's
-    wording (route to Research Manager) is correct; implementable discriminators are
-    investment_debate_state.history non-empty only on _skip/_skip_by_policy models
-    (:182-192,199-209) or count==0 before the RM decision. Same hazard for the report section:
-    classify skip vs held by count/bull-bear history, never by marker text or presence.
-    (2) e02s02-checkpoint-cli.md:41-44 asks the report to render "verdict, direction,
-    confidence, rationale" as fields, but nothing structured is persisted — only the rendered
-    marker string (schemas.py:56-72, agent_states.py:73); rendering the marker under a Debate
-    Gate heading satisfies task 4 and needs no new AgentState field (out of frozen scope).
-    (3) LEDGER DISCRIMINATION GAP — all six tasks: every frozen `verify:` selects only
-    pre-existing, baseline-green tests, so no task can demonstrate RED at plan time
-    (--collect-only at 90d16be: task 1 -> 12 tests in test_checkpoint_lifecycle.py +
-    test_checkpoint_resume.py; task 2 -> 26 in test_cli_prefs.py + test_cli_config_precedence.py
-    + test_cli_env_skip.py; task 3 -> 16 in test_cli_display.py; task 4 -> 2 in
-    test_debate_gate.py -k "report or logging" (test_the_judge_sees_all_four_reports_and_an_absent_marker,
-    test_non_english_reports_route_identically); task 5 -> 1 pre-existing test
-    test_gate_failure_end_to_end_falls_back_to_the_debate (test_debate_gate.py:930); task 6 ->
-    Preflight green on main). Proposed minimal amendment (frozen files left untouched; orchestrator
-    rules): at step 4 the failing->passing flip must cite the NEW test node IDs added RED-first,
-    and/or narrow each -k (task 1 -k "gate or signature", task 2 -k debate_gate, task 3 -k skipped,
-    task 4 -k "report_section or gate_logging").
-    (4) cli/main.py is §File-Size-Exceptions capped at 1460 (CONVENTIONS.md:244, "MUST NOT
-    grow further") and tasks 2/3/4 all land there — the e02s01 gate FAILED this rule once
-    (AUDIT:213-222); plan new CLI code into an uncapped cli/*.py module (cli/models.py /
-    stats_handler.py precedent) or extract in-file. (5) trading_graph.py 651 + 1 signature
-    line stays <= the row's cap 672 but the row says MUST NOT grow further — keep it to one line.
-    (6) SC-e02s02-P3-01 (gate INFO / failure WARNING logging) is already implemented by e02s01
-    (debate_gate.py:181,198,216) so its caplog tests cannot be RED; task 4's ledger flip rides
-    on the report half. Routed watch items NOT covered by the frozen tasks (ride to e02s03 /
-    quick-fix, do not expand scope): gitignore for tests/_tmp_cache (dir absent today, .gitignore
-    clean — BUG-2026-09-20-no-data-handling-nonhermetic-cache follow-up), the one-shot
-    TestLoadOhlcvNoPoison flake (capture --tb=long if it recurs), and e02s01 cosmetics
-    (debate_gate_node state[...] KeyError hardening, _judge_prompt extraction, public aliases
-    for _coerce_max_*). ENVIRONMENT: another `python -m pytest` process was live twice during
-    steps 1-2 (pids 152360 then 152573) — step 3's baseline MUST re-run the pgrep pre-check and
-    treat any raced run as invalid. Cockpit edits (state.yaml, progress.md, fleet-agents.yaml,
-    agent-locks.yaml) remain uncommitted on main: steps 1-2 must not commit on main (HARD GATE),
-    so story_ops left them for the step-7/8 hygiene pass.
+  next_skill: develop-tdd
+  note: 'e02s02 steps 1-2 PASS (2026-09-20 07:42-07:5xZ, main @ 90d16be). Step 1 survey-context: active_flow=build_epic,
+    epic e02 in_progress, story e02s02 opened (execution-status started_at 2026-09-20T07:42:23Z; epic_cycle.metrics.story_start
+    confirmed 07:37:31Z); validate-specs-yaml OK, check-spec-drift OK (5 clean), phase Execute, no blocker.
+    Step 2 plan-work VERIFICATION of the FROZEN plan (no re-plan; capsule artifacts still byte-identical
+    to specs/product/snapshots/release-0.6.0/): 6/6 tasks carry a runnable verify: + risk: + status: failing
+    (e45s06 ledger), all six e02s02 scenario IDs (P1-01, P1-02, P2-01, P2-02, P2-03, P3-01) are covered,
+    plan-consistency-check PASS (CRITICAL=0 HIGH=0 MED=0), assess-impact --lightweight risk score 5/10
+    (no grill-me gate) recorded in specs/IMPACT-e02-e02s02.md, missing step-0 artifact produced at specs/security/epics/e02/THREAT_MODEL.md
+    (epic risk LOW-MEDIUM, 0 HIGH, mitigations listed). MANDATORY CHECK SATISFIED: the graph-shape mirroring
+    into _run_signature is covered by frozen task 1 (adds gate=<mode>, tests signature-differs-across-modes
+    + resume-fresh + same-mode-resumes) per AUDIT-e02-e02s01.md fix 7 / IMPACT_LATEST.md:48. DRIFT (reported,
+    frozen artifacts NOT rewritten): (1) e02s02-checkpoint-cli.md:55 tells develop to key the `skipped`
+    status on `debate_gate_verdict`, but the CLI streams stream_mode="values" (graph/propagation.py:87)
+    and the HELD path also writes that key (agents/gate/debate_gate.py:158-164) with marker text that
+    starts "Debate skipped by the Debate Gate" (agents/gate/schemas.py:66) — presence/text cannot discriminate.
+    Task 3''s wording (route to Research Manager) is correct; implementable discriminators are investment_debate_state.history
+    non-empty only on _skip/_skip_by_policy models (:182-192,199-209) or count==0 before the RM decision.
+    Same hazard for the report section: classify skip vs held by count/bull-bear history, never by marker
+    text or presence. (2) e02s02-checkpoint-cli.md:41-44 asks the report to render "verdict, direction,
+    confidence, rationale" as fields, but nothing structured is persisted — only the rendered marker string
+    (schemas.py:56-72, agent_states.py:73); rendering the marker under a Debate Gate heading satisfies
+    task 4 and needs no new AgentState field (out of frozen scope). (3) LEDGER DISCRIMINATION GAP — all
+    six tasks: every frozen `verify:` selects only pre-existing, baseline-green tests, so no task can
+    demonstrate RED at plan time (--collect-only at 90d16be: task 1 -> 12 tests in test_checkpoint_lifecycle.py
+    + test_checkpoint_resume.py; task 2 -> 26 in test_cli_prefs.py + test_cli_config_precedence.py + test_cli_env_skip.py;
+    task 3 -> 16 in test_cli_display.py; task 4 -> 2 in test_debate_gate.py -k "report or logging" (test_the_judge_sees_all_four_reports_and_an_absent_marker,
+    test_non_english_reports_route_identically); task 5 -> 1 pre-existing test test_gate_failure_end_to_end_falls_back_to_the_debate
+    (test_debate_gate.py:930); task 6 -> Preflight green on main). Proposed minimal amendment (frozen
+    files left untouched; orchestrator rules): at step 4 the failing->passing flip must cite the NEW test
+    node IDs added RED-first, and/or narrow each -k (task 1 -k "gate or signature", task 2 -k debate_gate,
+    task 3 -k skipped, task 4 -k "report_section or gate_logging"). (4) cli/main.py is §File-Size-Exceptions
+    capped at 1460 (CONVENTIONS.md:244, "MUST NOT grow further") and tasks 2/3/4 all land there — the
+    e02s01 gate FAILED this rule once (AUDIT:213-222); plan new CLI code into an uncapped cli/*.py module
+    (cli/models.py / stats_handler.py precedent) or extract in-file. (5) trading_graph.py 651 + 1 signature
+    line stays <= the row''s cap 672 but the row says MUST NOT grow further — keep it to one line. (6)
+    SC-e02s02-P3-01 (gate INFO / failure WARNING logging) is already implemented by e02s01 (debate_gate.py:181,198,216)
+    so its caplog tests cannot be RED; task 4''s ledger flip rides on the report half. Routed watch items
+    NOT covered by the frozen tasks (ride to e02s03 / quick-fix, do not expand scope): gitignore for tests/_tmp_cache
+    (dir absent today, .gitignore clean — BUG-2026-09-20-no-data-handling-nonhermetic-cache follow-up),
+    the one-shot TestLoadOhlcvNoPoison flake (capture --tb=long if it recurs), and e02s01 cosmetics (debate_gate_node
+    state[...] KeyError hardening, _judge_prompt extraction, public aliases for _coerce_max_*). ENVIRONMENT:
+    another `python -m pytest` process was live twice during steps 1-2 (pids 152360 then 152573) — step
+    3''s baseline MUST re-run the pgrep pre-check and treat any raced run as invalid. Cockpit edits (state.yaml,
+    progress.md, fleet-agents.yaml, agent-locks.yaml) remain uncommitted on main: steps 1-2 must not commit
+    on main (HARD GATE), so story_ops left them for the step-7/8 hygiene pass.'

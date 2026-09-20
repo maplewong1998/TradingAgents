@@ -8,8 +8,8 @@
 story: e02s02
 epic: e02
 roles:
-  story_ops: ceb173da-4e9e-4909-a686-db431cc5cdad # steps 1-3, 7-8; steps 1-2 (survey-context + plan-work verify) dispatched 2026-09-20T07:37Z
-  develop: null     # step 4 — develop-tdd (sole writer on the worktree)
+  story_ops: ceb173da-4e9e-4909-a686-db431cc5cdad # steps 1-3 PASS (worktree .worktrees/e02s02, branch feat/e02s02, tip 06d984e); steps 7-8 pending
+  develop: 143f1446-0771-4331-b357-6fbe7b0ca67b   # step 4 — develop-tdd (sole writer on the worktree), round 1 dispatched 2026-09-20T07:5xZ
   verify: null      # step 5 — verify-work (read-only judge)
   gate: null        # step 6 — gatekeeper audit
 updated_at: '2026-09-20T07:37:31Z'

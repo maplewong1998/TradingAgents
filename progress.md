@@ -403,3 +403,55 @@ and the compare URL emitted for manual PR creation. `main` untouched
   are uncommitted on main — story_ops commits them in its next hygiene pass.
 - Pending after steps 1-2 notice: orchestrator runs the Phase 4 plan gate, then STEP 3
   kickoff-branch → worktree <root>/.worktrees/e02s02, branch feat/e02s02 off main.
+
+## 2026-09-20 — e02s02 steps 1-2 PASS; drift ruled; step 3 dispatched
+
+- story_ops (ceb173da) steps 1-2: PASS, plan_ready, 6 tasks, run_signature_covered=true
+  (frozen task 1 adds gate=<mode> to _run_signature + SC-e02s02-P1-01 pins). Frozen
+  capsule byte-identical to snapshot; new specs/IMPACT-e02-e02s02.md (5/10) +
+  specs/security/epics/e02/THREAT_MODEL.md (step-0 artifact, 0 HIGH).
+- PHASE4-GATE re-run by orchestrator: PASS.
+- Cockpit set committed on main: 5c7a9ac (pushed; origin/main synced; root tree clean).
+- ORCHESTRATOR RULINGS on the six drift findings (to carry into the step-4 develop
+  dispatch; frozen artifacts NOT rewritten):
+  D1: skip-vs-held discrimination MUST use investment_debate_state.history non-empty
+      (set only by _skip/_skip_by_policy) or count==0 before the RM decision — NEVER
+      debate_gate_verdict presence/text (held path writes it too).
+  D2: report renders the persisted marker under a Debate Gate heading; no new
+      AgentState field (out of frozen scope).
+  D3: ledger discrimination — every frozen verify is baseline-green, so a task's
+      failing→passing flip REQUIRES citing the NEW RED-first test node IDs for that
+      task in the ledger/commit evidence (story_ops' -k narrowing suggestion is
+      optional guidance, not a frozen-file edit).
+  D4: cli/main.py is at its 1460 cap — ALL new CLI code goes to an uncapped cli/*.py
+      module (models.py/stats_handler.py precedent) or an in-file extraction;
+      trading_graph.py delta limited to the single signature line (651 vs 672 cap).
+  D5: SC-e02s02-P3-01 logging already implemented by e02s01 — task 4's flip rides on
+      the report half only; do not fabricate RED for existing behavior.
+  D6: tasks.yaml verify commands are the authoritative ledger input.
+- Queued out of scope (e02s03/quick-fix): tests/_tmp_cache gitignore; flake --tb=long
+  watch; e02s01 cosmetics (KeyError hardening, _judge_prompt extraction, public
+  aliases for _coerce_max_*).
+- Step 3 dispatched to SAME story_ops id: worktree /home/maplewong1998/Repository/
+  TradingAgents/.worktrees/e02s02, branch feat/e02s02 off 5c7a9ac, own .venv (no
+  sharing), pgrep-exclusive green baseline, state.git.worktree update, commit on branch.
+
+## 2026-09-20 — e02s02 step 3 PASS; develop round 1 dispatched
+
+- story_ops step 3: worktree /home/maplewong1998/Repository/TradingAgents/.worktrees/e02s02,
+  branch feat/e02s02 off main 5c7a9ac, tip 06d984e (gitignore .worktrees/, state,
+  lock agent=story_ops). Own venv (py3.12.11/pytest 9.1.1). Baselines green: main
+  1002/2 (3.53s), worktree clean tip 1002/2 (5.87s) and branch tip 1002/2 (3.09s),
+  ruff clean ×3; flake watch green (no capture needed). Worktree has its own
+  untracked scripts/ symlink (validators run there).
+- ENVIRONMENT CORRECTION adopted fleet-wide: pgrep -f "python -m pytest" self-matches
+  its bash -c wrapper (false alarms). Correct ritual:
+  ps -eo pid,args | grep -E "[p]ython -m pytest" | grep -v "bash -c".
+  Carried in the develop dispatch; will carry into verify/gate dispatches.
+- Cockpit: root state.yaml advanced to epic_cycle.step=4 / next_skill=develop-tdd
+  (committed on main in this cycle's cockpit commit); worktree state.yaml step=4
+  UNCOMMITTED by design — develop folds it into its first chore commit untouched.
+- develop resident started (NEW for e02s02): 143f1446-0771-4331-b357-6fbe7b0ca67b —
+  step 4 develop-tdd round 1 in the worktree only; dispatch carries rulings D1-D6,
+  task-1 _run_signature requirement, Story: e02s02 trailer, serial-suite + ps ritual,
+  flake --tb=long capture rule, ledger flips require new RED node-ID citations (D3).
