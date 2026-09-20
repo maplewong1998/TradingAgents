@@ -6,7 +6,7 @@ test_plan: required
 vcs:
   kind: git
   branch: feat/e02-conditional-debate-gate
-  head: 2d17df8
+  head: f429cfa
 git:
   branch: feat/e02-conditional-debate-gate
   worktree: null
