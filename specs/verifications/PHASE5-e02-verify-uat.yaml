@@ -1,0 +1,126 @@
+phase: 5
+child: verify-work
+mode: PROJECT-level pre-release UAT gate
+epic: e02-conditional-debate-gate
+stories: [e02s01, e02s02, e02s03]
+verified_at: "2026-09-20T10:55:00Z"
+verifier: verify-work (worker subagent, read-only)
+worktree: /home/maplewong1998/Repository/TradingAgents/.worktrees/verify-phase5
+worktree_base: b883f43 (main tip at start)
+worktree_clean_after: true          # `git status --porcelain` empty after every phase
+landed_refs_confirmed_ancestors_of_HEAD: [d7557e4, 71bf36b, 26f3916, b883f43]
+verdict: pass
+
+phases:
+  cold_start:
+    passed: true
+    env: "env -i PATH=/usr/bin:/bin HOME=/tmp <worktree>/.venv/bin/python"
+    imports: [tradingagents, tradingagents.agents.gate.debate_gate, tradingagents.agents.gate.schemas, tradingagents.agents.schemas, cli.main]
+    reexport_identity: true          # agents.schemas.DebateGateVerdict is agents.gate.schemas.DebateGateVerdict
+    console_script: ".venv/bin/tradingagents -> cli.main:app"
+    help_exit_code: 0                # `env -i ... tradingagents --help`
+    stale_state: "fresh checkout: no .env, no results/, no .pytest_cache, no tests/_tmp_cache before the run"
+  build:
+    passed: true
+    pip_check_equivalent: "uv pip check --python .venv/bin/python -> 'Checked 91 packages... All installed packages are compatible'"
+    note: "uv venv ships no pip module, so `python -m pip check` is unavailable; `uv pip check` is the equivalent gate"
+    entry_point: "tradingagents = cli.main:app (console_scripts)"
+    editable_resolution: "tradingagents.__file__ and cli.__file__ both resolve inside the worktree"
+    distribution: "tradingagents 0.5.0, 20 declared requirements"
+  lint:
+    passed: true
+    command: ".venv/bin/ruff check ."
+    result: "All checks passed! (ruff 0.16.8)"
+    typecheck: "NONE — no mypy/pyright config or step anywhere in pyproject.toml, AGENTS.md or README.md; ruff is the only static gate (stated honestly, not skipped)"
+  tests:
+    passed: true
+    command: ".venv/bin/python -m pytest -q"
+    runs:
+      - {captured_to: /tmp/phase5-tests-full.txt, result: "1027 passed, 2 skipped, 22 warnings, 88 subtests passed in 4.52s", exit_code: 0}
+      - {captured_to: /tmp/phase5-tests-verdict.txt, result: "1027 passed, 2 skipped, 22 warnings, 88 subtests passed in 3.25s", exit_code: 0, note: "pipefail run, exit code captured from pytest"}
+    expected_match: "1027 passed / 2 skipped / 88 subtests — exact match on both runs"
+    skips: ["test_bedrock_provider.py: langchain_aws not installed", "test_deepseek_reasoning.py: DEEPSEEK_API_KEY not set (live call) — environmental"]
+    flake_watch: "tests/test_no_data_handling.py::TestLoadOhlcvNoPoison collected and GREEN in both full-suite runs; its setUp now uses a unique tempfile.mkdtemp per test (hermetic). No failure occurred, so no --tb=long capture was needed."
+    concurrency_ritual: "run before every full-suite leg; `ps -eo pid,args | grep -E '[p]ython -m pytest'` returned no matches (exit 1) both times — no sibling run-evals process overlapped this leg"
+    terminal_verdict:
+      command: ".venv/bin/python -m pytest -q"
+      exit_code: 0
+      captured_at: "2026-09-20T10:53:00Z"
+      note: "single contiguous run, /tmp/phase5-tests-verdict.txt — not merged from other attempts"
+  manual_uat:
+    passed: true
+    substitution: "no live provider key available; the documented offline equivalents were used and are named per item"
+    e02s01:
+      - {item: "pytest tests/test_debate_gate.py -v", result: "64 passed", substitution: none}
+      - {item: "full suite", result: "see tests phase"}
+      - {item: "ruff check .", result: "All checks passed!"}
+      - {item: "TRADINGAGENTS_DEBATE_GATE=bogus offline smoke", result: "ValueError: Invalid value for TRADINGAGENTS_DEBATE_GATE: valid modes are always, auto, never (raises at config build, before any client/graph work)"}
+    e02s02:
+      - {item: "pytest tests/test_checkpoint_lifecycle.py tests/test_checkpoint_resume.py", result: "15 passed"}
+      - {item: "pytest tests/test_cli_prefs.py test_cli_config_precedence.py test_cli_env_skip.py test_cli_display.py", result: "56 passed"}
+      - {item: "interactive prompt step", substitution: "real cli.main.get_user_selections with stubbed prompts; step 5b ran after Research Depth and before Step 6 LLM Provider", result: pass}
+      - {item: "TRADINGAGENTS_DEBATE_GATE=always re-run", substitution: "fresh interpreter with the env var set before import + real cli.main._build_run_config", result: "built config debate_gate='always' beating the menu answer 'auto'; notice printed exactly once naming the env var; without the env var the menu answer applies with zero notices"}
+      - {item: "full suite + ruff", result: "see tests/lint phases"}
+    e02s03:
+      - {item: "grep CHANGELOG for debate gate + env var", result: pass}
+      - {item: "grep .env.example", result: pass}
+      - {item: "grep README", result: pass}
+      - {item: "grep tech-stack + glossary", result: pass}
+      - {item: "bash scripts/validate-specs-yaml.sh", result: "validate-specs-yaml: OK"}
+  project_uat:
+    passed: true
+    harness: /tmp/phase5-uat/uat_run.py (real factories + real LangGraph runtime + real CLI/report/checkpoint code, all LLMs stubbed at the boundary; scratch state under /tmp only)
+    checks: "47/47 passed (/tmp/phase5-uat/uat-results.json)"
+    a_bogus_env: "subprocess exit 1, last line names always/auto/never; graph-init validator also rejects unknown/case-tolerant modes naming the set"
+    b_auto_skip: "judge asked once; zero Bull and zero Bear LLM calls; node order Debate Gate -> Research Manager -> Trader -> risk trio -> Portfolio Manager; marker 'Debate skipped by the Debate Gate ... aligned (bullish) at medium confidence' in investment_debate_state.history; debate count 0 and both histories empty; RM prompt carries the skipped-debate paragraph ('uncontested') and NOT 'The debate always contains conflicting arguments'; RM plan parses to 'Buy'; final PM decision parses to 'Buy' (REVIEW impossible); live view shows Bull/Bear 'skipped' and leaves nobody pending; gate section present in rendered report, saved tree and complete-report display"
+    b2_never: "zero judge calls, zero debater calls, policy marker 'Debate skipped by configuration' with no judge-alignment sentence, RM still returns a parseable 5-tier rating, live view 'skipped'"
+    b3_env_precedence: "env=always wins over the menu answer in the real config builder with exactly one notice; unset env -> menu answer 'auto', zero notices"
+    c_always: "zero judge calls; node order Debate Gate -> Bull -> Bear -> RM (debate actually ran: bull=1, bear=1 calls); held paragraph present, skipped paragraph absent; live view not 'skipped'; report section 'Debate held (2 turns)'"
+    d_checkpoint: "signature 'analysts=market|debate=1|risk=1|asset=stock|portfolio=none|gate=auto'; reverse-engineered checkpoint written at step 7 under that signature; same mode resumes (_resuming True); switching to always produces a distinct signature and starts fresh (_resuming False); auto/always/never all distinct"
+    e_readme_walkthrough: "step 5b order matches the README; cancelling the prompt raises SystemExit(1) with 'No debate gate policy selected. Exiting...'; env var skips the menu; remembered policy round-trips through prefs save/last-run + sanitize; a bogus remembered policy is dropped rather than offered"
+    extra: "the PRODUCTION graph compiles through GraphSetup.setup_graph with the gate registered (23 nodes, both Command targets present) — the UAT replica is not a divergent wiring"
+  docs_checks:
+    passed: true
+    claims:
+      - {claim: "CHANGELOG names the default change, the env var, the `always` restore and the one-time checkpoint re-key", source: CHANGELOG.md:10-41, result: pass}
+      - {claim: ".env.example documents TRADINGAGENTS_DEBATE_GATE=auto with always/auto/never meaning", source: .env.example:46-49, result: pass}
+      - {claim: "README documents the policy table, the CLI step 5b position and the cancel behavior; the #the-debate-gate link resolves to '### The debate gate'", source: README.md:193,260-276, result: pass}
+      - {claim: "tech-stack.md flow diagram carries the Debate Gate node and the § Signals note records the explicit add_node registration", source: specs/tech-architecture/tech-stack.md:50-54,166, result: pass}
+      - {claim: "GLOSSARY_LATEST.yaml parses (23 terms) and carries Debate Gate / Alignment Marker / debate_gate policy with code sources", source: specs/product/GLOSSARY_LATEST.yaml:39-70, result: pass}
+      - {claim: "CONVENTIONS cap rows match reality and no capped file grew", source: CONVENTIONS.md:238-252, result: "1276/718/652/527/392/338/337/330 rows == actual wc -l exactly; cli/main.py still 1276, trading_graph.py 652, agents/schemas.py 392 (its +13 lines are exactly the pre-gate->HEAD diff of that file: '13 insertions')"}
+      - {claim: ".env.example covers every key in _ENV_OVERRIDES", result: "16/16 override keys present, 0 missing"}
+    caps_wc_l:
+      cli/main.py: {row: 1276, actual: 1276}
+      cli/utils.py: {row: 718, actual: 718}
+      tradingagents/graph/trading_graph.py: {row: 652, actual: 652}
+      tradingagents/dataflows/y_finance.py: {row: 527, actual: 527}
+      tradingagents/agents/schemas.py: {row: 392, actual: 392}
+      tradingagents/llm_clients/openai_client.py: {row: 338, actual: 338}
+      tradingagents/agents/utils/memory.py: {row: 337, actual: 337}
+      tradingagents/dataflows/stockstats_utils.py: {row: 330, actual: 330}
+  gaps_closure:
+    passed: true
+    action: "collected, fixed nothing (read-only judge)"
+  extra_gates_run:
+    completeness_critic: "scripts/lib/completeness-critic.sh -> BLOCKER=0 WARNING=1 FILLED=1 (WARNING: specs/state.yaml has no active_story set — record state, not a product gap)"
+    blind_spots_artifact: "specs/blind-spots.json (committed) has 5 findings, 0 HIGH (3 MEDIUM / 2 LOW) -> does not block"
+    not_run:
+      - "skill step 5 security-review (P0 story e02s01) — not in the assigned phase list; routing to the main agent"
+      - "skill step 5a check-blind-spots.sh — the wrapper rewrites specs/blind-spots.json, which the read-only mandate forbids; the committed artifact was read instead"
+      - "skill step 5b NFR evidence gate — not in the assigned phase list and no specs/tech-architecture/eNN-TEST_PLAN_LATEST.md NFR thresholds were in scope"
+      - "skill step 0a 'gh pr checks' — `gh` is not installed; documented in specs/execution-status.yaml e02s02 landed_via as an accepted user decision. Local Preflight (pytest + ruff) is the substitute and is green."
+
+findings:
+  - "README.md:276 (+ CHANGELOG.md:47): 'the live view and the saved report tree carry a Debate Gate section' — the section is rendered only by cli/complete_report.py:67 (post-run complete report) and tradingagents/reporting.py:94 (saved tree); the streaming live view shows the `skipped` statuses only (cli/stream_handler.py:41). Wording looseness, no code gap, no behavior claim broken."
+  - "specs/state.yaml is dirty in the main worktree (M) — pre-existing before this verification; the verify worktree is clean (`git status --porcelain` empty)."
+  - "Spec skill requires persisting evidence to specs/verifications/eNNsYY-verify.yaml; the read-only mandate overrides it, so this report lives at /tmp/phase5-verify-uat.yaml — the orchestrator should land it if the artifact is required."
+  - "No security-review / NFR evidence gate was run for the P0 story e02s01 (assigned phase list omitted them); the pre-release gate accepts or rejects that scope decision upstream."
+
+evidence_one_liners:
+  cold_start: "env -i imports of tradingagents + cli.main + gate modules OK, re-export identity True, `tradingagents --help` exit 0"
+  build: "uv pip check: 91 packages, all compatible; entry point tradingagents=cli.main:app; editable resolves into the worktree"
+  lint: "ruff 0.16.8: All checks passed! (no typecheck step exists; ruff is the static gate)"
+  tests: "1027 passed / 2 skipped / 88 subtests, exit 0, twice, in 3.25s and 4.52s; flake-watch test hermetic and green"
+  manual_uat: "e02s01 64+full+ruff+bogus-env ValueError; e02s02 15+56 tests + offline prompt/env/config equivalents; e02s03 4 greps + validate-specs-yaml OK; held RM paragraph byte-identical (462 bytes) to pre-gate d7557e4^"
+  project_uat: "47/47 checks over a/b/b2/b3/c/d/e on real factories, real LangGraph routing, real CLI view/report/checkpoint code with stubbed LLMs"
+  docs_checks: "6 claim groups verified; 8/8 cap rows match wc -l; 16/16 env override keys documented; glossary parses with 3 new terms"

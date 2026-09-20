@@ -944,3 +944,28 @@ and the compare URL emitted for manual PR creation. `main` untouched
   report surfaces — 0 credential leaks, 0 judge-payload leaks, env notice names the
   variable not its value.
 - Pending: verify_work (9c525c54) project UAT verdict → then Phase 5 close + Phase 6.
+
+## 2026-09-20 — PHASE 5 VERIFY CLOSED (both legs PASS); Phase 6 decision to user
+
+- verify_work (9c525c54): PASS 7/7 phases. Full suite 1027/2/88 ×2 contiguous; 47/47
+  project UAT checks over REAL factories/LangGraph/CLI/checkpoint code with stubbed
+  LLMs (skip/never/always paths, checkpoint gate=<mode> re-key + resume matrix, README
+  flow incl. SystemExit); production graph compiles (23 nodes, gate + Command targets
+  registered); 8/8 CONVENTIONS cap rows = wc -l; held RM paragraph byte-identical to
+  pre-gate (462B). Worktree removed after clean status; evidence persisted:
+  specs/verifications/PHASE5-e02-verify-uat.yaml.
+- run_evals (2ab74b7c): PASS 33/33 (earlier; artifact specs/EVALS-e02.md).
+- FINDINGS ROUTED (none blocking):
+  F1 README:276 + CHANGELOG:47 wording ("live view and saved report tree carry a
+     Debate Gate section" — live view shows skipped statuses only) -> fold into the
+     Phase 6 release edit (CHANGELOG is rewritten for the version section anyway).
+  F2 dedicated security-review sweep not run in Phase 5 -> user decision; substance
+     already covered by per-story gate security sections (0 HIGH ×3 AUDITs) + S-05
+     secrets scan (0 leaks, 63 records) + blind-spots 0 HIGH.
+  F3 gh/CI uncheckable -> accepted user decision (recorded in execution-status).
+  F4 evidence location -> persisted by orchestrator (done above).
+- Phase 5->6 is a Transition gate (Standard mode): user decides version + mechanism.
+  Context for the decision: repo has NO semantic-release tooling (no .releaserc, CI is
+  ci.yml only, pyproject pinned 0.5.0); frozen plan snapshot is named release-0.6.0;
+  the delivered change is feat-level => semver minor => 0.6.0; my phase spec mentions
+  a v1.0.0 MVP tag, which conflicts with both the frozen naming and minor semantics.

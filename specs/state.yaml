@@ -327,6 +327,9 @@ handoff:
     .git/info/exclude mirror was left in place (harmless, and .gitignore now carries .worktrees/ on main).
     e02 stays in_progress with e02s03 todo — the capsule is NOT archived (archive only when every e02
     story is done).'
-  phase5: 'in-progress: run-evals + project verify-work dispatched off-main (worktree .worktrees/verify-phase5,
-    branch verify/phase5); epic e02 COMPLETE — all three stories landed (e02s01 d7557e4 squash, e02s02
-    71bf36b merge, e02s03 26f3916 merge); Phase 6 RELEASE pending a green Phase 5'
+  phase5: 'COMPLETE: verify-work PASS 7/7 phases (worktree .worktrees/verify-phase5 off b883f43, removed
+    after) + run-evals PASS 33/33 (artifact specs/EVALS-e02.md); evidence specs/verifications/PHASE5-e02-verify-uat.yaml.
+    Findings routed: F1 README:276/CHANGELOG:47 wording -> rides the Phase 6 release edit; F2 dedicated
+    security sweep -> user decision pending; F3 gh/CI uncheckable -> accepted user decision (recorded);
+    F4 evidence persisted by orchestrator. NEXT: Phase 6 RELEASE pending the user''s version decision
+    (repo has NO semantic-release tooling)'
