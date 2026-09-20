@@ -1110,7 +1110,7 @@ def test_gate_logging_names_the_ticker_on_a_policy_skip(caplog):
 
 
 @pytest.mark.unit
-def test_gate_warning_still_names_the_ticker_on_failure(caplog):
+def test_gate_logging_warning_still_names_the_ticker_on_failure(caplog):
     # The failure path was already correct; the INFO half had to catch up to it.
     llm = _GateLLM(error=RuntimeError("provider exploded"))
 

@@ -86,7 +86,19 @@ tasks:
       - tests/test_debate_gate.py::test_report_tree_names_a_configuration_skip
       - tests/test_debate_gate.py::test_the_complete_report_display_carries_the_gate_section
       - tests/test_debate_gate.py::test_report_tree_omits_the_gate_section_when_nothing_was_recorded
+      # round 2 (SC-e02s02-P3-01 INFO half; RED at 909a7b5): the gate's own
+      # decisions must be attributable in the log, mirroring the failure WARNING.
+      - tests/test_debate_gate.py::test_gate_logging_names_the_ticker_and_the_rationale_on_a_skip
+      - tests/test_debate_gate.py::test_gate_logging_names_the_ticker_on_a_policy_skip
+      - tests/test_debate_gate.py::test_gate_logging_warning_still_names_the_ticker_on_failure
     green_commit: "feat(reporting): render the Debate Gate section in the report tree and on screen"
+    round2_commit: "fix(agents): name the instrument on the gate's INFO decisions (SC-e02s02-P3-01)"
+    round2_note: >-
+      verify round 1 failed the acceptance-criteria phase on the INFO half of
+      SC-e02s02-P3-01; round 2 added the ticker to both INFO lines and the INFO
+      assertions (verify now 10 passed under -k 'report or logging'). WARNING
+      behavior is unchanged (its message text and level are untouched; the new
+      `_instrument` helper is the one source both use).
     allure:
       severity: normal
       categories: ["unit", "reporting", "observability"]

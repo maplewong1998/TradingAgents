@@ -95,7 +95,7 @@ def create_debate_gate(quick_llm) -> Command[Literal["Bull Researcher", "Researc
             # for a debate nobody can arbitrate. The marker says the skip came
             # from configuration -- no judge ran, so there is no alignment
             # finding to report (fabricating one is the #1176 class).
-            return _skip_by_policy(f"debate_gate={mode}")
+            return _skip_by_policy(f"debate_gate={mode}", state)
 
         if mode not in DEBATE_GATE_MODES:
             # The graph validates the mode at init, so reaching here means drift.
@@ -163,13 +163,14 @@ Rules:
                 goto="Bull Researcher",
             )
 
-        return _skip(verdict)
+        return _skip(verdict, state)
 
     return debate_gate_node
 
 
 def _skip(
     verdict: DebateGateVerdict,
+    state,
 ) -> Command[Literal["Bull Researcher", "Research Manager"]]:
     """Route past the debate, handing the Research Manager the alignment marker.
 
@@ -178,7 +179,11 @@ def _skip(
     debate (#1176). The marker states that no debate was held.
     """
     marker = render_debate_gate_marker(verdict)
-    logger.info("Debate Gate: skipping the debate -- %s", verdict.rationale)
+    logger.info(
+        "Debate Gate: skipping the debate for %s -- %s",
+        _instrument(state),
+        verdict.rationale,
+    )
     return Command(
         update={
             "debate_gate_verdict": marker,
@@ -192,10 +197,16 @@ def _skip(
     )
 
 
-def _skip_by_policy(reason: str) -> Command[Literal["Bull Researcher", "Research Manager"]]:
+def _skip_by_policy(
+    reason: str, state
+) -> Command[Literal["Bull Researcher", "Research Manager"]]:
     """Route past the debate because configuration disabled it, not a judge."""
     marker = render_policy_skip_marker(reason)
-    logger.info("Debate Gate: skipping the debate by configuration (%s)", reason)
+    logger.info(
+        "Debate Gate: skipping the debate by configuration for %s (%s)",
+        _instrument(state),
+        reason,
+    )
     return Command(
         update={
             "debate_gate_verdict": marker,
@@ -216,12 +227,21 @@ def _fail_safe(
     logger.warning(
         "Debate Gate: judge failed (%s); holding the debate for %s",
         exc,
-        state.get("company_of_interest", "the instrument"),
+        _instrument(state),
     )
     return Command(
         update={"debate_gate_verdict": _GATE_FAILURE_VERDICT},
         goto="Bull Researcher",
     )
+
+
+def _instrument(state) -> str:
+    """Which instrument a gate log line is about.
+
+    INFO and WARNING lines both name it (SC-e02s02-P3-01): one log interleaves
+    concurrent runs, so an unattributed decision cannot be audited afterwards.
+    """
+    return state.get("company_of_interest", "the instrument")
 
 
 def _empty_debate_state() -> dict:
