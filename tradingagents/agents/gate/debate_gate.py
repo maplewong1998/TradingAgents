@@ -26,6 +26,7 @@ from langgraph.types import Command
 from tradingagents.agents.gate.schemas import (
     DebateGateVerdict,
     render_debate_gate_marker,
+    render_policy_skip_marker,
 )
 from tradingagents.agents.utils.agent_utils import (
     get_instrument_context_from_state,
@@ -91,19 +92,10 @@ def create_debate_gate(quick_llm) -> Command[Literal["Bull Researcher", "Researc
         if mode == "never":
             # Degraded-mode switch (#1170): with no judge available to call,
             # every run takes the conservative skip so an aligned run never pays
-            # for a debate nobody can arbitrate. The rationale says so rather
-            # than presenting the skip as the judge's own finding.
-            skipped = DebateGateVerdict(
-                evidence_aligned=True,
-                confidence="medium",
-                aligned_direction="unclear",
-                rationale=(
-                    "debate_gate is configured to never run the Bull/Bear debate: "
-                    "the judge is disabled and the analyst reports are treated as "
-                    "uncontested."
-                ),
-            )
-            return _skip(skipped)
+            # for a debate nobody can arbitrate. The marker says the skip came
+            # from configuration -- no judge ran, so there is no alignment
+            # finding to report (fabricating one is the #1176 class).
+            return _skip_by_policy(f"debate_gate={mode}")
 
         if mode not in DEBATE_GATE_MODES:
             # The graph validates the mode at init, so reaching here means drift.
@@ -200,8 +192,25 @@ def _skip(
     )
 
 
+def _skip_by_policy(reason: str) -> Command[Literal["Bull Researcher", "Research Manager"]]:
+    """Route past the debate because configuration disabled it, not a judge."""
+    marker = render_policy_skip_marker(reason)
+    logger.info("Debate Gate: skipping the debate by configuration (%s)", reason)
+    return Command(
+        update={
+            "debate_gate_verdict": marker,
+            "investment_debate_state": {
+                **_empty_debate_state(),
+                "history": marker,
+                "current_response": marker,
+            },
+        },
+        goto="Research Manager",
+    )
+
+
 def _fail_safe(
-    state, exc: Exception
+    state, exc: Exception | str
 ) -> Command[Literal["Bull Researcher", "Research Manager"]]:
     """Any gate failure degrades to the unconditional behavior: hold the debate."""
     logger.warning(

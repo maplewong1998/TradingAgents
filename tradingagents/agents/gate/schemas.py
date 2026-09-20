@@ -70,3 +70,22 @@ def render_debate_gate_marker(verdict: DebateGateVerdict) -> str:
         "",
         f"**Gate rationale**: {verdict.rationale}",
     ])
+
+
+def render_policy_skip_marker(reason: str) -> str:
+    """Render the marker for a skip forced by configuration, not by a judge.
+
+    Kept separate from ``render_debate_gate_marker`` so a policy skip cannot
+    claim an alignment finding: under ``debate_gate=never`` no judge is
+    consulted, so any sentence about what the judge found would be an invented
+    verdict -- the same fabrication class the marker exists to prevent (#1176).
+    The Research Manager still receives a non-empty marker, which is what tells
+    it the debate was skipped rather than held and lost.
+    """
+    return "\n".join([
+        "**Debate skipped by configuration.** The Bull/Bear debate was not run for "
+        f"this analysis ({reason}) and no Debate Gate judge was consulted, so this "
+        "run carries no alignment finding and no conflicting arguments were "
+        "presented. Decide from the four analyst reports alone and commit to the "
+        "5-tier rating their evidence supports.",
+    ])
