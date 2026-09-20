@@ -74,21 +74,22 @@ handoff:
   e02s03_develop_tdd_round1:
     result: PASS
     round: 1
-    tip: 772b088
+    tip: 6eb1d3e
     story: e02s03
     tasks: 5/5 passing — every verify exits 0 (tasks 1-4 are grep gates flipped by their own commit; task
       5 is the full Preflight, run four times, each behind a clean ps-based pytest concurrency pre-check)
     preflight_final: 1027 passed / 2 skipped / 88 subtests, ruff clean, validate-specs-yaml OK, serial,
-      exit 0, on the tree at 772b088 (+3 tests over the 1024/2 kickoff baseline, the 3 new gate-policy
+      exit 0, on the tree at 6eb1d3e (+3 tests over the 1024/2 kickoff baseline, the 3 new gate-policy
       tests in this leg)
     preflight_runs: kickoff 1024/2 (baseline), leg 1 1024/2 (baseline re-measured), leg 2 1024/2 (after
-      the four docs tasks), final 1027/2 (after the quick-fixes). TestLoadOhlcvNoPoison never failed in
-      this leg — no flake sighting to capture.
+      the four docs tasks), final 1027/2 (after the quick-fixes), close-out 1027/2 (after the step-4
+      bookkeeping). TestLoadOhlcvNoPoison never failed in this leg — no flake sighting to capture.
     tasks_passing: 5
     tasks_failing: 0
     commits: 12f8911 docs CHANGELOG, dd9d3d5 docs .env.example, 7b3d69c docs README, d92afc4 docs tech-stack+glossary+CONVENTIONS,
       1d83fd8 chore ledger+vcs.head flip (folds the orchestrator's uncommitted epic_cycle.step=4 cockpit
-      edit), 2e359da test RED, 33d5d11 fix(cli) env-notice dedupe, 772b088 chore .gitignore
+      edit), 2e359da test RED, 33d5d11 fix(cli) env-notice dedupe, 772b088 chore .gitignore, 432a95c chore
+      step-4 round record, 6eb1d3e chore vcs.head
     quick_fixes:
       QF-A (queue item 2): 33d5d11 fix(cli) — the env notice printed twice on the interactive env-set
         path (select_debate_gate + resolve_debate_gate). The step now returns silently and resolve_debate_gate
