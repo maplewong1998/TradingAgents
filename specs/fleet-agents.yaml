@@ -13,5 +13,5 @@ epic: e02
 roles:
   verify_work: 9c525c54-d6bd-418a-aee9-e4ff705a057a  # project-level UAT off-main: worktree .worktrees/verify-phase5 (branch verify/phase5), read-only judge
   run_evals: 2ab74b7c-9bfa-4140-985a-359b1e2c6ae3    # eval set definition + targeted grader runs at root, read-only; r1 PASS 33/33 (20C/8R/5S, 0 flaky, 0 gaps); artifact persisted specs/EVALS-e02.md
-  release_edit: d9f3a633-2d82-44a5-8301-3929238dd125 # phase 6 — v0.6.0 manual release edit on main (CHANGELOG/README/pyproject + F1 fix); NO tag — final go from user
+  release_edit: d9f3a633-2d82-44a5-8301-3929238dd125 # phase 6 — v0.6.0 manual release edit on main: DONE (79ce208 pushed, Preflight green); tag v0.6.0 created+pushed by orchestrator on the user's final go
 updated_at: '2026-09-20T10:1xZ'
