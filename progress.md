@@ -925,3 +925,22 @@ and the compare URL emitted for manual PR creation. `main` untouched
 - After both verdicts: persist evidence onto main (specs/verifications/, specs/EVALS-e02.md),
   then Phase 6 RELEASE — noting the repo has NO semantic-release tooling, so the v-tag
   decision goes to the user (Safety gate).
+
+## 2026-09-20 — Phase 5 run-evals PASS (33/33); artifact persisted
+
+- run_evals (2ab74b7c): PASS — 33/33 evals (20 capability, 8 regression, 5 safety),
+  pass@1, 0 flaky; 327 pytest node executions across 17 files + ruff clean; serial in
+  root venv with -p no:cacheprovider + PYTHONDONTWRITEBYTECODE=1 (read-only).
+  All 18 e02 TEST_PLAN scenarios map to ≥1 green grader (scenario->grader matrix in
+  the artifact); zero eval gaps at scenario level.
+- Honesty trail: 2 grader first-run failures were the child's OWN eval-definition
+  defects (C-19 sed delimiter; S-05 PROVIDER_API_KEY_ENV None mapping) — fixed without
+  weakening assertions, re-run green, reported PASS-not-flaky with full trail.
+- R-00 full-Preflight leg delegated to verify_work sibling by design (recorded as a
+  "Delegated legs" row).
+- Artifact persisted onto main: specs/EVALS-e02.md. Post-release promotion candidates
+  (6) listed in artifact section 7 for the epic-close record.
+- S-05 safety grader: 63 gate log records captured at DEBUG across all four paths +
+  report surfaces — 0 credential leaks, 0 judge-payload leaks, env notice names the
+  variable not its value.
+- Pending: verify_work (9c525c54) project UAT verdict → then Phase 5 close + Phase 6.
