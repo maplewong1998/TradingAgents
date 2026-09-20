@@ -1,0 +1,14 @@
+{
+  "meta": {
+    "generated_by": "scripts/check-spec-drift.sh",
+    "source": "specs/traceability-matrix.json",
+    "timestamp": "2026-09-20T07:42:39Z"
+  },
+  "suspect_links": [],
+  "broken_links": [],
+  "summary": {
+    "suspect": 0,
+    "broken": 0,
+    "ok": 5
+  }
+}

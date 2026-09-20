@@ -4,7 +4,7 @@ development_status:
   e01s02: done
   e02: in_progress
   e02s01: done
-  e02s02: todo
+  e02s02: in_progress
   e02s03: todo
 epics:
   e01:
@@ -56,7 +56,7 @@ stories:
     attributed_by_trailer: true   # `Story: e02s01` trailer on d7557e4
     landed_via: 'step 8 — squash-merged to main d7557e4 and pushed to origin (CI unverified: gh absent)'
   e02s02:
-    status: todo
+    status: in_progress
     title: Checkpoint policy keying + CLI surface (prompt step, skipped status, report
       section)
     bcps: 5
@@ -65,6 +65,7 @@ stories:
     tasks_passing: 0
     tasks_failing: 6
     risk_max: P1
+    started_at: '2026-09-20T07:42:23Z'
   e02s03:
     status: todo
     title: Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack,

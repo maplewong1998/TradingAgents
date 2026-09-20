@@ -5,4 +5,8 @@
 # 2026-09-20 step 8 (release-branch): verified released at story close — no lock is
 # held for e02s01 and none needs releasing; re-acquire if e02s01 reopens. e02s02
 # acquires its own lock at kickoff.
-locks: []
+# 2026-09-20T07:37Z: e02s02 cycle opened by orchestrator — lock acquired.
+locks:
+  - story: e02s02
+    agent: orchestrator
+    locked_at: '2026-09-20T07:37:31Z'

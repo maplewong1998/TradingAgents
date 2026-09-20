@@ -378,3 +378,28 @@ and the compare URL emitted for manual PR creation. `main` untouched
 - Landed-state validation: `validate-specs-yaml.sh` OK, G-12 PASS, `check-stale-locks.sh`
   clean, execution-status/state/cycle-times all parse and agree (e02s01 done, landed,
   merge_ref d7557e4). Checked out on `main` at story close, working tree clean.
+
+## 2026-09-20T07:37Z — e02s01 LANDED (d7557e4); e02s02 cycle opened
+
+- story_ops landing verdict: pass, landed=true, merge_ref d7557e4 (squash, 116 files,
+  trailer Story: e02s01), origin/main pushed 2d17df8→d7557e4→90d16be (bookkeeping).
+  Preflight on main: first run RED once (TestLoadOhlcvNoPoison one-shot, third sighting
+  of the same class), then 9× green + authoritative run 1002/2 — push proceeded per the
+  user's explicit unwatched-CI acceptance. Routed: capture --tb=long if it recurs.
+- Cycle metrics: trailer attribution works but squash degenerates git-effort to 0.0h —
+  wall-clock 73.5 min / 6.53 bcp-per-hour stays operative. LESSON: use a MERGE COMMIT
+  at the next landing if git-effort metrics matter. Tool defect logged:
+  record-cycle-time.sh append corrupts the ledger YAML (OKF bundle relocated to
+  specs/metrics/e02s01-story-metrics.okf.md; scripts/ not patched — global symlink).
+- e02s02 cycle opened: roster reset (story=e02s02, all roles null; e02s01 residents
+  archived in the roster header as NOT reusable), e02s02 lock acquired, state.yaml
+  epic_cycle.step=1, story_bcps=5, metrics reset (story_start 07:37:31Z),
+  next_skill=survey-context.
+- New story_ops started: ceb173da-4e9e-4909-a686-db431cc5cdad — STEP 1 (survey-context)
+  + STEP 2 (plan-work VERIFICATION of the frozen e02s02 spec/tasks; must confirm the
+  _run_signature graph-shape mirroring requirement is covered; report drift, no silent
+  re-plan).
+- NOTE: cockpit edits (state.yaml, fleet-agents.yaml, agent-locks.yaml, progress.md)
+  are uncommitted on main — story_ops commits them in its next hygiene pass.
+- Pending after steps 1-2 notice: orchestrator runs the Phase 4 plan gate, then STEP 3
+  kickoff-branch → worktree <root>/.worktrees/e02s02, branch feat/e02s02 off main.
