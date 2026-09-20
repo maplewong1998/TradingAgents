@@ -500,3 +500,23 @@ and the compare URL emitted for manual PR creation. `main` untouched
   isolation error is ModuleNotFoundError not ImportError.
 - state: epic_cycle.step=4 (root+worktree), next_skill=develop-tdd. develop round 2
   sent to SAME id 143f1446-0771-4331-b357-6fbe7b0ca67b.
+
+## 2026-09-20 — e02s02 develop r2 PASS; verify r2 dispatched
+
+- develop (143f1446) round 2: PASS, tip efb7517. FIX 1 (story, RED-first 909a7b5 →
+  7526937): gate INFO records now carry the ticker via shared _instrument(state);
+  WARNING untouched; task 4 verify 10 passed. FIX 2 (separate quick-fix 7aae193,
+  Bug: trailer): TestLoadOhlcvNoPoison hermetic (stub vendor_reachable in setUp +
+  addCleanup), product behavior untouched; BUG-2026-09-20-no-data-handling-live-vendor-probe.md
+  + registry entry embed verify's baseline capture. Preflight 1024/2 ×2 + ruff clean.
+  Caps: main.py 1276, trading_graph.py 652, debate_gate.py 256. A10 accuracy notes
+  recorded in ledger round2.record_integrity. efb7517 was message-amended once
+  (backtick substitution), tree unchanged, nothing pushed.
+- Spot-checked by orchestrator: _instrument helper + INFO call sites + BUG spec exist.
+- state: epic_cycle.step=5 (root+worktree).
+- verify round 2 sent to SAME id b0a6a107-02af-48f1-bec5-3ebd5723c7ae: re-derive the
+  failed acceptance_criteria phase, quick-fix audit (test-only, assertion intact,
+  hermeticity re-derivation with requests.head blocked), RED-first proof for 909a7b5,
+  delta house rules, explicit carry-forward of round-1 passing phases.
+- Outstanding routed (e02s03/quick-fix): tests/_tmp_cache gitignore/ban (kept open in
+  the new BUG spec's follow-up).
