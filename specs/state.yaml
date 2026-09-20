@@ -6,7 +6,7 @@ test_plan: required
 vcs:
   kind: git
   branch: main
-  head: MERGE_SHA_PLACEHOLDER
+  head: 26f3916
 pr:
   mode: team-pr
   url: https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s03
@@ -16,7 +16,7 @@ pr:
   pushed: true
   pushed_range: 'origin/feat/e02s03 @ 8d930cc; main pushed after the pre-merge Preflight (ordinary pushes, never force, no tag)'
   merged: true
-  merge_ref: MERGE_SHA_PLACEHOLDER
+  merge_ref: 26f3916
   merged_locally: true        # local MERGE COMMIT on the user's Safety-gate choice (gh absent)
   merge_style: merge-commit   # keeps the per-commit history that git-hours attribution reads
   compare_url: https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s03
@@ -38,9 +38,10 @@ metrics:
   story_end: '2026-09-20T09:56:34Z'
   cycle_minutes: 75.5
   bcp_per_hour: 2.39
-  effort_hours: null
+  effort_hours: 0.98             # git-hours via the `Story: e02s03` trailers (record-cycle-time.sh, additivity PASS)
+  lead_time_minutes: 59
   attributed_by_trailer: true
-  cycle_time_source: wall-clock
+  cycle_time_source: wall-clock + git-hours
   skill_timings:
     plan-work:
       calls: 2
@@ -81,6 +82,26 @@ epic_cycle:
     story_start: '2026-09-20T08:41:06Z'
 handoff:
   next_skill: verify-work
+  e02s03_landed: >-
+    LANDED 2026-09-20T10:0xZ: the user's Safety gate chose "Merge commit locally" (preserving git-effort
+    attribution) and "run Phase 5 VERIFY automatically". `git merge --no-ff feat/e02s03` produced the
+    MERGE COMMIT 26f3916 on main (parents 37dbc93 + 8d930cc) with the persisted landing subject and a
+    Story: e02s03 trailer, keeping the individual story commits intact. The only conflict was
+    specs/state.yaml — resolved with the BRANCH copy authoritative, then re-stamped on top (vcs/git
+    branch main, vcs.head 26f3916, git.worktree null, pr.merged true + merge_ref + merged_locally true +
+    merge_style merge-commit; release.ci_verified false with its gh-absent reason). progress.md and
+    specs/fleet-agents.yaml were root-only changes and merged cleanly. Preflight on main BEFORE the push:
+    1027 passed / 2 skipped / 88 subtests, ruff clean, validate-specs-yaml OK, serial behind a clean ps
+    pre-check. Pushed main 37dbc93..26f3916 (ordinary push, no force, no tag). Git-effort is real:
+    `record-cycle-time.sh report --range 37dbc93..HEAD` -> e02s03 0.98 h / 23 commits / 59 min coding
+    span, ADDITIVITY PASS against the whole-range oracle — the merge-commit landing did what e02s01's
+    squash could not (0.0 h). Worktree .worktrees/e02s03 removed after `git merge-base --is-ancestor
+    feat/e02s03 main` and a clean TRACKED tree; local and remote branches feat/e02s03 kept (e02s01/e02s02
+    precedent, no deletion without a user request); the root .git/info/exclude mirror was left in place.
+    e02s03 is the LAST story of epic e02: epic e02 is done (development_status, epics.e02 and the capsule
+    epic.yaml) and the capsule is NOT archived — the epic-close ceremony stays with the orchestrator.
+    NEXT: the PROJECT-level Phase 5 VERIFY (run-evals + project verify-work, off-main), dispatched by the
+    orchestrator.
   e02s03_step8_landing_notes: 'STEP 8 (release-branch, team-pr decision mode) — 2026-09-20T09:56:34Z:
     final Preflight at the reviewed tip 85d7ddd = 1027 passed / 2 skipped / 88 subtests,
     ruff clean, validate-specs-yaml OK, serial behind a clean ps-based pytest concurrency

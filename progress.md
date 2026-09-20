@@ -854,3 +854,44 @@ and the compare URL emitted for manual PR creation. `main` untouched
   trace refresh (TRACEABILITY_LATEST.md, traceability-matrix.json, codebase-wiki/*,
   incl. regenerated e01s01.md), state.yaml cockpit edits (step 7).
 - state: epic_cycle.step=7, next_skill=commit-message (both trees).
+
+## 2026-09-20 — e02s03 LANDED (merge commit 26f3916); epic e02 COMPLETE
+
+- Safety gate (user): "Merge commit locally" (preserving git-effort attribution) and
+  "run Phase 5 VERIFY automatically" — the same landing style the user chose for e02s02,
+  not the team-pr squash default (`gh` is absent, so there is no PR object to merge).
+- `git merge --no-ff feat/e02s03` on main at 37dbc93 → MERGE COMMIT **26f3916**
+  (parents 37dbc93 + 8d930cc), subject = the persisted landing title
+  `docs(specs): refresh the CHANGELOG, .env.example, README and specs knowledge for
+  the conditional debate gate`, body = the condensed PR body, footer `Story: e02s03`.
+  Individual story commits kept intact — that is what re-enables git-hours.
+- Conflict handling: specs/state.yaml only (both sides had edited it). Resolved with
+  the BRANCH copy authoritative, then re-stamped on top: vcs/git branch → main,
+  vcs.head → 26f3916 (this also fixed the branch copy's stale 56536c7), git.worktree →
+  null, pr.merged → true + merge_ref + merged_locally + merge_style merge-commit,
+  release.ci_verified false with the gh-absent reason. specs/agent-locks.yaml took the
+  branch copy (locks: []). progress.md and specs/fleet-agents.yaml were root-only
+  changes and merged cleanly.
+- Preflight on main BEFORE the push: 1027 passed / 2 skipped / 88 subtests, ruff clean,
+  validate-specs-yaml OK — serial, behind a clean ps-based pytest concurrency pre-check.
+  Pushed main 37dbc93..26f3916 (ordinary push, no force, no tag).
+- Git-effort is real: `record-cycle-time.sh report --range 37dbc93..HEAD` → e02s03
+  0.98 h / 23 commits / 59 min coding span, ADDITIVITY PASS against the whole-range
+  oracle (0.9792 h) — the merge-commit landing did what e02s01's squash could not
+  (0.0 h). cycle-times.yaml row updated to landed=true / merge_ref=26f3916 /
+  merge_commits=1 / effort_hours 0.98 / lead_time 59 min / source "wall-clock +
+  git-hours", with the wall-clock basis (75.5 min, 2.39 bcp_per_hour) kept.
+- Worktree .worktrees/e02s03 removed after `git merge-base --is-ancestor feat/e02s03
+  main` and a clean TRACKED tree; local and remote branches feat/e02s03 kept
+  (e02s01/e02s02 precedent — no deletion without a user request); root
+  .git/info/exclude mirror left in place.
+- EPIC e02 is COMPLETE: development_status.e02 + epics.e02 + the capsule epic.yaml all
+  done, e02s03 done with completed_at 2026-09-20T09:56:34Z. The capsule directory is
+  deliberately NOT archived — the epic-close ceremony stays with the orchestrator.
+- NEXT: the PROJECT-level Phase 5 VERIFY (run-evals + project verify-work, off-main),
+  which the orchestrator dispatches now.
+- Carried forward (post-e02, non-blocking): injectable reachability check as a fix-bug
+  item (BUG-2026-09-20-no-data-handling-live-vendor-probe); the check-import-boundaries
+  tooling gap (specs/import-boundaries.json absent — the script exits 0 but prints
+  FAIL); e01s01/e01s02 trace-stale items; the CHANGELOG "Gate decisions log at INFO"
+  wording nit for the judged-hold branch that emits no gate log line.
