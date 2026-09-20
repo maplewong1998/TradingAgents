@@ -181,5 +181,58 @@ class TestDebateGateSkippedFromEnv(unittest.TestCase):
         self.assertEqual(sel["debate_gate"], "never")
 
 
+@pytest.mark.unit
+class TestDebateGateEnvNotice(unittest.TestCase):
+    """The env notice, on the real wiring rather than a stubbed prompt.
+
+    The class above stubs ``ask_debate_gate``, so it proves the menu is not shown
+    but never exercises the branch that decides it: the gate policy step has its
+    own env check, and these tests pin its two halves (notice + no prompt, and
+    the value the config ends up with).
+    """
+
+    def _console(self) -> tuple:
+        import io
+        from rich.console import Console
+
+        buf = io.StringIO()
+        return Console(file=buf, force_terminal=False, width=220), buf
+
+    def test_env_policy_short_circuits_the_menu_and_says_so(self):
+        """SC-e02s02-P1-02 — with the env var set the step returns the config value
+        without asking, and prints which env var decided it."""
+        import cli.gate_policy as gp
+
+        console, buf = self._console()
+        with mock.patch.dict(os.environ, {"TRADINGAGENTS_DEBATE_GATE": "always"}), \
+             mock.patch.object(gp, "console", console), \
+             mock.patch.object(gp, "ask_debate_gate") as prompt:
+            resolved = gp.select_debate_gate({}, "always", console, lambda *a: "")
+
+        prompt.assert_not_called()          # no menu on the non-interactive path
+        self.assertEqual(resolved, "always")
+        self.assertIn("TRADINGAGENTS_DEBATE_GATE", buf.getvalue())
+
+    def test_the_env_notice_is_printed_once_across_the_run(self):
+        """The step and the config builder both resolve the policy, and both know
+        the env var is set, so a naive pair of notices told the user the same thing
+        twice in one run. One line is the contract: the fact does not become truer
+        by being repeated, and a doubled notice reads as two separate settings."""
+        import cli.gate_policy as gp
+
+        console, buf = self._console()
+        with mock.patch.dict(os.environ, {"TRADINGAGENTS_DEBATE_GATE": "never"}), \
+             mock.patch.object(gp, "console", console), \
+             mock.patch.object(gp, "ask_debate_gate") as prompt:
+            selected = gp.select_debate_gate({}, "never", console, lambda *a: "")
+            # The menu answer a prior step may have collected, as main.py passes it.
+            resolved = gp.resolve_debate_gate("never", {"debate_gate": selected}, console)
+
+        prompt.assert_not_called()
+        self.assertEqual(resolved, "never")
+        notice = [l for l in buf.getvalue().splitlines() if "TRADINGAGENTS_DEBATE_GATE" in l]
+        self.assertEqual(len(notice), 1, f"the env notice must print once, got: {notice}")
+
+
 if __name__ == "__main__":
     unittest.main()

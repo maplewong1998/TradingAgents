@@ -121,6 +121,28 @@ def test_a_remembered_gate_policy_prefills_the_menu():
     assert select.call_args.kwargs["default"] is None
 
 
+@pytest.mark.unit
+def test_cancelling_the_gate_prompt_exits_instead_of_guessing(capsys):
+    """No answer is not "auto": questionary returns None when the user cancels, and
+    a run whose gating policy nobody chose must not silently buy (or skip) a debate
+    (cli/gate_policy.py, the SystemExit branch).
+
+    The exit is the contract here, not a log line: a skip costs the Research
+    Manager the opposing argument it was about to be given, and neither the skip
+    nor the debate is something to pick on the user's behalf.
+    """
+    from cli.gate_policy import ask_debate_gate
+
+    with mock.patch("cli.gate_policy.questionary.select") as select:
+        select.return_value.ask.return_value = None  # the user cancelled the prompt
+        with pytest.raises(SystemExit) as exit_info:
+            ask_debate_gate("auto")
+
+    select.return_value.ask.assert_called_once()  # the exit came from a real cancel
+    assert exit_info.value.code == 1
+    assert "No debate gate policy selected" in capsys.readouterr().out
+
+
 # --- wiring ------------------------------------------------------------------
 
 def _answer_every_prompt(monkeypatch):
