@@ -695,3 +695,26 @@ and the compare URL emitted for manual PR creation. `main` untouched
   mapping of the 7-item routed queue + A10 standing items to frozen tasks or reported
   gaps (proposed treatments; orchestrator rules — no silent scope expansion), and a
   check that the docs tasks reflect BOTH landed stories' surfaces.
+
+## 2026-09-20 — e02s03 steps 1-2 PASS; rulings issued; step 3 dispatched
+
+- story_ops (608064ee) steps 1-2: PASS, plan_ready. Frozen capsule byte-identical to
+  snapshot; 5/5 tasks with runnable verifies, ALL baseline-RED (genuine failing
+  ledger); plan-consistency 0/0/0. Cockpit committed on main: 276cfc4.
+- PHASE4-GATE re-run by orchestrator: PASS.
+- ORCHESTRATOR RULINGS:
+  (a) Queue: item 1 approved (extend task 4 → CONVENTIONS §File-Size rows); items 2/3/5
+      approved as step-4 quick-fix commits (env-notice dedupe; tests/_tmp_cache
+      gitignore; SystemExit-branch test + item 7 env-notice coverage folded in);
+      item 4 DEFERRED past e02 (fix-bug backlog via the live-vendor-probe BUG
+      follow-up — exceeds the 3-bcp docs budget).
+  (b) Doc refresh beyond frozen wording (new modules, all stale tech-stack/README/
+      glossary metrics) rides INSIDE tasks 3/4; task 1 = "## [Unreleased]" heading
+      (no semantic-release tooling exists; pyproject stays pinned 0.5.0).
+  (c) agents/schemas.py 392>379: RULED legitimate — the +13 lines are the e02s01
+      ruling-1 re-exports; task 4 updates the row 379→392 with a WHY note; ratchet
+      re-locks; no code reverted.
+- STEP 3 dispatched to SAME story_ops id: worktree .worktrees/e02s03, branch
+  feat/e02s03 off 276cfc4, root Preflight first (hard gate), own venv, scripts/
+  symlink recreated, ps-ritual baseline, flake capture-first rule, lock delegated,
+  branch-copy state updates, step-3 commit on branch only.
