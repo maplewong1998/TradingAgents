@@ -233,3 +233,8 @@ specs/state.yaml.lock
 
 # e02s02: linked worktrees live here (root-level dir; ignored so `git status` stays clean)
 .worktrees/
+
+# Test-created cache dir: tests point results/cache paths at tests/_tmp_cache, which the
+# suite does not clean up, so an ignored directory keeps `git status` honest after a run
+# (BUG-2026-09-20-no-data-handling-nonhermetic-cache).
+tests/_tmp_cache/
