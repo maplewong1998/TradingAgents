@@ -718,3 +718,21 @@ and the compare URL emitted for manual PR creation. `main` untouched
   feat/e02s03 off 276cfc4, root Preflight first (hard gate), own venv, scripts/
   symlink recreated, ps-ritual baseline, flake capture-first rule, lock delegated,
   branch-copy state updates, step-3 commit on branch only.
+
+## 2026-09-20 — e02s03 step 3 PASS; develop r1 dispatched
+
+- story_ops step 3: worktree .worktrees/e02s03 on feat/e02s03 off 276cfc4, tip 787a829
+  (kickoff chore + Story trailer), own venv + scripts symlink, rulings recorded on-branch
+  (handoff.e02s03_orchestrator_rulings_step3), lock delegated, kickoff baseline evidence
+  committed (specs/verifications/e02s03-kickoff-baseline.yaml). Baselines green ×3
+  (root 276cfc4, worktree base, worktree tip: 1024/2/88, ruff clean), ps ritual clean,
+  flake hermetic. Main drift 276cfc4→484a428 is progress-only, linear — no rebase.
+- state: root + worktree epic_cycle.step=4 (worktree edit uncommitted; develop folds it).
+- develop resident started (NEW for e02s03): b4848a06-764f-4ef2-be0b-dc472d90c918 —
+  step 4 r1: frozen tasks 1-5 in order (CHANGELOG ## [Unreleased] with the churn/
+  default-policy/restore-switch wording; .env.example TRADINGAGENTS_DEBATE_GATE;
+  README/tech-stack/glossary refresh incl. all stale metrics and the five new modules;
+  CONVENTIONS cap rows 1276/652/392 with the schemas WHY note), then approved
+  quick-fixes QF-A (env-notice dedupe), QF-B (SystemExit + env-skip coverage,
+  RED-first honesty), QF-C (.gitignore tests/_tmp_cache/); item 4 deferred untouched;
+  final Preflight leg after the QFs; Story: e02s03 trailers.
