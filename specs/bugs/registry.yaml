@@ -17,3 +17,22 @@ bugs:
     follow_up: >-
       CI only runs TZ=UTC, so this class of bug is structurally invisible there.
       Consider a non-UTC CI job or a tzset autouse fixture.
+  - id: BUG-2026-09-20-no-data-handling-nonhermetic-cache
+    title: TestLoadOhlcvNoPoison is non-hermetic — fixed shared tests/_tmp_cache path
+    severity: P2
+    status: fixed
+    route: quick-fix
+    file: BUG-2026-09-20-no-data-handling-nonhermetic-cache.md
+    discovered: "2026-09-20"
+    fixed: "2026-09-20"
+    summary: >-
+      setUp pointed data_cache_dir at the fixed in-tree path tests/_tmp_cache and
+      never purged it, so a leftover fresh cache file (interrupted run) or a
+      concurrent pytest process made load_ohlcv serve the cache instead of raising
+      NoMarketDataError — 1 failing full-suite run in 15, self-healing in tearDown.
+      Reproduced deterministically by planting the cache file. Test-only fix:
+      unique tempfile.mkdtemp per test plus shutil.rmtree in tearDown.
+    follow_up: >-
+      tests/_tmp_cache should be gitignored or banned outright: a test that writes
+      into the worktree is readable by every other test and process. Consider a
+      conftest guard that points data_cache_dir at tmp_path suite-wide.
