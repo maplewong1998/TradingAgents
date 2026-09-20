@@ -1,0 +1,58 @@
+# specs/verifications/e02s03-kickoff-baseline.yaml — step 3 (kickoff-branch) evidence.
+#
+# tests/conftest.py runs drop_all + init_db() against a SHARED PostgreSQL dataset, so two
+# concurrent pytest processes silently poison each other. Every run below therefore sits
+# immediately behind a ps-based concurrency pre-check (pgrep -f self-matches its own wrapper
+# and is never used). A raced run is invalid evidence, not merely unlucky.
+
+story: e02s03
+step: 3
+skill: kickoff-branch
+recorded_at: '2026-09-20T09:1xZ'
+base_commit: 276cfc4                 # main tip at kickoff; origin/main == 276cfc4
+branch: feat/e02s03
+worktree: /home/maplewong1998/Repository/TradingAgents/.worktrees/e02s03
+
+concurrency_pre_check:
+  command: 'ps -eo pid,args | grep -E "[p]ython -m pytest" | grep -v "bash -c"'
+  root_run: clean                    # no other pytest process at the moment the run started
+  worktree_run: clean
+
+runs:
+  - where: root (main @ 276cfc4, default-branch Preflight — the hard gate before kickoff)
+    command: '.venv/bin/python -m pytest -q && ruff check .'
+    result: green
+    counts: '1024 passed / 2 skipped / 88 subtests, 22 warnings, 3.55s'
+    ruff: 'All checks passed!'
+    skips:
+      - 'tests/test_bedrock_provider.py:74 — langchain_aws extra absent (expected)'
+      - 'tests/test_deepseek_reasoning.py:209 — DEEPSEEK_API_KEY not set (placeholder) (expected)'
+    expected_by: 'orchestrator: "expect 1024 passed / 2 skipped" — match'
+  - where: worktree (.worktrees/e02s03 @ 276cfc4, its OWN venv — never shared with root)
+    command: '.venv/bin/python -m pytest -q && ruff check .'
+    result: green
+    counts: '1024 passed / 2 skipped / 88 subtests, 22 warnings, 5.13s'
+    ruff: 'All checks passed!'
+    venv: 'uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -e ".[dev]" (uv 0.12.17, CPython 3.12.11)'
+    scripts_symlink: 'recreated: scripts -> /home/maplewong1998/.local/lib/node_modules/bigpowers/scripts (untracked; .gitignore carries /scripts and .worktrees/)'
+  - where: worktree @ 9368f69 (the step-3 commit itself — confirm the committed tree is green)
+    command: '.venv/bin/python -m pytest -q && ruff check .'
+    result: green
+    counts: '1024 passed / 2 skipped / 88 subtests, 22 warnings, 3.23s'
+    ruff: 'All checks passed!'
+    concurrency_pre_check: clean
+
+flake_watch:                         # TestLoadOhlcvNoPoison is hermetic since 7aae193
+  TestLoadOhlcvNoPoison: not_seen    # clean in both runs — no --tb=long capture needed
+  other_failures: none
+
+counts_reconciliation:
+  baseline_tests: 1024               # unchanged from the e02s02 landing Preflight (1024/2/88)
+  delta_vs_e02s02: 0                 # expected: no code changed between 71bf36b's landing and 276cfc4
+
+gate_state_at_close:
+  active_flow: build_epic            # HARD GATE satisfied
+  on_main: false                     # worktree/branch only; no commit on main from this step
+  lock: 'specs/agent-locks.yaml — e02s03 held, agent: story_ops, locked_at 2026-09-20T08:41:06Z'
+  epic_cycle_step: 3
+  handoff_next_skill: develop-tdd

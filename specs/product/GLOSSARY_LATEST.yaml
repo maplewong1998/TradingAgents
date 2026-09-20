@@ -3,6 +3,8 @@
 # Extracted from the code as it exists today (map-codebase, 2026-09-20), not invented.
 # Canonical terms and their single source of truth in code. Run `define-language`
 # after a domain conversation to extend this file.
+# story: e02s03 — Debate Gate, Alignment Marker and debate_gate policy added, and the
+# Checkpoint run-signature list extended with the gate mode, all sourced from the code.
 
 terms:
   - term: Analyst
@@ -33,6 +35,40 @@ terms:
       debate; the Trader's input.
     source: tradingagents/agents/managers/research_manager.py
     aliases: [investment_plan]
+
+  - term: Debate Gate
+    definition: >-
+      The node between the analyst phase and the Bull/Bear debate that decides
+      whether the debate is worth holding. It judges the four analyst reports with
+      a quick model (structured verdict: evidence_aligned, confidence,
+      aligned_direction, rationale) and routes with a LangGraph Command either into
+      the debate or past it to the Research Manager. It skips only on an explicit
+      aligned verdict with confidence above "low"; any judge failure logs a warning
+      and holds the debate, so the gate can only remove calls it was told to remove.
+    source: tradingagents/agents/gate/debate_gate.py, tradingagents/graph/setup.py
+    aliases: [debate_gate node, create_debate_gate, Debate Gate Policy]
+
+  - term: Alignment Marker
+    definition: >-
+      The rendered DebateGateVerdict that the Research Manager receives in place of
+      a debate transcript when the debate is skipped (or when configuration
+      disabled it). It states the path taken and, on a skip, the direction,
+      confidence and rationale, so a run with no debate still records why. Skip
+      versus held is read from the empty debate transcript, never from the marker:
+      the held path writes one too (e02s02 ruling D1).
+    source: tradingagents/agents/gate/schemas.py (render_debate_gate_marker), tradingagents/reporting.py
+    aliases: [debate_gate_verdict, skipped-debate marker]
+
+  - term: debate_gate policy
+    definition: >-
+      Which gating policy a run uses: "always" holds the debate on every run with no
+      judge call (the pre-gate behavior), "auto" judges each run and skips only when
+      the analysts already agree (default), "never" holds no debate and disables the
+      judge. Set in config or via TRADINGAGENTS_DEBATE_GATE; an unknown value fails
+      at config-build time. The mode is part of the checkpoint run signature as
+      gate=<mode>, so a resume cannot continue under a different policy.
+    source: tradingagents/default_config.py, tradingagents/agents/gate/debate_gate.py, tradingagents/graph/trading_graph.py (_run_signature)
+    aliases: [gate mode, DEBATE_GATE_MODES, TRADINGAGENTS_DEBATE_GATE]
 
   - term: Trader Proposal
     definition: >-
@@ -113,7 +149,8 @@ terms:
     definition: >-
       A per-ticker LangGraph SQLite checkpoint that lets a crashed run resume from
       the last successful node. The thread ID includes a run signature (analysts,
-      debate depth, asset type, portfolio book) so a shape change starts fresh.
+      debate depth, risk depth, asset type, portfolio book, debate_gate mode) so a
+      shape or policy change starts fresh.
     source: tradingagents/graph/checkpointer.py, tradingagents/graph/trading_graph.py
     aliases: [thread_id, run signature, checkpoint_enabled]
 

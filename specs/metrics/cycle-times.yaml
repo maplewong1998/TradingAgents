@@ -67,3 +67,34 @@ stories:
     verify_status: pass          # specs/verifications/e02s02-verify-r2.yaml, 9/9 phases (round 1 fail -> round 2 pass)
     rework_count: 3              # develop round 2 + verify round 2 + quick-fix BUG during round 2
     routed_open: 'tests/_tmp_cache gitignore entry; CONVENTIONS.md cli/main.py cap row stale (1460 -> 1276); double env notice (cli/gate_policy.py:76-81, :99-104) — all to e02s03'
+
+  # 2026-09-20 e02s03 — written by build-epic step 8 (release-branch, team-pr DECISION mode: the branch
+  # is pushed for the user's Safety gate, nothing has landed). cycle_minutes is the wall-clock basis
+  # (story_start → step-8 write), the same basis e02s01/e02s02 use. effort_hours is deliberately NOT
+  # claimed: with no merge commit there is nothing for record-cycle-time.sh to attribute. A MERGE-COMMIT
+  # landing would restore git-hours from the `Story: e02s03` trailers exactly as it did at e02s02;
+  # a squash landing would degenerate it to 0.0 h, as at e02s01. All 15 branch commits carry the trailer.
+  - id: e02s03
+    epic: e02
+    bcps: 3
+    story_start: '2026-09-20T08:41:06Z'
+    story_end: '2026-09-20T09:56:34Z'
+    cycle_minutes: 75.5          # wall-clock story_start → step-8 write
+    bcp_per_hour: 2.39           # 3 bcps / 75.5 min * 60 — wall-clock basis
+    effort_hours: null           # pending a landing; merge-commit landing enables git-hours re-attribution
+    attributed_by_trailer: true  # `Story: e02s03` on all 15 commits (kickoff 787a829 .. 85d7ddd)
+    commits: 22                  # story range 276cfc4..c0eb47c = 15 product/docs commits + 7 pipeline record commits (steps 1-8)
+    merge_commits: 0             # decision mode — nothing landed
+    branch: feat/e02s03
+    landed: false
+    merge_ref: null
+    source: wall-clock           # git-hours deferred to the landing (see note)
+    audit_score_pct: 100         # gate rounds 1 + 2 both 100/100 (round 2 docs-only), specs/verifications/AUDIT-e02-e02s03.md
+    verify_status: pass          # specs/verifications/e02s03-verify-r1.yaml, 9/9 phases
+    rework_count: 2              # develop round 2 (docs fix-forward) + gate round 2 (both PASS)
+    landed_via: 'step 8 — pushed to origin @ 85d7ddd (ordinary push, no force, no tag); compare URL
+      https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s03; the user opens the PR
+      (gh absent) and the Safety gate owns the merge decision'
+    routed_open: 'post-e02: injectable reachability check (fix-bug, BUG-2026-09-20-no-data-handling-live-vendor-probe);
+      check-import-boundaries tooling gap (specs/import-boundaries.json absent); e01s01/e01s02 trace-stale items;
+      CHANGELOG "Gate decisions log at INFO" wording nit for the judged-hold branch'

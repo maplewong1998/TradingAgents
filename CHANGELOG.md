@@ -6,6 +6,49 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Breaking changes within the 0.x line are called out explicitly.
 
+## [Unreleased]
+
+`feat(graph)`: the Bull/Bear investment debate becomes conditional. The debate used
+to run on every analysis even when all four analyst reports agreed; a gate now judges
+whether genuine tension exists and routes aligned runs straight to the Research
+Manager. Because the default behavior of a run changes and checkpoint thread IDs are
+re-keyed once, both are called out here explicitly.
+
+### Changed
+
+- **The Bull/Bear debate is held only when the evidence is contested.** The gate
+  (`tradingagents/agents/gate/`) asks a quick model for a structured verdict on the
+  four analyst reports and routes with a LangGraph `Command`: into the debate, or past
+  it to the Research Manager. The default policy is `auto`.
+- **The restore switch is exact.** `debate_gate: "always"` — or
+  `TRADINGAGENTS_DEBATE_GATE=always` — holds the debate on every run with no judge
+  call, which is precisely the pre-gate behavior. `"never"` holds no debate at all
+  and disables the judge. Set the policy in `DEFAULT_CONFIG`, in `.env`, or from the
+  CLI's Debate Gate Policy step; the environment variable wins over the menu pick,
+  under the same precedence rule as every other `TRADINGAGENTS_*` setting.
+- **A gate that cannot judge holds the debate.** The judge must return a validated
+  verdict of *aligned* with confidence above `low` for a skip. A missing or thin report
+  is judged `low` and holds the debate without a warning — the verdict did arrive, it
+  just does not permit a skip. A judge that fails (an exception, a `None`, an
+  unparseable payload) logs a WARNING and takes the debate path: today's behavior. The
+  gate never retries with free text, so a failed judge never costs a second LLM call.
+- **One-time checkpoint re-keying (`gate=<mode>`).** The gate mode joins the
+  checkpoint run signature (`_run_signature`), so a resume can never continue a run
+  under a different gating policy (#1089). A thread written before this release was
+  keyed without `gate=`, so it no longer matches and is not resumable: each affected
+  ticker starts fresh **once** instead of resuming the saved run. The run view says
+  which happened. Successful runs still clear their checkpoint, so the set of stale
+  threads only shrinks.
+
+### Added
+
+- **Skipped-debate visibility.** The run view shows Bull Researcher and Bear
+  Researcher as `skipped` when the gate routes past them, so no agent is left
+  `pending`; the live view and the saved report tree gain a **Debate Gate** section
+  that states the path taken (verdict, direction and confidence when skipped; rounds
+  played when held; `never` when disabled by configuration). Gate decisions log at
+  INFO and failures at WARNING — a silent skip is never the outcome.
+
 ## [0.5.0] — 2026-09-18
 
 Point-in-time integrity across every dated path, decisions that are recorded as

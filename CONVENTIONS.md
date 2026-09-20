@@ -241,11 +241,11 @@ The P2 cap is 300 lines. These files exceed it and are documented exceptions:
 
 | File | Lines | Status |
 |------|-------|--------|
-| `cli/main.py` | 1460 | Exception — refactor candidate, see `specs/tech-architecture/REFACTOR_LATEST.md` |
+| `cli/main.py` | 1276 | Exception — refactor candidate, see `specs/tech-architecture/REFACTOR_LATEST.md` |
 | `cli/utils.py` | 718 | Exception |
-| `tradingagents/graph/trading_graph.py` | 672 | Exception — facade |
+| `tradingagents/graph/trading_graph.py` | 652 | Exception — facade |
 | `tradingagents/dataflows/y_finance.py` | 527 | Exception |
-| `tradingagents/agents/schemas.py` | 379 | Exception |
+| `tradingagents/agents/schemas.py` | 392 | Exception — the +13 lines over the previous cap are the e02s01 gate-schema re-exports (`from tradingagents.agents.gate.schemas import ...`), the mechanism that kept the new `DebateGateVerdict` out of this already-capped module while leaving `agents.schemas`'s public import path unchanged (e02s01 ruling 1) |
 | `tradingagents/llm_clients/openai_client.py` | 338 | Exception |
 | `tradingagents/agents/utils/memory.py` | 337 | Exception |
 | `tradingagents/dataflows/stockstats_utils.py` | 330 | Exception |
