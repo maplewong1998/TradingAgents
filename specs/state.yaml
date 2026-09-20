@@ -16,7 +16,7 @@ pr:
   title: 'feat(agents): gate the bull/bear debate on analyst evidence tension'
   bump: minor
   pushed: true
-  pushed_tip_commits: 19   # main (2d17df8) .. branch tip; 17 code/plan + 2 chore(specs)
+  pushed_range: main..feat/e02-conditional-debate-gate   # count is the git log's, not a literal here
   merged: false
   merge_ref: null
 git:
