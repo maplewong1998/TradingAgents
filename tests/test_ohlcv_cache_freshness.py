@@ -21,7 +21,12 @@ STALE = su.OHLCV_CACHE_TTL_SECONDS + 60
 def _write(tmp_path, name="AAPL-YFin-data.csv", age_seconds=0.0, last_date="2026-07-17"):
     f = tmp_path / name
     pd.DataFrame({"Date": [last_date], "Close": [100.0]}).to_csv(f, index=False)
-    written = NOW.timestamp() - age_seconds
+    # Build the epoch with LOCAL semantics, matching the reader in
+    # _cache_is_fresh (pd.Timestamp.fromtimestamp is local). pandas 3.0's
+    # Timestamp.timestamp() interprets a tz-naive value as UTC, so NOW.timestamp()
+    # here would land the mtime a full utcoffset in the future and make a stale
+    # cache read as fresh anywhere outside UTC (#BUG-2026-09-20).
+    written = NOW.to_pydatetime().timestamp() - age_seconds
     os.utime(f, (written, written))
     return f
 
