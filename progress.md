@@ -285,3 +285,13 @@ and the compare URL emitted for manual PR creation. `main` untouched
   mirroring the capsule too: epic `status: todo → in_progress`, e02s01 `todo → done`.
   G-12 PASS, `validate-specs-yaml.sh` OK, `check-stale-locks.sh` clean. Lesson for the
   next story: the SoT flip and the capsule status flip belong in the same step-8 pass.
+- **Push result:** `git push origin feat/e02-conditional-debate-gate` created the remote
+  branch (ordinary push, no force). `origin/main` stays 2d17df8 — nothing merged.
+  Remote head == local head (recorded in the story_ops closing report). PR to open by
+  hand: https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02-conditional-debate-gate
+  (GitHub's own link: /pull/new/feat/e02-conditional-debate-gate). Title + body are the
+  fenced draft above.
+- **CI not verified (honest gap):** release-branch § 7b needs `gh` to watch the checks
+  and `gh` is absent, so `release.ci_verified: false` is recorded in state.yaml. The
+  user/orchestrator must read the PR's checks on GitHub before any merge decision —
+  local Preflight is green but that is not the same fact.

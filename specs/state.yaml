@@ -16,6 +16,7 @@ pr:
   title: 'feat(agents): gate the bull/bear debate on analyst evidence tension'
   bump: minor
   pushed: true
+  pushed_tip_commits: 19   # main (2d17df8) .. branch tip; 17 code/plan + 2 chore(specs)
   merged: false
   merge_ref: null
 git:
@@ -25,6 +26,11 @@ release:
   last_tag: null
   last_publish: null
   target_version: null
+  # release-branch § 7b (three-independent-facts) could NOT be completed: `gh` is not
+  # installed, so CI cannot be watched from here. The merge must not be declared
+  # green until the PR's checks are read on GitHub (gh pr checks / the PR page).
+  ci_verified: false
+  ci_verified_reason: gh CLI absent — CI runs on GitHub once the PR is opened
 metrics:
   story_start: '2026-09-20T04:21:39Z'
   story_end: '2026-09-20T05:35:10Z'
