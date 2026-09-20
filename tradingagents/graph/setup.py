@@ -10,6 +10,7 @@ from tradingagents.agents import (
     create_bear_researcher,
     create_bull_researcher,
     create_conservative_debator,
+    create_debate_gate,
     create_fundamentals_analyst,
     create_market_analyst,
     create_msg_delete,
@@ -84,6 +85,10 @@ class GraphSetup:
         bear_researcher_node = create_bear_researcher(self.quick_thinking_llm)
         research_manager_node = create_research_manager(self.deep_thinking_llm)
         trader_node = create_trader(self.quick_thinking_llm)
+        # The gate's Command targets ("Bull Researcher" / "Research Manager") must
+        # be nodes of this graph, never free labels: an unregistered target crashes
+        # LangGraph mid-run (#1088).
+        debate_gate_node = create_debate_gate(self.quick_thinking_llm)
 
         # Create risk analysis nodes
         aggressive_analyst = create_aggressive_debator(self.quick_thinking_llm)
@@ -103,6 +108,7 @@ class GraphSetup:
         # Add other nodes
         workflow.add_node("Bull Researcher", bull_researcher_node)
         workflow.add_node("Bear Researcher", bear_researcher_node)
+        workflow.add_node("Debate Gate", debate_gate_node)
         workflow.add_node("Research Manager", research_manager_node)
         workflow.add_node("Trader", trader_node)
         workflow.add_node("Aggressive Analyst", aggressive_analyst)
@@ -128,11 +134,14 @@ class GraphSetup:
             )
             workflow.add_edge(current_tools, current_analyst)
 
-            # Connect to next analyst or to Bull Researcher if this is the last analyst
+            # Connect to next analyst or to the Debate Gate if this is the last
+            # analyst. The gate decides whether this run still needs the debate
+            # (tension / ambiguity / thin evidence / judge failure / `always`) or
+            # goes straight to the Research Manager with an alignment marker.
             if i < len(plan.specs) - 1:
                 workflow.add_edge(current_clear, plan.specs[i + 1].agent_node)
             else:
-                workflow.add_edge(current_clear, "Bull Researcher")
+                workflow.add_edge(current_clear, "Debate Gate")
 
         # Both research-debate edges share the complete DEBATE_PATH_MAP (#1088).
         for debate_node in ("Bull Researcher", "Bear Researcher"):

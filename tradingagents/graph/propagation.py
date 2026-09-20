@@ -68,6 +68,9 @@ class Propagator:
             "fundamentals_report": "",
             "sentiment_report": "",
             "news_report": "",
+            # Pre-initialized with every other AgentState field: a bare
+            # programmatic state must never KeyError on the gate's audit trail.
+            "debate_gate_verdict": "",
         }
 
     def get_graph_args(self, callbacks: list | None = None) -> dict[str, Any]:

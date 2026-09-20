@@ -23,6 +23,29 @@ def create_research_manager(llm):
 
         investment_debate_state = state["investment_debate_state"]
 
+        # The Debate Gate records its decision here. A skipped debate has no
+        # conflicting arguments to weigh, so the paragraph that asserts the
+        # debate "always contains conflicting arguments" is replaced: pointing
+        # that text at a clear transcript invites the model to invent the
+        # absent conflict, or to read agreement as non-direction and drift to
+        # Hold (#1176). The held-debate text is unchanged, byte for byte.
+        gate_verdict = (state.get("debate_gate_verdict") or "").strip()
+        if gate_verdict:
+            weighing_paragraph = (
+                "No Bull/Bear debate was held for this run: the Debate Gate found the "
+                "four analyst reports aligned and uncontested, so no conflicting "
+                "arguments exist to weigh. Decide from the aligned evidence itself -- "
+                "commit to the 5-tier rating the reports support, sized by how "
+                "decisively they support it. Do not invent a bull/bear conflict, do "
+                "not treat the absence of conflict as non-direction, and do not "
+                "default to Hold to avoid appearing decisive. Choose Hold only when "
+                "the aligned evidence is genuinely too thin to support a call."
+            )
+        else:
+            # Held debate: byte-for-byte the paragraph this prompt shipped before
+            # the gate existed (test_structured_agents pins its #1321 wording).
+            weighing_paragraph = "The debate always contains conflicting arguments; deciding which side is stronger is the job, so conflict alone is not a reason to Hold. Commit to the side with the stronger case, sized by how decisively it wins. Choose Hold only when the evidence is still balanced after that weighing, or too thin to support a call; do not manufacture a direction to appear decisive. Weigh the bull and bear cases on their merits, independent of which side spoke first or last."
+
         prompt = f"""As the Research Manager and debate facilitator, your role is to critically evaluate this round of debate and deliver a clear, actionable investment plan for the trader.
 
 {instrument_context}
@@ -36,7 +59,7 @@ def create_research_manager(llm):
 - **Underweight**: Cautious view; recommend trimming exposure
 - **Sell**: Strong conviction in the bear thesis; recommend exiting or avoiding the position
 
-The debate always contains conflicting arguments; deciding which side is stronger is the job, so conflict alone is not a reason to Hold. Commit to the side with the stronger case, sized by how decisively it wins. Choose Hold only when the evidence is still balanced after that weighing, or too thin to support a call; do not manufacture a direction to appear decisive. Weigh the bull and bear cases on their merits, independent of which side spoke first or last.
+{weighing_paragraph}
 
 ---
 

@@ -12,6 +12,7 @@ import yfinance as yf
 from langgraph.prebuilt import ToolNode
 
 # Import the abstract tool methods from agent_utils
+from tradingagents.agents.gate.debate_gate import DEBATE_GATE_MODES
 from tradingagents.agents.utils.agent_utils import (
     build_instrument_context,
     get_balance_sheet,
@@ -90,6 +91,22 @@ def _coerce_max_tokens(value):
     return n
 
 
+def _coerce_debate_gate(value) -> str:
+    """Validate the ``debate_gate`` mode, naming the valid set in the error.
+
+    A mode the graph cannot honour (a typo'd env var, a stale saved config) must
+    stop the run before the analyst phase spends anything, rather than silently
+    debating or silently skipping every run.
+    """
+    mode = str(value).strip().lower()
+    if mode not in DEBATE_GATE_MODES:
+        raise ValueError(
+            f"Invalid debate_gate mode {value!r}. Valid modes: "
+            f"{', '.join(DEBATE_GATE_MODES)}."
+        )
+    return mode
+
+
 class TradingAgentsGraph:
     """Main class that orchestrates the trading agents framework."""
 
@@ -111,6 +128,13 @@ class TradingAgentsGraph:
         self.debug = debug
         self.config = config or DEFAULT_CONFIG
         self.callbacks = callbacks or []
+
+        # Validate the debate policy before anything is spent: a bad mode must
+        # fail here, not mid-run after the analyst phase has paid for reports
+        # (e02s01, scenario SC-e02s01-P1-02).
+        self.config["debate_gate"] = _coerce_debate_gate(
+            self.config.get("debate_gate", "auto")
+        )
 
         # Update the interface's config
         set_config(self.config)

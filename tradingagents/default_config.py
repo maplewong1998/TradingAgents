@@ -17,6 +17,7 @@ _ENV_OVERRIDES = {
     "TRADINGAGENTS_MAX_RISK_ROUNDS":      "max_risk_discuss_rounds",
     "TRADINGAGENTS_CHECKPOINT_ENABLED":   "checkpoint_enabled",
     "TRADINGAGENTS_BENCHMARK_TICKER":     "benchmark_ticker",
+    "TRADINGAGENTS_DEBATE_GATE":          "debate_gate",
     "TRADINGAGENTS_TEMPERATURE":          "temperature",
     "TRADINGAGENTS_LLM_MAX_RETRIES":      "llm_max_retries",
     "TRADINGAGENTS_MAX_TOKENS":           "max_tokens",
@@ -31,6 +32,11 @@ _ENV_OVERRIDES = {
 
 _BOOL_TRUE = ("true", "1", "yes", "on")
 _BOOL_FALSE = ("false", "0", "no", "off")
+
+# Keys with a closed value set, duplicated from their owning module because this
+# module is imported first (see _validate_override). Keep in sync:
+# tradingagents/agents/gate/debate_gate.py::DEBATE_GATE_MODES.
+_DEBATE_GATE_MODES = ("always", "auto", "never")
 
 
 def _coerce(value: str, reference):
@@ -56,6 +62,25 @@ def _coerce(value: str, reference):
     return value
 
 
+def _validate_override(key: str, value):
+    """Reject an env override the run cannot honour, at config-build time.
+
+    ``_coerce`` only matches the *type* of the default; a string-valued key
+    accepts any string. Keys with a closed value set (``debate_gate``) are
+    re-checked here so a typo'd env var fails at startup naming the valid set,
+    instead of silently picking a behavior for an unattended run.
+
+    The valid set is duplicated rather than imported from
+    ``tradingagents.agents.gate``: this module is built at import time and the
+    agents package imports ``dataflows.config``, which imports this module —
+    importing it back here is a circular import. ``tests/test_debate_gate.py``
+    asserts the two lists stay in sync.
+    """
+    if key == "debate_gate" and value not in _DEBATE_GATE_MODES:
+        raise ValueError(f"valid modes are {', '.join(_DEBATE_GATE_MODES)}")
+    return value
+
+
 def _apply_env_overrides(config: dict) -> dict:
     """Apply TRADINGAGENTS_* env vars to the config dict in-place."""
     for env_var, key in _ENV_OVERRIDES.items():
@@ -63,7 +88,7 @@ def _apply_env_overrides(config: dict) -> dict:
         if raw is None or raw == "":
             continue
         try:
-            config[key] = _coerce(raw, config.get(key))
+            config[key] = _validate_override(key, _coerce(raw, config.get(key)))
         except ValueError as exc:
             raise ValueError(f"Invalid value for {env_var}: {exc}") from exc
     return config
@@ -109,6 +134,13 @@ DEFAULT_CONFIG = _apply_env_overrides({
     # Checkpoint/resume: when True, LangGraph saves state after each node
     # so a crashed run can resume from the last successful step.
     "checkpoint_enabled": False,
+    # Bull/Bear debate policy (e02s01).
+    #   "auto"   -- an LLM judge decides per run: an aligned+confident analyst
+    #               phase skips the debate, anything else holds it (default)
+    #   "always" -- always run the debate (the pre-0.6.0 behavior, no judge call)
+    #   "never"  -- never run the debate (judge disabled; conservative skip)
+    # Unknown values fail loudly at config time rather than silently debating.
+    "debate_gate": "auto",
     # Output language for analyst reports and final decision
     # Internal agent debate stays in English for reasoning quality
     "output_language": "English",
