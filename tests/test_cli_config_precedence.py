@@ -70,6 +70,27 @@ def test_checkpoint_flag_overrides_env(flag):
 
 
 @pytest.mark.unit
+def test_env_debate_gate_wins_over_the_prompt_choice_and_says_so(monkeypatch, capsys):
+    """SC-e02s02-P1-02 — the gate policy follows the same rule as the round
+    counts (#977): an explicit TRADINGAGENTS_DEBATE_GATE wins over the interactive
+    pick, and the user is told which of the two the run will use."""
+    monkeypatch.setenv("TRADINGAGENTS_DEBATE_GATE", "never")
+    patched = dict(m.DEFAULT_CONFIG, debate_gate="never")  # the env overlay
+    with mock.patch.object(m, "DEFAULT_CONFIG", patched):
+        cfg = m._build_run_config({**SELECTIONS, "debate_gate": "auto"}, checkpoint=None)
+
+    assert cfg["debate_gate"] == "never"  # env value, not the saved/prompted one
+    assert "TRADINGAGENTS_DEBATE_GATE" in capsys.readouterr().out
+
+
+@pytest.mark.unit
+def test_the_gate_choice_reaches_the_config_without_env(monkeypatch):
+    monkeypatch.delenv("TRADINGAGENTS_DEBATE_GATE", raising=False)
+    cfg = m._build_run_config({**SELECTIONS, "debate_gate": "always"}, checkpoint=None)
+    assert cfg["debate_gate"] == "always"
+
+
+@pytest.mark.unit
 def test_glm_resolves_to_the_endpoint_its_key_belongs_to():
     """The provider table, the client registry and the key mapping must name the
     same platform: glm is Z.AI international (ZHIPU_API_KEY) and glm-cn is

@@ -145,5 +145,38 @@ class TestReasoningEffortSkippedFromEnv(unittest.TestCase):
         self.assertEqual(sel["openai_reasoning_effort"], "high")
 
 
+@pytest.mark.unit
+class TestDebateGateSkippedFromEnv(unittest.TestCase):
+    def test_gate_env_skips_the_policy_prompt(self):
+        """SC-e02s02-P1-02 — TRADINGAGENTS_DEBATE_GATE is the non-interactive
+        path: the policy prompt is not shown and the env value is used."""
+        import cli.main as m
+
+        env = {"TRADINGAGENTS_DEBATE_GATE": "never"}
+        fake_cfg = dict(m.DEFAULT_CONFIG)
+        fake_cfg.update({"debate_gate": "never"})
+
+        with mock.patch.dict(os.environ, env, clear=False), \
+             mock.patch.object(m, "DEFAULT_CONFIG", fake_cfg), \
+             mock.patch.object(m, "fetch_announcements", return_value=None), \
+             mock.patch.object(m, "display_announcements"), \
+             mock.patch.object(m, "get_ticker", return_value="AAPL"), \
+             mock.patch.object(m, "get_analysis_date", return_value="2026-05-29"), \
+             mock.patch.object(m, "select_analysts", return_value=[]), \
+             mock.patch.object(m, "select_research_depth", return_value=1), \
+             mock.patch.object(m, "ensure_api_key"), \
+             mock.patch.object(m, "select_llm_provider", return_value=("openai", None)), \
+             mock.patch.object(m, "ask_output_language", return_value="English"), \
+             mock.patch.object(m, "select_shallow_thinking_agent", return_value="gpt-5.4-mini"), \
+             mock.patch.object(m, "select_deep_thinking_agent", return_value="gpt-5.5"), \
+             mock.patch.object(m, "ask_openai_reasoning_effort", return_value=None), \
+             mock.patch.object(m, "ask_debate_gate", create=True) as prompt_gate:
+            sel = m.get_user_selections()
+
+        # The policy prompt is skipped; the value comes from the env config.
+        prompt_gate.assert_not_called()
+        self.assertEqual(sel["debate_gate"], "never")
+
+
 if __name__ == "__main__":
     unittest.main()

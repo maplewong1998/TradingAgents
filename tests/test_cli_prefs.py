@@ -94,6 +94,33 @@ def test_a_region_specific_provider_survives():
     assert kept["llm_provider"] == "qwen-cn"
 
 
+@pytest.mark.unit
+def test_the_debate_gate_policy_is_remembered_only_while_it_is_choosable():
+    """SC-e02s02-P2-03 — the gate policy joins the remembered answers, and a value
+    the menu no longer offers is dropped instead of prefilling the next run."""
+    assert sanitize({"debate_gate": "always"}, "stock") == {"debate_gate": "always"}
+    assert "debate_gate" not in sanitize({"debate_gate": "sometimes"}, "stock")
+    save_last_run({"debate_gate": "never"})
+    assert load_last_run()["debate_gate"] == "never"
+
+
+@pytest.mark.unit
+def test_a_remembered_gate_policy_prefills_the_menu():
+    """The answer is offered back; a stale one cannot produce a menu default the
+    questionary choice list does not contain (it would crash startup)."""
+    from cli.gate_policy import ask_debate_gate
+
+    with mock.patch("cli.gate_policy.questionary.select") as select:
+        select.return_value.ask.return_value = "always"
+        assert ask_debate_gate("always") == "always"
+    assert select.call_args.kwargs["default"] == "always"
+
+    with mock.patch("cli.gate_policy.questionary.select") as select:
+        select.return_value.ask.return_value = "auto"
+        assert ask_debate_gate("sometimes") == "auto"
+    assert select.call_args.kwargs["default"] is None
+
+
 # --- wiring ------------------------------------------------------------------
 
 def _answer_every_prompt(monkeypatch):
@@ -110,6 +137,11 @@ def _answer_every_prompt(monkeypatch):
     monkeypatch.setattr(m, "select_llm_provider", lambda default=None: ("openai", None))
     monkeypatch.setattr(m, "select_shallow_thinking_agent", lambda p, default=None: "gpt-5.6-mini")
     monkeypatch.setattr(m, "select_deep_thinking_agent", lambda p, default=None: "gpt-5.6")
+    # raising=False: this module drives the flow before/independently of the real
+    # gate-policy prompt, so the stub must also work if the name is not importable.
+    monkeypatch.setattr(
+        m, "ask_debate_gate", mock.Mock(return_value="always"), raising=False
+    )
     monkeypatch.setattr(m, "ask_openai_reasoning_effort", lambda: "medium")
     return m
 
@@ -128,6 +160,19 @@ def test_selections_are_remembered_after_a_run(monkeypatch):
     assert remembered["llm_provider"] == "openai"
     assert "ticker" not in remembered  # changes every run; never remembered
     assert "analysis_date" not in remembered  # a stale date must not be offered
+
+
+@pytest.mark.unit
+def test_a_gate_policy_is_asked_for_and_remembered_after_a_run(monkeypatch):
+    """SC-e02s02-P2-03 — the prompt is shown (prefilled with last run's pick) and
+    the answer is persisted for the next run, like every other selection."""
+    m = _answer_every_prompt(monkeypatch)
+    save_last_run({"debate_gate": "never"})
+
+    m.get_user_selections()
+
+    assert m.ask_debate_gate.call_args.kwargs["default"] == "never"  # offered back
+    assert load_last_run()["debate_gate"] == "always"  # this run's answer
 
 
 @pytest.mark.unit
@@ -163,6 +208,7 @@ def test_a_remembered_endpoint_is_offered_back(monkeypatch):
     monkeypatch.setattr(m, "select_research_depth", lambda default=None: 1)
     monkeypatch.setattr(m, "select_shallow_thinking_agent", lambda p, default=None: "local-model")
     monkeypatch.setattr(m, "select_deep_thinking_agent", lambda p, default=None: "local-model")
+    monkeypatch.setattr(m, "ask_debate_gate", lambda default=None: "auto", raising=False)
 
     m.get_user_selections()
 
