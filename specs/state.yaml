@@ -70,7 +70,7 @@ epic_cycle:
   metrics:
     story_start: '2026-09-20T08:41:06Z'
 handoff:
-  next_skill: verify-work
+  next_skill: audit-code
   e02s03_develop_tdd_round1:
     result: PASS
     round: 1
@@ -82,8 +82,8 @@ handoff:
       exit 0, on the tree at 6eb1d3e (+3 tests over the 1024/2 kickoff baseline, the 3 new gate-policy
       tests in this leg)
     preflight_runs: kickoff 1024/2 (baseline), leg 1 1024/2 (baseline re-measured), leg 2 1024/2 (after
-      the four docs tasks), final 1027/2 (after the quick-fixes), close-out 1027/2 (after the step-4
-      bookkeeping). TestLoadOhlcvNoPoison never failed in this leg — no flake sighting to capture.
+      the four docs tasks), final 1027/2 (after the quick-fixes), close-out 1027/2 (after the step-4 bookkeeping).
+      TestLoadOhlcvNoPoison never failed in this leg — no flake sighting to capture.
     tasks_passing: 5
     tasks_failing: 0
     commits: 12f8911 docs CHANGELOG, dd9d3d5 docs .env.example, 7b3d69c docs README, d92afc4 docs tech-stack+glossary+CONVENTIONS,

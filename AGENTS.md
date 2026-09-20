@@ -15,7 +15,7 @@ Load subdirectory context by file glob:
 | `tradingagents/dataflows/**` | `specs/tech-architecture/tech-stack.md` § The vendor seam; raise the `VendorError` taxonomy, never a raw exception |
 | `tradingagents/llm_clients/**` | `tradingagents/llm_clients/capabilities.py` — capabilities are declared per model, never an `if`-ladder in the client |
 | `tradingagents/graph/**` | `specs/tech-architecture/IMPACT_LATEST.md` — graph shape is encoded in three places |
-| `cli/**` | `specs/tech-architecture/REFACTOR_LATEST.md` — 1460-line module, treat as high risk |
+| `cli/**` | `specs/tech-architecture/REFACTOR_LATEST.md` — 1276-line module, treat as high risk |
 | `tests/**` | `tests/conftest.py` — the autouse fixtures are load-bearing |
 <!-- END bigpowers:context-routing -->
 

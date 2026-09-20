@@ -27,10 +27,11 @@ re-keyed once, both are called out here explicitly.
   CLI's Debate Gate Policy step; the environment variable wins over the menu pick,
   under the same precedence rule as every other `TRADINGAGENTS_*` setting.
 - **A gate that cannot judge holds the debate.** The judge must return a validated
-  verdict of *aligned* with confidence above `low` for a skip; an exception, a `None`,
-  an unparseable payload, or a thin report all log a WARNING and take the debate path
-  — today's behavior. The gate never retries with free text, so a failed judge never
-  costs a second LLM call.
+  verdict of *aligned* with confidence above `low` for a skip. A missing or thin report
+  is judged `low` and holds the debate without a warning — the verdict did arrive, it
+  just does not permit a skip. A judge that fails (an exception, a `None`, an
+  unparseable payload) logs a WARNING and takes the debate path: today's behavior. The
+  gate never retries with free text, so a failed judge never costs a second LLM call.
 - **One-time checkpoint re-keying (`gate=<mode>`).** The gate mode joins the
   checkpoint run signature (`_run_signature`), so a resume can never continue a run
   under a different gating policy (#1089). A thread written before this release was

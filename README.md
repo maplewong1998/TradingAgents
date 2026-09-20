@@ -190,7 +190,7 @@ python -m cli.main     # alternative: run directly from source
 ```
 You will see a screen where you can select your desired tickers, analysis date, LLM provider, research depth, and more. Your previous run's answers come back as the defaults, so pressing Enter accepts them. The `TRADINGAGENTS_*` variables in `.env` still skip their step entirely.
 
-The walkthrough ends with the **Debate Gate Policy** step, right after Research Depth: Auto (the default and the recommended answer), Always, or Never — see [The debate gate](#the-debate-gate). Answering it is optional in effect: cancelling the prompt exits the run rather than guessing a policy, because a run whose policy nobody chose must not silently buy or skip a debate. Set `TRADINGAGENTS_DEBATE_GATE` in `.env` instead and the step is skipped, like the provider and model steps.
+The walkthrough picks up the **Debate Gate Policy** step right after Research Depth, before the provider and thinking-agent steps: Auto (the default and the recommended answer), Always, or Never — see [The debate gate](#the-debate-gate). Answering it is optional in effect: cancelling the prompt exits the run rather than guessing a policy, because a run whose policy nobody chose must not silently buy or skip a debate. Set `TRADINGAGENTS_DEBATE_GATE` in `.env` instead and the step is skipped, like the provider and model steps.
 
 ### Markets and tickers
 
