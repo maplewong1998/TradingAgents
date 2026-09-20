@@ -1,6 +1,11 @@
 # TradingAgents — Tech Stack & Architecture
 
 <!-- story: e01s01 -->
+<!-- story: e02s03 — the Debate Gate node, the flow diagram and the stale counts in
+     § Observability, § Testing, § Type safety, § Gaps and § Signals notes 1 and 3 were
+     refreshed from the code in this pass. Each count is a line/marker count taken with
+     grep on this tree; where a count disagreed with the earlier one it was re-measured
+     rather than adjusted. -->
 
 > Derived by `map-codebase` on 2026-09-20 from the `.codegraph` index plus targeted
 > reads of manifests, entry points, and gray-area modules. Cold analysis only: every
@@ -42,9 +47,12 @@ tradingagents/graph/trading_graph.py   ← FACADE: TradingAgentsGraph
 tradingagents/graph/setup.py           ← GraphSetup.setup_graph()
     │  builds the StateGraph from a selected-analyst execution plan
     ▼
-Analysts → (Bull/Bear debate) → Research Manager → Trader
+Analysts → Debate Gate ─┬─ (aligned → debate skipped) ──────────┐
+                        └─ (contested) → (Bull/Bear debate) ────┴→ Research Manager → Trader
         → (Aggressive/Neutral/Conservative risk debate) → Portfolio Manager → END
-    │
+
+    │  Debate Gate = tradingagents/agents/gate/ — judges analyst alignment,
+    │  routes with Command; policy: debate_gate always|auto|never
     ▼
 tradingagents/agents/**   ← one factory per node, each returns a partial node fn
     │  factories bind an LLM (quick or deep) and a prompt
@@ -65,11 +73,12 @@ Key structural facts:
 - **Agents are closures, not classes.** Each `create_*` factory captures its LLM and returns a `functools.partial(node, name=...)`. There is no agent base class or registry.
 - **The graph is rebuilt, not mutated, for checkpoints.** `setup_graph()` returns an un-compiled `StateGraph`; `begin_checkpoint()` recompiles it with a `SqliteSaver` and `end_checkpoint()` restores the plain compile.
 - **State is one flat `AgentState`** (`agents/utils/agent_states.py`) extending `MessagesState`, carrying every report, both debate states, and run context.
+- **The debate is conditional, but the loop behind it is not.** `create_debate_gate` (`agents/gate/debate_gate.py`) returns a `Command` straight into the debate or straight to the Research Manager; once Bull is entered, `conditional_logic.should_continue_debate` governs the rounds exactly as before. A judge failure routes into the debate, so the gate can only ever remove LLM calls it was explicitly told to remove.
 
 Data flow of a run (`TradingAgentsGraph.propagate`):
 
 1. `_validate_trade_date` normalizes the date.
-2. `checkpoint_scope(...)` computes a thread ID from ticker + date + `_run_signature` (analysts, debate depth, risk depth, asset type, portfolio fingerprint) and recompiles the graph if checkpointing is on.
+2. `checkpoint_scope(...)` computes a thread ID from ticker + date + `_run_signature` (analysts, debate depth, risk depth, asset type, portfolio fingerprint, `gate=<debate_gate mode>`) and recompiles the graph if checkpointing is on.
 3. `create_run_state(...)` resolves pending memory entries, injects `past_context` (lessons known as of the trade date), `instrument_context` (deterministic ticker identity), and `portfolio_context`.
 4. The graph streams; each analyst loops through its `ToolNode` then clears messages.
 5. `process_signal(final_trade_decision)` extracts the 5-tier rating via a deterministic regex heuristic — **no second LLM call**.
@@ -119,7 +128,7 @@ The `NO_EXTERNAL_TOOLS` constant exists because schema-only binding means a mode
 - `from __future__ import annotations` plus PEP 604 unions (`str | None`) throughout the newer modules.
 - Pydantic `BaseModel` at every LLM boundary (`agents/schemas.py`, `portfolio.py`) with `field_validator` coercion for nullish numbers.
 - `BaseLLMClient` is an ABC (`get_llm`, `validate_model` abstract) — the one place DIP is applied deliberately.
-- No `mypy`/`pyright` in CI. Only 19 `Any`/`type: ignore`/`noqa` markers across the whole source tree, concentrated at LangChain interop points. Types are a documentation aid here, not a gate.
+- No `mypy`/`pyright` in CI. 31 `Any`/`type: ignore`/`noqa` markers across the whole source tree (14 `: Any`, 11 `Any]`, 6 `noqa`, 0 `type: ignore`), concentrated at LangChain interop points and in `cli/stats_handler.py`. Types are a documentation aid here, not a gate.
 
 ### Provider capability table
 
@@ -127,14 +136,14 @@ The `NO_EXTERNAL_TOOLS` constant exists because schema-only binding means a mode
 
 ### Observability
 
-- **Stdlib `logging` with module-level `logger = logging.getLogger(__name__)`** in 14 modules. No structured/JSON logging, no correlation IDs, no log aggregation config.
-- The CLI owns presentation: 67 `console.print(...)` calls across `cli/` (14 modules import Rich), with `cli/stats_handler.py` as a callback handler streaming token/cost stats into the live display.
+- **Stdlib `logging` with module-level `logger = logging.getLogger(__name__)`** in 15 modules. No structured/JSON logging, no correlation IDs, no log aggregation config.
+- The CLI owns presentation: 73 `console.print(...)` calls across 5 `cli/` modules that import Rich, with `cli/stats_handler.py` as a callback handler streaming token/cost stats into the live display.
 - No health-check endpoint (it is a CLI/library, not a service). Dockerfile and `docker-compose.yml` exist for containerized runs.
 - Run artifacts are written to `results_dir` (`~/.tradingagents/logs` by default): per-run report trees, `message_tool.log`, and `full_states_log_<date>.json`.
 
 ### Testing
 
-- **74 test files, ~370 `pytest.mark.unit` tests**, `pytest-subtests`, `--strict-markers -ra`. Markers: `unit`, `integration`, `smoke` (only 1 `integration` test exists).
+- **74 test files, 426 `pytest.mark.unit` tests**, `pytest-subtests`, `--strict-markers -ra`. Markers: `unit`, `integration`, `smoke` (6 `integration` tests: 4 in `test_debate_gate.py`, 1 in `test_cli_display.py`, 1 live-API test in `test_deepseek_reasoning.py`).
 - `tests/conftest.py` is the load-bearing piece: an **autouse fixture injects placeholder API keys for 14 providers** so a keyless CI cannot hang or silently skip, and a second autouse fixture **deep-copies `DEFAULT_CONFIG` around every test** because `set_config` merges and would otherwise leak vendor routing between tests.
 - **Mocks over network**: 36 files use `monkeypatch`, 14 patch/mock. Vendor tests patch at the `requests`/client boundary.
 - Tests are named behaviorally and reference issue numbers in comments (e.g. `test_unparseable_signal_is_review_not_silent_hold`), which doubles as a regression ledger.
@@ -150,11 +159,11 @@ The `NO_EXTERNAL_TOOLS` constant exists because schema-only binding means a mode
 
 Ordered by likely impact. These are planning inputs, not verdicts.
 
-1. **`cli/main.py` is 1460 lines** and mixes Typer commands, Rich layout construction, streaming display, decorators, report saving, and selection prompts. It is the largest file by 2× and the clearest refactor target (`cli/utils.py` at 718 lines is second). Anything touching the CLI has a wide blast radius.
+1. **`cli/main.py` is 1276 lines** and mixes Typer commands, Rich layout construction, streaming display, decorators, report saving, and selection prompts. It is still the largest file by 2× and the clearest refactor target (`cli/utils.py` at 718 lines is second). Anything touching the CLI has a wide blast radius. The e02s02 extraction (`cli/gate_policy.py`, `cli/stream_handler.py`, `cli/complete_report.py`) took it down from 1460 lines without merging concerns into `cli/utils.py`.
 
 2. **Graph-shape knowledge is duplicated in three places.** `trading_graph._run_signature()` builds the checkpoint signature from analysts/debate/risk/asset/portfolio; `GraphSetup.setup_graph()` independently encodes the same shape as edges; `checkpointer.py` owns thread-ID construction. A change to pipeline shape must be mirrored correctly or checkpoints silently resume the wrong graph (#1089 guards this today via the signature, but the coupling remains).
 
-3. **`GraphSetup.setup_graph()` hardcodes the analyst factory dict** (4 lambdas) while the node/clear/tool wiring is data-driven via `build_analyst_execution_plan`. Adding a 5th analyst requires editing the factory dict, the plan builder, and possibly `conditional_logic`. The abstraction is half-applied.
+3. **`GraphSetup.setup_graph()` hardcodes the analyst factory dict** (4 lambdas) while the node/clear/tool wiring is data-driven via `build_analyst_execution_plan`. Adding a 5th analyst requires editing the factory dict, the plan builder, and possibly `conditional_logic`. The abstraction is half-applied. The Debate Gate node (e02s01) is registered the same way: an explicit `add_node` plus the conditional entry edge from the last analyst, so the gate is a named node in the analyst→Research Manager path rather than part of the plan builder.
 
 4. **No type gate.** Ruff enforces style and bugbear but nothing checks annotations. The Pydantic boundaries are safe; the internal graph/state plumbing (dict-shaped `AgentState`) is not. Adding `mypy` at any strictness would be a large, staged effort.
 
@@ -172,7 +181,7 @@ Ordered by likely impact. These are planning inputs, not verdicts.
 
 Recorded honestly rather than assumed:
 
-- **Coverage percentage is unknown.** No coverage tool or threshold is configured; 370 unit tests over ~11.9k source lines is a size signal, not a quality one. `plan-tests` should establish a baseline before any large refactor.
+- **Coverage percentage is unknown.** No coverage tool or threshold is configured; 426 unit tests over 12609 source lines is a size signal, not a quality one. `plan-tests` should establish a baseline before any large refactor.
 - **The suite is timezone-dependent and CI cannot detect it.** CI runs `TZ=UTC`. Establishing the baseline on a `UTC+08:00` workstation surfaced 3 failures in `test_ohlcv_cache_freshness.py`, caused by pandas 3.0's naive `Timestamp.timestamp()` being UTC while `Timestamp.fromtimestamp()` is local. Fixed test-side (`specs/bugs/BUG-2026-09-20-ohlcv-cache-freshness-tz.md`), but any mtime/date arithmetic added later inherits the same blind spot until CI runs a non-UTC job.
 - **No `docs/adr/`** — decisions must be reverse-engineered from comments and issue numbers, as noted in signal 9.
 - **Real-provider behavior is unverified in CI.** All LLM and vendor tests mock at the boundary; nothing exercises a live provider, by design (no keys in CI).
