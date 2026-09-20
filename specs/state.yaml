@@ -45,7 +45,7 @@ metrics:
 epic_cycle:
   ship_epic_step: null
   story_bcps: 5
-  step: 4
+  step: 5
   completed_steps: 1,2
   audit_result: null
   verify_result: null

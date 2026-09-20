@@ -455,3 +455,24 @@ and the compare URL emitted for manual PR creation. `main` untouched
   step 4 develop-tdd round 1 in the worktree only; dispatch carries rulings D1-D6,
   task-1 _run_signature requirement, Story: e02s02 trailer, serial-suite + ps ritual,
   flake --tb=long capture rule, ledger flips require new RED node-ID citations (D3).
+
+## 2026-09-20 — e02s02 develop r1 PASS; verify dispatched
+
+- develop (143f1446) step 4 r1: PASS 6/6 in worktree, tip e9d4f26, 13 commits all with
+  Story: e02s02 trailer; Preflight 1021 passed / 2 skipped (+19 tests), ruff clean.
+  D1-D6 all implemented + cited: transcript-only skip discrimination; marker under
+  Debate Gate heading; ledger flips cite RED-first node IDs (T5 isolation run vs
+  1950fc1 documented); cli/main.py 1460→1276 via new cli/gate_policy.py,
+  cli/stream_handler.py, cli/complete_report.py; trading_graph.py +1 line (652/672).
+  Spot-checked by orchestrator: tip, caps, tree clean.
+- FLAKE SIGHTING #4 (TestLoadOhlcvNoPoison, first full run of the leg; isolated
+  --tb=long attempt passed so no traceback; 3 later full runs green). Verify dispatch
+  carries the capture-first rule — best chance to prove it.
+- LANDING NOTE for step 8: main moved to 21093c2 while feat/e02s02 was cut from
+  5c7a9ac — both touched specs/state.yaml; the squash must take the BRANCH copy as
+  authoritative (orchestrator will instruct story_ops).
+- state: root + worktree copies at epic_cycle.step=5 (worktree edit uncommitted,
+  orchestrator-owned; verify is read-only).
+- verify resident started (NEW for e02s02): b0a6a107-02af-48f1-bec5-3ebd5723c7ae —
+  step 5 r1, read-only, re-runs everything serially in the worktree venv, audits
+  SC-e02s02-* + D1-D5 compliance + e02s01 regressions + commit hygiene.
