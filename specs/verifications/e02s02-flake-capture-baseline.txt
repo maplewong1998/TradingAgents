@@ -1,0 +1,193 @@
+........................................................................ [  7%]
+....................s................................................... [ 14%]
+........................................................................ [ 21%]
+........................................................................ [ 28%]
+................s............................................................................................................................ [ 42%]
+........................................................................ [ 49%]
+........................................................... [ 55%]
+................F....................................................... [ 62%]
+........................................................................ [ 70%]
+........................................................................ [ 77%]
+........................................................................ [ 84%]
+........................................................................ [ 91%]
+........................................................................ [ 98%]
+............                                                             [100%]
+=================================== FAILURES ===================================
+_____ TestLoadOhlcvNoPoison.test_empty_download_raises_and_does_not_cache ______
+
+self = <tests.test_no_data_handling.TestLoadOhlcvNoPoison testMethod=test_empty_download_raises_and_does_not_cache>
+
+    def test_empty_download_raises_and_does_not_cache(self):
+        empty = pd.DataFrame()
+        with mock.patch.object(stockstats_utils.yf, "download", return_value=empty), \
+                self.assertRaises(NoMarketDataError):
+>           stockstats_utils.load_ohlcv("FAKE", "2026-01-01")
+
+tests/test_no_data_handling.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def load_ohlcv(symbol: str, curr_date: str, fill_gaps: bool = True) -> pd.DataFrame:
+        """Fetch OHLCV data with caching, filtered to prevent look-ahead bias.
+    
+        Downloads 5 years of data up to today and caches per symbol. On
+        subsequent calls the cache is reused. Rows after curr_date are
+        filtered out so backtests never see future prices.
+    
+        ``fill_gaps`` carries prices forward over gaps so indicators compute on a
+        continuous series. Pass ``False`` to read the values as the vendor reported
+        them, leaving a cell that was never reported empty.
+        """
+        # Resolve broker/forex symbols (XAUUSD+ -> GC=F) to Yahoo's convention,
+        # then reject values that would escape the cache directory when
+        # interpolated into the cache filename (e.g. ``../../tmp/x``).
+        canonical = normalize_symbol(symbol)
+        safe_symbol = safe_ticker_component(canonical)
+    
+        config = get_config()
+        curr_date_dt = pd.to_datetime(curr_date).normalize()
+    
+        # One cache file per symbol, holding the latest 5y-to-today download.
+        now = pd.Timestamp.today()
+        start_date = now - pd.DateOffset(years=5)
+        start_str = start_date.strftime("%Y-%m-%d")
+        # yfinance ``end`` is EXCLUSIVE; request tomorrow so today's row is included
+        # when curr_date is the current day (#986). Look-ahead is still prevented by
+        # the curr_date filter below.
+        end_str = (now + pd.Timedelta(days=1)).strftime("%Y-%m-%d")
+    
+        os.makedirs(config["data_cache_dir"], exist_ok=True)
+        data_file = os.path.join(
+            config["data_cache_dir"],
+            f"{safe_symbol}-YFin-data.csv",
+        )
+    
+        # A cached file may be empty if a prior fetch failed (unknown symbol,
+        # transient rate limit). Treat an empty/columnless cache as a miss and
+        # re-fetch rather than serving the poisoned file forever.
+        data = None
+        if os.path.exists(data_file):
+            cached = pd.read_csv(data_file, on_bad_lines="skip", encoding="utf-8")
+            if (
+                not cached.empty
+                and "Close" in cached.columns
+                and _cache_is_fresh(data_file, curr_date_dt, now)
+            ):
+                data = cached
+    
+        if data is None:
+            downloaded = yf_retry(lambda: yf.download(
+                canonical,
+                start=start_str,
+                end=end_str,
+                multi_level_index=False,
+                progress=False,
+                auto_adjust=True,
+            ))
+            downloaded = _ensure_date_column(downloaded.reset_index())
+            # Only cache real data — never persist an empty frame.
+            if downloaded.empty or "Close" not in downloaded.columns:
+>               raise_for_empty(symbol, canonical, "price rows")
+
+tradingagents/dataflows/stockstats_utils.py:256: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def raise_for_empty(symbol: str, canonical: str, what: str) -> None:
+        """Report an empty Yahoo result as an absence, or as an outage if it is one.
+    
+        yfinance returns an empty frame for a failed request rather than raising, so
+        without this a Yahoo outage reads as "this symbol has no {what}".
+        """
+        if not vendor_reachable(_YAHOO_HOST):
+>           raise VendorRateLimitError(f"Yahoo Finance is unreachable; no {what} was retrieved")
+E           tradingagents.dataflows.errors.VendorRateLimitError: Yahoo Finance is unreachable; no price rows was retrieved
+
+tradingagents/dataflows/stockstats_utils.py:39: VendorRateLimitError
+=============================== warnings summary ===============================
+tests/test_anthropic_effort.py::TestEffortGate::test_unsupported_models_do_not_receive_effort[claude-haiku-5-0]
+  /tmp/e02s02_baseline/tradingagents/llm_clients/anthropic_client.py:61: RuntimeWarning: Model 'claude-haiku-5-0' is not in the known model list for provider 'anthropic'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_anthropic_effort.py::TestEffortGate::test_unsupported_models_do_not_receive_effort[claude-haiku-4-7-preview]
+  /tmp/e02s02_baseline/tradingagents/llm_clients/anthropic_client.py:61: RuntimeWarning: Model 'claude-haiku-4-7-preview' is not in the known model list for provider 'anthropic'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_anthropic_effort.py::TestEffortGate::test_unsupported_models_do_not_receive_effort[claude-sonnet-4-5]
+  /tmp/e02s02_baseline/tradingagents/llm_clients/anthropic_client.py:61: RuntimeWarning: Model 'claude-sonnet-4-5' is not in the known model list for provider 'anthropic'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_anthropic_effort.py::TestEffortGate::test_unsupported_models_do_not_receive_effort[claude-sonnet-4-0]
+  /tmp/e02s02_baseline/tradingagents/llm_clients/anthropic_client.py:61: RuntimeWarning: Model 'claude-sonnet-4-0' is not in the known model list for provider 'anthropic'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_anthropic_effort.py::TestEffortGate::test_current_opus_and_sonnet_receive_effort[claude-opus-4-5]
+  /tmp/e02s02_baseline/tradingagents/llm_clients/anthropic_client.py:61: RuntimeWarning: Model 'claude-opus-4-5' is not in the known model list for provider 'anthropic'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_anthropic_effort.py::TestEffortGate::test_current_opus_and_sonnet_receive_effort[claude-opus-4-6]
+  /tmp/e02s02_baseline/tradingagents/llm_clients/anthropic_client.py:61: RuntimeWarning: Model 'claude-opus-4-6' is not in the known model list for provider 'anthropic'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_anthropic_effort.py::TestEffortGate::test_current_opus_and_sonnet_receive_effort[claude-sonnet-4-6]
+  /tmp/e02s02_baseline/tradingagents/llm_clients/anthropic_client.py:61: RuntimeWarning: Model 'claude-sonnet-4-6' is not in the known model list for provider 'anthropic'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_anthropic_effort.py::TestEffortGate::test_future_opus_sonnet_inherit_effort_via_pattern[claude-opus-5-0]
+  /tmp/e02s02_baseline/tradingagents/llm_clients/anthropic_client.py:61: RuntimeWarning: Model 'claude-opus-5-0' is not in the known model list for provider 'anthropic'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_anthropic_effort.py::TestEffortGate::test_future_opus_sonnet_inherit_effort_via_pattern[claude-sonnet-5-0]
+  /tmp/e02s02_baseline/tradingagents/llm_clients/anthropic_client.py:61: RuntimeWarning: Model 'claude-sonnet-5-0' is not in the known model list for provider 'anthropic'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_anthropic_effort.py::TestEffortGate::test_claude_5_family_receives_effort[claude-mythos-5]
+  /tmp/e02s02_baseline/tradingagents/llm_clients/anthropic_client.py:61: RuntimeWarning: Model 'claude-mythos-5' is not in the known model list for provider 'anthropic'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_anthropic_effort.py::TestEffortGate::test_mythos_preview_receives_effort
+  /tmp/e02s02_baseline/tradingagents/llm_clients/anthropic_client.py:61: RuntimeWarning: Model 'claude-mythos-preview' is not in the known model list for provider 'anthropic'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_anthropic_effort.py::TestEffortGate::test_unknown_anthropic_model_does_not_receive_effort
+  /tmp/e02s02_baseline/tradingagents/llm_clients/anthropic_client.py:61: RuntimeWarning: Model 'claude-experimental-x' is not in the known model list for provider 'anthropic'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_google_thinking_level.py::test_latest_alias_remaps_minimal_to_low[gemini-flash-latest]
+  /tmp/e02s02_baseline/tradingagents/llm_clients/google_client.py:42: RuntimeWarning: Model 'gemini-flash-latest' is not in the known model list for provider 'google'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_google_thinking_level.py::test_latest_alias_remaps_minimal_to_low[gemini-pro-latest]
+  /tmp/e02s02_baseline/tradingagents/llm_clients/google_client.py:42: RuntimeWarning: Model 'gemini-pro-latest' is not in the known model list for provider 'google'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_memory_log.py::test_a_longer_window_asks_for_enough_price_history
+  /tmp/e02s02_baseline/tradingagents/graph/trading_graph.py:306: RuntimeWarning: divide by zero encountered in scalar divide
+    (stock["Close"].iloc[holding_days] - stock["Close"].iloc[0])
+
+tests/test_memory_log.py::test_a_longer_window_asks_for_enough_price_history
+  /tmp/e02s02_baseline/tradingagents/graph/trading_graph.py:310: RuntimeWarning: divide by zero encountered in scalar divide
+    (bench["Close"].iloc[holding_days] - bench["Close"].iloc[0])
+
+tests/test_ollama_base_url.py::test_resolver_does_not_affect_other_providers
+  /tmp/e02s02_baseline/tradingagents/llm_clients/openai_client.py:279: RuntimeWarning: Model 'm' is not in the known model list for provider 'xai'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_ollama_base_url.py::test_resolver_does_not_affect_other_providers
+  /tmp/e02s02_baseline/tradingagents/llm_clients/openai_client.py:279: RuntimeWarning: Model 'm' is not in the known model list for provider 'deepseek'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_openai_reasoning_effort.py::test_non_reasoning_model_drops_effort
+tests/test_temperature_config.py::TestTemperatureForwarding::test_temperature_reaches_client_when_set[openai-gpt-4.1]
+tests/test_temperature_config.py::TestTemperatureForwarding::test_temperature_omitted_leaves_provider_default
+  /tmp/e02s02_baseline/tradingagents/llm_clients/openai_client.py:279: RuntimeWarning: Model 'gpt-4.1' is not in the known model list for provider 'openai'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+tests/test_temperature_config.py::TestTemperatureForwarding::test_temperature_reaches_client_when_set[deepseek-deepseek-chat]
+  /tmp/e02s02_baseline/tradingagents/llm_clients/openai_client.py:279: RuntimeWarning: Model 'deepseek-chat' is not in the known model list for provider 'deepseek'. Continuing anyway.
+    self.warn_if_unknown_model()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_bedrock_provider.py:74: could not import 'langchain_aws': No module named 'langchain_aws'
+SKIPPED [1] tests/test_deepseek_reasoning.py:209: DEEPSEEK_API_KEY not set (or placeholder); skipping live API call
+FAILED tests/test_no_data_handling.py::TestLoadOhlcvNoPoison::test_empty_download_raises_and_does_not_cache
+1 failed, 1001 passed, 2 skipped, 22 warnings, 88 subtests passed in 3.84s

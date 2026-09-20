@@ -476,3 +476,27 @@ and the compare URL emitted for manual PR creation. `main` untouched
 - verify resident started (NEW for e02s02): b0a6a107-02af-48f1-bec5-3ebd5723c7ae —
   step 5 r1, read-only, re-runs everything serially in the worktree venv, audits
   SC-e02s02-* + D1-D5 compliance + e02s01 regressions + commit hygiene.
+
+## 2026-09-20 — e02s02 verify r1 FAIL (1 phase); develop round 2 dispatched
+
+- verify (b0a6a107) step 5 r1: FAIL — acceptance_criteria only; all other 7 phases
+  green (Preflight reproduced 1021/2; task verifies 15/32/21/7/2; regressions 135;
+  D1-D5 compliant; D3 re-derived under strict isolation with the editable-finder
+  neutralised). Evidence persisted: specs/verifications/e02s02-verify-r1.yaml +
+  e02s02-flake-capture-baseline.txt (copied from /tmp).
+- RULING: waiver DENIED for SC-e02s02-P3-01 INFO half — frozen test plan line 47
+  assigns "verdict + rationale logged at INFO with the ticker context" to e02s02;
+  D5 never waived ticker/INFO assertion. Fix = ticker in the two INFO log calls
+  (debate_gate.py:181,:198) + caplog INFO test, RED-first.
+- FLAKE ROOT-CAUSED (sighting #4 captured on the BASELINE tree, not the story tip):
+  raise_for_empty → utils.vendor_reachable live requests.head probe → transient
+  VendorRateLimitError (sibling, not subclass, of NoMarketDataError) in
+  test_empty_download_raises_and_does_not_cache. Pre-existing, non-hermetic, not
+  racing. Routed to develop as a SEPARATE quick-fix commit on the branch
+  (e02s01 cc71f9f precedent): new BUG spec + registry entry + mock the probe in
+  the test (no product change, no weakened assertion).
+- A10 notes routed to develop (accuracy going forward): T2/T3 GREEN commits left
+  verifies red until ed6d53e/bfe3b9c; T4 RED import path fixed inside GREEN; T5
+  isolation error is ModuleNotFoundError not ImportError.
+- state: epic_cycle.step=4 (root+worktree), next_skill=develop-tdd. develop round 2
+  sent to SAME id 143f1446-0771-4331-b357-6fbe7b0ca67b.

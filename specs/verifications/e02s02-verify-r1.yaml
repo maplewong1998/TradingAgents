@@ -1,0 +1,105 @@
+story_id: e02s02
+epic_id: e02
+verified_at: "2026-09-20T08:35:00Z"
+verifier: verify-work (resident verify child, build-epic step 5, round 1)
+worktree: /home/maplewong1998/Repository/TradingAgents/.worktrees/e02s02
+branch: feat/e02s02
+tip: e9d4f265be3c7df9d8e5ea17bcd3fce4c9e486a6
+cut_from: main 5c7a9ac
+risk: P1
+mode: read-only judge (no file in either tree modified; scratch in /tmp only)
+overall_verdict: fail   # only phase: acceptance_criteria (SC-e02s02-P3-01, INFO half)
+
+phases:
+  cold_start:
+    passed: true
+    commands:
+      - 'env -i HOME PATH .venv/bin/python -c "import tradingagents, cli.main, cli.gate_policy, cli.stream_handler, cli.complete_report, tradingagents.reporting" -> exit 0, all files resolved inside the worktree'
+      - 'importlib.metadata entry_points -> tradingagents = cli.main:app; .venv/bin/tradingagents is the generated console script'
+      - 'env -i HOME PATH .venv/bin/tradingagents --help -> exit 0 (offline)'
+  preflight:
+    passed: true
+    run1:
+      command: ".venv/bin/python -m pytest -q --tb=long"
+      result: "1021 passed, 2 skipped, 22 warnings, 88 subtests passed in 3.63s"
+      exit_code: 0
+      capture: /tmp/e02s02_preflight_run1.txt
+      concurrency_precheck: "ps -eo pid,args | grep -E '[p]ython -m pytest' | grep -v 'bash -c' -> empty"
+    run2_task6_leg:
+      command: ".venv/bin/python -m pytest -q && .venv/bin/python -m ruff check ."
+      result: "1021 passed, 2 skipped, 88 subtests passed in 3.19s; Ruff: All checks passed!"
+      exit_code: 0
+      capture: /tmp/e02s02_task6.txt
+      concurrency_precheck: empty
+    lint: ".venv/bin/python -m ruff check . -> All checks passed! (exit 0)"
+    baseline: "main 5c7a9ac archived to /tmp/e02s02_baseline -> 1002 passed, 2 skipped, 88 subtests (second run); delta = +19 new tests"
+  task_verifies:
+    passed: true
+    results:
+      - {task: 1, command: ".venv/bin/python -m pytest -q tests/test_checkpoint_lifecycle.py tests/test_checkpoint_resume.py", result: "15 passed", exit_code: 0}
+      - {task: 2, command: ".venv/bin/python -m pytest -q tests/test_cli_prefs.py tests/test_cli_config_precedence.py tests/test_cli_env_skip.py", result: "32 passed", exit_code: 0}
+      - {task: 3, command: ".venv/bin/python -m pytest -q tests/test_cli_display.py", result: "21 passed", exit_code: 0}
+      - {task: 4, command: ".venv/bin/python -m pytest -q tests/test_debate_gate.py -k 'report or logging'", result: "7 passed, 54 deselected", exit_code: 0}
+      - {task: 5, command: ".venv/bin/python -m pytest -q tests/test_cli_display.py tests/test_debate_gate.py -k end_to_end", result: "2 passed, 80 deselected", exit_code: 0}
+      - {task: 6, command: ".venv/bin/python -m pytest -q && ruff check .", result: "1021 passed / 2 skipped / 88 subtests; All checks passed!", exit_code: 0}
+  manual_uat:
+    passed: true
+    script_items:
+      - {item: 1, command: ".venv/bin/python -m pytest tests/test_checkpoint_lifecycle.py tests/test_checkpoint_resume.py -v", result: "15 passed; the 3 new gate-signature nodes present"}
+      - {item: 2, command: ".venv/bin/python -m pytest -q tests/test_cli_prefs.py tests/test_cli_config_precedence.py tests/test_cli_env_skip.py tests/test_cli_display.py -v", result: "53 passed"}
+      - {item: 3, substitute: "no provider key available -> offline UAT", script: /tmp/e02s02_uat_offline.py, result: "18/18 checks pass: real gate node skips on aligned evidence; Bull and Bear render 'skipped'; no agent left pending; real Rich live layout shows 'skipped'; saved tree and on-screen report both carry 'Debate Gate' + the judge rationale + direction; render_debate_gate_section == persisted marker"}
+      - {item: 4, substitute: "TRADINGAGENTS_DEBATE_GATE=always through cli.gate_policy", result: "menu never opened, env value used, notice '(set by TRADINGAGENTS_DEBATE_GATE)' printed; resolve_debate_gate: env beats the menu pick, menu pick wins without env"}
+      - {item: 5, command: ".venv/bin/python -m pytest -q && ruff check .", result: "green (see preflight)"}
+  acceptance_criteria:
+    passed: false
+    covered:
+      - "SC-e02s02-P1-01 signature/resume: tests/test_checkpoint_lifecycle.py::test_the_run_signature_carries_the_gate_mode (3 distinct signatures + stable), ::test_a_resume_under_a_changed_gate_mode_starts_fresh (tid differs, _resuming False, fresh input, other checkpoint untouched), ::test_the_same_gate_mode_still_resumes (tid equal, _resuming True, state restored)"
+      - "SC-e02s02-P1-02 env precedence: tests/test_cli_config_precedence.py::test_env_debate_gate_wins_over_the_prompt_choice_and_says_so, ::test_the_gate_choice_reaches_the_config_without_env, tests/test_cli_env_skip.py::TestDebateGateSkippedFromEnv::test_gate_env_skips_the_policy_prompt"
+      - "SC-e02s02-P2-01 live display: 4 tests in tests/test_cli_display.py incl. the held-debate negative"
+      - "SC-e02s02-P2-02 report surface: 5 tests in tests/test_debate_gate.py (skipped / held N turns / disabled by configuration / display / omit-guard)"
+      - "SC-e02s02-P2-03 prefs: tests/test_cli_prefs.py::{test_the_debate_gate_policy_is_remembered_only_while_it_is_choosable,test_a_remembered_gate_policy_prefills_the_menu,test_a_gate_policy_is_asked_for_and_remembered_after_a_run}"
+    gap:
+      scenario: SC-e02s02-P3-01
+      missing: "INFO half. No test asserts INFO-level gate logging (no caplog at INFO anywhere in tests/); the two selected caplog tests assert only levelno >= WARNING. The INFO records also carry no ticker context: tradingagents/agents/gate/debate_gate.py:181 'Debate Gate: skipping the debate -- %s' and :198 'skipping the debate by configuration (%s)' (the WARNING at :216 does carry company_of_interest)."
+      suggested_fix: "one caplog test at logging.INFO asserting the verdict rationale with the ticker in the record message (message-only change at debate_gate.py:181/:198); or an explicit recorded waiver if the orchestrator rules SC-e02s02-P3-01 satisfied by e02s01 (ruling D5)."
+  regressions:
+    passed: true
+    commands:
+      - {command: ".venv/bin/python -m pytest -q tests/test_checkpoint_lifecycle.py tests/test_checkpoint_resume.py tests/test_cli_display.py tests/test_cli_prefs.py tests/test_cli_config_precedence.py tests/test_cli_env_skip.py tests/test_debate_gate.py tests/test_structured_agent_prompts.py", result: "135 passed"}
+      - {command: ".venv/bin/python -m pytest -q tests/test_debate_gate.py -k 'routes_to_the_debate or routes_past_the_debate or policy or node_sequence or process_signal or fail_safe'", result: "23 passed (e02s01 routing matrix + node sequence intact)"}
+  house_rules:
+    passed: true
+    checks:
+      - "13/13 commits in 75d3566..e9d4f26 carry 'Story: e02s02' (14 including the worktree-open commit); Conventional Commits types feat/test/chore with scopes"
+      - "no merge commits in the range; feat/e02s02 has no upstream (not pushed)"
+      - "cli/main.py 1276 lines <= 1460 cap (shrank from 1460); tradingagents/graph/trading_graph.py 652 <= 672; new cli modules 105/209/97 lines (< 300 P2 cap)"
+      - "no 'from cli' / 'import cli' inside tradingagents/ (grep empty)"
+      - "moved save_report_to_disk identical; display_complete_report identical except the new Debate Gate block (line-diff: 0 real changes)"
+    notes:
+      - "new WHY-comments cite story/scenario/ruling IDs (e02s02, D1, SC-e02s02-P2-01) rather than GitHub issue numbers; the pre-existing #977/#1089 citations are preserved"
+      - ".gitignore gained '.worktrees/' at kickoff (06d984e); the routed tests/_tmp_cache ignore is still absent (dir was not created by any run here)"
+  rulings_compliance:
+    passed: true
+    D1: "cli/stream_handler.py:49-66 debate_was_skipped keys on bull/bear history + count only; tradingagents/reporting.py:14-36 classifies held by transcript/turns and uses the marker only as text; held tests assert not-skipped (tests/test_cli_display.py::test_a_held_debate_is_not_read_as_skipped, tests/test_debate_gate.py::test_report_tree_counts_a_held_debate_in_turns)"
+    D2: "report renders the persisted marker under a '## Debate Gate' heading (tradingagents/reporting.py:92-95); agents/utils/agent_states.py untouched by this story's diff (no new field)"
+    D3: "RED-first re-derived by strict isolation (editable finder neutralised): T1 tree 6c4a702 -> 2 failed/1 passed (matches the ledger's own wording), T2 tree 790cea3 -> 6/6 cited failed, T3 tree 1950fc1 -> 4/4 cited failed, T4 tree a772d4f -> 4 of 5 cited failed (the omit-guard cannot be RED), T5 declared not-RED-first and isolation reproduced (tree 1950fc1 + tip test file -> 1 failed, 1 passed)"
+    D4: "measured caps ok; move fidelity ok; all new CLI code in uncapped modules"
+    D5: "no fabricated logging RED: task 4's red_tests list contains report tests only"
+    deviations_routed_not_failures:
+      - "T2 GREEN commit da4c0b9 and the two following commits left the task-2 verify red (6 failed) until ed6d53e stubbed the prompt step"
+      - "T3 GREEN commit 3257359 left 2 of 21 display tests red; both were revised in bfe3b9c (the RM-pending assertion moved to the end state, and the render check given an explicit console height)"
+      - "T4's red commit a772d4f carried a wrong import path in one test (tradingagents.agents.schemas instead of tradingagents.agents.gate.schemas), corrected inside the GREEN commit 265d820"
+      - "T5's ledger cites 'ImportError: render_debate_gate_section'; under a strictly isolated PYTHONPATH the pre-task-3 tree fails earlier with 'ModuleNotFoundError: cli.stream_handler' (same conclusion: the test cannot pass before tasks 3-4)"
+  flake:
+    capture: /tmp/e02s02_baseline_run.txt
+    where: "baseline main 5c7a9ac archive run (not the story tip; both tip runs were green)"
+    failure: "tests/test_no_data_handling.py::TestLoadOhlcvNoPoison::test_empty_download_raises_and_does_not_cache -> VendorRateLimitError: Yahoo Finance is unreachable; no price rows was retrieved (tradingagents/dataflows/stockstats_utils.py:39 via raise_for_empty :38), so assertRaises(NoMarketDataError) fails"
+    mechanism: "the test mocks yf.download but raise_for_empty still probes the network (utils.vendor_reachable -> requests.head with a 5s timeout); VendorRateLimitError is a sibling of NoMarketDataError, not a subclass"
+    intermittency: "isolated re-run passed; second full baseline run 1002 passed / 2 skipped"
+    second_capture: /tmp/e02s02_baseline_run2.txt
+
+terminal_verdict:
+  command: ".venv/bin/python -m pytest -q && .venv/bin/python -m ruff check ."
+  exit_code: 0
+  captured_at: "2026-09-20T08:2x:xxZ"
+  note: "single contiguous run in the worktree, behind an empty pytest pre-check; do not merge output from other attempts"
