@@ -55,7 +55,7 @@ metrics:
 epic_cycle:
   ship_epic_step: null
   story_bcps: 3
-  step: 6
+  step: 7
   completed_steps: 1,2 (frozen-plan verification/refresh pass — 5/5 tasks intact, 0 rewrites)
   audit_result: null
   verify_result: null
@@ -64,7 +64,7 @@ epic_cycle:
   metrics:
     story_start: '2026-09-20T08:41:06Z'
 handoff:
-  next_skill: audit-code
+  next_skill: commit-message
   note: 'e02s03 cycle opened by the orchestrator 2026-09-20T08:41Z (user decision: proceed automatically
     after the e02s02 merge-commit landing 71bf36b). Story: Docs + knowledge refresh (CHANGELOG, .env.example,
     README, tech-stack, glossary), 3 bcps, risk P2, delta ADDED, 5 frozen tasks in specs/epics/e02-conditional-debate-gate/e02s03-docs.md

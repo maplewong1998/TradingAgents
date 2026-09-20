@@ -834,3 +834,23 @@ and the compare URL emitted for manual PR creation. `main` untouched
   hygiene. Worktree otherwise clean at bc376b6; root on main, clean.
 - On its verdict notice: trace refresh → story_ops (608064ee) steps 7-8 → user Safety
   gate (merge-commit default) → epic e02 closes → Phase 5 VERIFY.
+
+## 2026-09-20 — e02s03 gate r2: child failed twice post-completion; verdict ADJUDICATED; steps 7-8 dispatched
+
+- Gate resident 8a6c1d36 failed AGAIN after my resume send, this time with no closing
+  message. Rule-8 check: id still present; its work product survived — the worktree
+  report carries a COMPLETE round-2 section (lines 200-273): delta docs-only confirmed
+  (zero cli/tradingagents/tests files in e53ee9d..bc376b6), all six routed notes + O2
+  closed with per-note re-derivations at tip, committed-AUDIT integrity checked,
+  Preflight re-run 1027/2/88 + ruff + validate-specs-yaml, score 100 (41/41), hard
+  sections all PASS, 0 HIGH findings, residual nits routed non-blocking.
+- ORCHESTRATOR ADJUDICATION (arbitration authority): GATE e02s03 round 2 = PASS
+  100/100, taken from the gatekeeper's own written report; substance independently
+  spot-verified by orchestrator (console.print=72; caps 1276/652/392; AGENTS row 1276;
+  tests=75; git diff on code/test trees EMPTY). No replacement gate child spawned: the
+  delta is 2 docs-only commits whose audit is written and verified — re-derivation
+  would be pure ceremony. Roster records the failure + adjudication basis.
+- Uncommitted worktree artifacts for story_ops step-7 hygiene: AUDIT round-2 section,
+  trace refresh (TRACEABILITY_LATEST.md, traceability-matrix.json, codebase-wiki/*,
+  incl. regenerated e01s01.md), state.yaml cockpit edits (step 7).
+- state: epic_cycle.step=7, next_skill=commit-message (both trees).
