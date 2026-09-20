@@ -435,3 +435,31 @@ and the compare URL emitted for manual PR creation. `main` untouched
   modules; `cli/main.py` shrank by 184 lines), D5 (no fabricated RED for the
   already-landed P3-01 logging), D6 (ledger verify commands authoritative).
 - NEXT: step 5 verify-work.
+
+## e02s02 STEP 4 (develop-tdd) ROUND 2 — 2026-09-20 (resident `develop`)
+
+- Trigger: verify round 1 failed the acceptance-criteria phase — SC-e02s02-P3-01's INFO
+  half (frozen test plan:47) was unmet: no INFO assertion existed and both INFO log lines
+  lacked the ticker context the failure WARNING already carried. Waiver denied by the
+  orchestrator.
+- FIX 1 (story scope, TDD): `909a7b5` test RED (three INFO/WARNING assertions under
+  `-k 'report or logging'`; 2 failed) → `7526937` fix(agents) — both INFO lines
+  (judge skip, configuration skip) name the instrument through a shared `_instrument(state)`
+  helper; the WARNING message and level are untouched. Task 4 verify: 10 passed.
+- FIX 2 (quick-fix, NOT story scope): `7aae193` — sighting #4 of the intermittent
+  `TestLoadOhlcvNoPoison` failure is root-caused: `raise_for_empty`
+  (stockstats_utils.py:38) probes the live network via `utils.vendor_reachable`
+  (`requests.head`, 5s), and a transient failure raises `VendorRateLimitError` — a sibling
+  of `NoMarketDataError`, not a subclass — instead of the asserted exception. Capture on
+  the untouched baseline tree (main 5c7a9ac, full-suite `--tb=long`) is
+  /tmp/e02s02_baseline_run.txt; both deterministic reproductions and the pre/post-fix
+  evidence are in `specs/bugs/BUG-2026-09-20-no-data-handling-live-vendor-probe.md`.
+  Test-only fix (stub the probe in setUp); assertion and production behavior unchanged.
+  `tests/_tmp_cache` gitignore follow-up stays open (rides to e02s03/quick-fix).
+- Round-2 verifies (serial, behind the ps concurrency pre-check): T1 15, T2 32, T3 21,
+  T4 10, T5 2, `tests/test_no_data_handling.py` 3 passed; full Preflight
+  `1024 passed / 2 skipped / 88 subtests` + ruff "All checks passed!", exit 0.
+- A10 routed record-integrity notes recorded in the ledger `round2.record_integrity`
+  block (T2/T3 green follow-ups ed6d53e/bfe3b9c, T4's RED import-path correction,
+  T5's corrected isolation citation).
+- NEXT: verify-work round 2.

@@ -112,9 +112,12 @@ tasks:
     # D3 evidence: the new end-to-end test is NOT RED-first — the frozen task order
     # implements the behaviour in tasks 3-4 before this coverage task, so it passed
     # on first run at the tip. Isolation proof instead: against the pre-task-3 tree
-    # (git archive 1950fc1 + this test file, PYTHONPATH-forced) it fails with
-    # ImportError: cannot import name 'render_debate_gate_section'; at the tip the
-    # verify is 2 passed (pre-existing held-path test + this one).
+    # (git archive 1950fc1 + this test file, PYTHONPATH-forced) it fails while
+    # importing cli.stream_handler from cli.main — under strict isolation pytest
+    # reports ModuleNotFoundError: No module named 'cli.stream_handler', and in the
+    # in-place run it surfaced as ImportError: cannot import name
+    # 'render_debate_gate_section' (same conclusion, corrected per A10); at the tip
+    # the verify is 2 passed (pre-existing held-path test + this one).
     added_tests:
       - tests/test_cli_display.py::test_the_cli_stream_end_to_end_shows_a_skip_and_the_gate_section
     green_commit: "test(cli): drive an auto-mode skip end to end through the CLI surfaces"
@@ -126,15 +129,40 @@ tasks:
     verify: ".venv/bin/python -m pytest -q && ruff check ."
     risk: P1
     status: passing
-    # 2026-09-20 worktree .worktrees/e02s02 @ ed6d53e verified (final tip run): 1021 passed / 2 skipped
-    # / 88 subtests (baseline 1002/2 -> +19 new tests this story), ruff "All checks
-    # passed!", pytest exit 0. Two consecutive green runs, each behind a clean
-    # concurrency pre-check (ps -eo pid,args | grep -E "[p]ython -m pytest").
-    # FLAKE SIGHTING #4 (one-shot class, still unproven): the first full-suite run of
-    # this leg failed tests/test_no_data_handling.py::TestLoadOhlcvNoPoison::
-    # test_empty_download_raises_and_does_not_cache; the immediate isolated
-    # --tb=long run PASSED (traceback unobtainable), then the full suite was green
-    # twice. Reported to the orchestrator as a routed watch item, not a story defect.
+    # ROUND 2 (2026-09-20, worktree .worktrees/e02s02 @ 7aae193):
+#   .venv/bin/python -m pytest -q -> 1024 passed / 2 skipped / 88 subtests, exit 0;
+#   ruff check . -> "All checks passed!"; both serially behind a clean ps-based
+#   concurrency pre-check. Task verifies re-run green in round 2: T1 15, T2 32,
+#   T3 21, T4 10 (-k 'report or logging'), T5 2 (-k end_to_end),
+#   tests/test_no_data_handling.py 3.
+#   (Round 1 numbers, for the record: 1021 passed / 2 skipped @ ed6d53e.)
+# FLAKE SIGHTING #4 resolved (was routed in round 1): the intermittent
+# TestLoadOhlcvNoPoison failure is root-caused and fixed outside story scope as
+# BUG-2026-09-20-no-data-handling-live-vendor-probe / commit 7aae193 — a live
+# requests.head outage probe in raise_for_empty, not a test race. See the BUG spec.
     allure:
       severity: high
       categories: ["preflight"]
+
+round2:
+  trigger: >-
+    verify round 1 failed the acceptance_criteria phase: SC-e02s02-P3-01's INFO half
+    (frozen test plan:47) was unmet and unverified — no INFO assertion existed and the
+    INFO records carried no ticker context, unlike the failure WARNING.
+  fix1_commit: "909a7b5 test RED (INFO assertions) -> 7526937 fix(agents) ticker context on both INFO lines"
+  fix2_commit: "7aae193 fix(tests) quick-fix for BUG-2026-09-20-no-data-handling-live-vendor-probe (separate quick-fix, not story scope)"
+  rule_before_flip: "task 4's verify is 10 passed (-k 'report or logging'); WARNING behavior unchanged"
+  record_integrity:
+    # A10 routed notes — recorded so later readers do not have to reconstruct them.
+    - >-
+      T2 and T3 'GREEN' commits (da4c0b9, 3257359) did not by themselves make their task
+      verify green: the prompt-driving tests needed the stub follow-up ed6d53e and T3's
+      verify file gained the T5 test in bfe3b9c. The per-task green_commit values are the
+      implementation commits; the verify-green state is at 7aae193.
+    - >-
+      T4's RED commit a772d4f imported render_policy_skip_marker from the wrong module;
+      the GREEN commit 265d820 corrected the import path (same commit that made the verify
+      green), so a772d4f alone is not a standalone-red commit for the report half.
+    - >-
+      T5's isolation citation was corrected: strict isolation reports
+      ModuleNotFoundError: No module named 'cli.stream_handler' (see task 5's comment).
