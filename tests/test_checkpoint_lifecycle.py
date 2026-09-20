@@ -45,11 +45,12 @@ def _workflow() -> StateGraph:
     return b
 
 
-def _bare_graph(tmpdir, *, enabled=True):
+def _bare_graph(tmpdir, *, enabled=True, gate="auto"):
     g = object.__new__(TradingAgentsGraph)
     g.config = {
         "checkpoint_enabled": enabled, "data_cache_dir": tmpdir,
         "max_debate_rounds": 1, "max_risk_discuss_rounds": 1,
+        "debate_gate": gate,
     }
     g.selected_analysts = ("market",)
     g.workflow = _workflow()
@@ -170,3 +171,96 @@ def test_clearing_removes_the_database_sidecars(tmp_path):
 
     assert cleared == 1
     assert list(cp.iterdir()) == []
+
+
+# --- the gate policy is part of the checkpoint key (e02s02, SC-e02s02-P1-01) ---
+
+
+@pytest.mark.unit
+def test_the_run_signature_carries_the_gate_mode():
+    """The gate changes the graph's route, so it changes the graph's shape.
+
+    A signature that ignores the policy lets a thread checkpointed under `auto`
+    resume under `always`: the debate would then be skipped (or held) by a
+    decision the resumed graph never took (#1089 class, story e02s02).
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        auto = _bare_graph(tmp, gate="auto")._run_signature("stock")
+        always = _bare_graph(tmp, gate="always")._run_signature("stock")
+        never = _bare_graph(tmp, gate="never")._run_signature("stock")
+
+        assert "gate=auto" in auto
+        assert len({auto, always, never}) == 3  # one signature per policy
+        assert auto == _bare_graph(tmp, gate="auto")._run_signature("stock")
+
+
+@pytest.mark.unit
+def test_a_resume_under_a_changed_gate_mode_starts_fresh():
+    """Same ticker+date, different policy: the checkpoint must not be reused."""
+    global _should_crash
+    with tempfile.TemporaryDirectory() as tmp:
+        args = ("AAPL", "2026-05-08", "stock")
+
+        _should_crash = True
+        g1 = _bare_graph(tmp, gate="auto")
+        tid = g1.begin_checkpoint(*args)
+        try:
+            with pytest.raises(RuntimeError):
+                for _ in g1.graph.stream(
+                    {"count": 0}, config={"configurable": {"thread_id": tid}}
+                ):
+                    pass
+        finally:
+            g1.end_checkpoint()
+        auto_signature = g1._run_signature("stock")
+        assert checkpoint_step(tmp, "AAPL", "2026-05-08", auto_signature) is not None
+
+        # The same run, now under `always`: nothing to resume, so both nodes run.
+        _should_crash = False
+        g2 = _bare_graph(tmp, gate="always")
+        tid2 = g2.begin_checkpoint(*args)
+        try:
+            assert tid2 != tid
+            assert g2._resuming is False
+            assert g2.checkpoint_input({"count": 0}) == {"count": 0}
+            result = g2.graph.invoke(
+                {"count": 0}, config={"configurable": {"thread_id": tid2}}
+            )
+            assert result["count"] == 11  # analyst(+1) then trader(+10), from scratch
+        finally:
+            g2.end_checkpoint()
+
+        # The other policy's checkpoint is untouched, not consumed by this run.
+        assert checkpoint_step(tmp, "AAPL", "2026-05-08", auto_signature) is not None
+
+
+@pytest.mark.unit
+def test_the_same_gate_mode_still_resumes():
+    """The extra key must not break resume: the same policy is the same thread."""
+    global _should_crash
+    with tempfile.TemporaryDirectory() as tmp:
+        args = ("AAPL", "2026-05-08", "stock")
+
+        _should_crash = True
+        g1 = _bare_graph(tmp, gate="auto")
+        tid = g1.begin_checkpoint(*args)
+        try:
+            with pytest.raises(RuntimeError):
+                for _ in g1.graph.stream(
+                    {"count": 0}, config={"configurable": {"thread_id": tid}}
+                ):
+                    pass
+        finally:
+            g1.end_checkpoint()
+
+        _should_crash = False
+        g2 = _bare_graph(tmp, gate="auto")
+        tid2 = g2.begin_checkpoint(*args)
+        try:
+            assert tid2 == tid  # stable id -> the saved run resumes
+            assert g2._resuming is True
+            assert g2.checkpoint_input({"count": 0}) is None  # resume, don't re-add
+            result = g2.graph.invoke(None, config={"configurable": {"thread_id": tid2}})
+            assert result["count"] == 11
+        finally:
+            g2.end_checkpoint()
