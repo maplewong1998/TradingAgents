@@ -12,5 +12,5 @@ story: null
 epic: e02
 roles:
   verify_work: 9c525c54-d6bd-418a-aee9-e4ff705a057a  # project-level UAT off-main: worktree .worktrees/verify-phase5 (branch verify/phase5), read-only judge
-  run_evals: 2ab74b7c-9bfa-4140-985a-359b1e2c6ae3    # eval set definition + targeted grader runs at root, read-only; artifact /tmp/phase5-evals-e02.md
+  run_evals: 2ab74b7c-9bfa-4140-985a-359b1e2c6ae3    # eval set definition + targeted grader runs at root, read-only; r1 PASS 33/33 (20C/8R/5S, 0 flaky, 0 gaps); artifact persisted specs/EVALS-e02.md
 updated_at: '2026-09-20T10:1xZ'
