@@ -9,7 +9,7 @@ story: e02s02
 epic: e02
 roles:
   story_ops: ceb173da-4e9e-4909-a686-db431cc5cdad # steps 1-3 PASS (worktree .worktrees/e02s02, branch feat/e02s02, tip 06d984e); steps 7-8 pending
-  develop: 143f1446-0771-4331-b357-6fbe7b0ca67b   # step 4 — develop-tdd (sole writer on the worktree); r1 PASS 6/6 (tip e9d4f26); r2 dispatched (P3-01 INFO fix + flake quick-fix)
-  verify: b0a6a107-02af-48f1-bec5-3ebd5723c7ae    # step 5 — verify-work (read-only judge); r1 FAIL (acceptance_criteria only: SC-e02s02-P3-01 INFO half)
+  develop: 143f1446-0771-4331-b357-6fbe7b0ca67b   # step 4 — develop-tdd (sole writer on the worktree); r1 PASS 6/6; r2 PASS (tip efb7517, P3-01 INFO fix + flake quick-fix)
+  verify: b0a6a107-02af-48f1-bec5-3ebd5723c7ae    # step 5 — verify-work (read-only judge); r1 FAIL (acceptance_criteria); r2 delta re-check in flight
   gate: null        # step 6 — gatekeeper audit
 updated_at: '2026-09-20T07:37:31Z'
