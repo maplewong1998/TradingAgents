@@ -273,10 +273,18 @@ def test_marker_is_never_empty_so_a_missing_transcript_cannot_read_as_empty():
         _debate_verdict(evidence_aligned=False),
         _debate_verdict(evidence_aligned=True, confidence="low", aligned_direction="bullish"),
         _debate_verdict(evidence_aligned=True, confidence="medium", aligned_direction="mixed"),
+        _debate_verdict(evidence_aligned=True, confidence="high", aligned_direction="mixed"),
         _debate_verdict(evidence_aligned=True, confidence="high", aligned_direction="unclear"),
         _debate_verdict(evidence_aligned=True, confidence="high", aligned_direction=None),
     ],
-    ids=["conflicted", "low-confidence", "mixed-direction", "unclear-direction", "no-direction"],
+    ids=[
+        "conflicted",
+        "low-confidence",
+        "medium-mixed-direction",
+        "mixed-direction",
+        "unclear-direction",
+        "no-direction",
+    ],
 )
 def test_tension_or_ambiguity_routes_to_the_debate(verdict):
     # scenario: SC-e02s01-P0-03 — anything short of clear alignment keeps the debate.
@@ -297,6 +305,35 @@ def test_aligned_and_confident_routes_past_the_debate():
     history = _update(command)["investment_debate_state"]["history"]
     assert history.strip()
     assert history == render_debate_gate_marker(_hold_verdict())
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(
+    "confidence,direction",
+    [
+        ("high", "bullish"),
+        ("high", "bearish"),
+        ("medium", "bullish"),
+        ("medium", "bearish"),
+    ],
+)
+def test_aligned_above_low_confidence_with_a_direction_routes_past_the_debate(confidence, direction):
+    # scenario: SC-e02s01-P0-04 — the frozen acceptance criterion is
+    # `evidence_aligned=true with confidence != "low"` (spec §17). `medium` is
+    # above low, so an aligned directional verdict skips the debate.
+    verdict = DebateGateVerdict(
+        evidence_aligned=True,
+        confidence=confidence,
+        aligned_direction=direction,
+        rationale="All four reports point the same way.",
+    )
+    llm = _GateLLM(result=verdict)
+    with _policy("auto"):
+        command = create_debate_gate(llm)(_state())
+    assert _routed(command) == RM
+    assert _update(command)["investment_debate_state"]["history"] == render_debate_gate_marker(
+        verdict
+    )
 
 
 @pytest.mark.unit
