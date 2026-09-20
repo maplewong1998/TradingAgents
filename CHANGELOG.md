@@ -8,6 +8,8 @@ Breaking changes within the 0.x line are called out explicitly.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-20
+
 `feat(graph)`: the Bull/Bear investment debate becomes conditional. The debate used
 to run on every analysis even when all four analyst reports agreed; a gate now judges
 whether genuine tension exists and routes aligned runs straight to the Research
@@ -44,10 +46,12 @@ re-keyed once, both are called out here explicitly.
 
 - **Skipped-debate visibility.** The run view shows Bull Researcher and Bear
   Researcher as `skipped` when the gate routes past them, so no agent is left
-  `pending`; the live view and the saved report tree gain a **Debate Gate** section
-  that states the path taken (verdict, direction and confidence when skipped; rounds
-  played when held; `never` when disabled by configuration). Gate decisions log at
-  INFO and failures at WARNING — a silent skip is never the outcome.
+  `pending`. The **Debate Gate** section — which states the path taken (verdict,
+  direction and confidence when skipped; rounds played when held; `never` when
+  disabled by configuration) — is rendered in the saved report tree and in the
+  complete-report display, not in the streaming live view, which shows the
+  `skipped` statuses only. Gate decisions log at INFO and failures at WARNING —
+  a silent skip is never the outcome.
 
 ## [0.5.0] — 2026-09-18
 

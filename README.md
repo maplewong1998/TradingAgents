@@ -273,7 +273,7 @@ Set it in your config, in `.env` (`TRADINGAGENTS_DEBATE_GATE=always`), or from t
 
 The gate skips only on an explicit *aligned* verdict with confidence above `low`, because a skip hands the Research Manager a run with no opposing arguments to weigh. Two things follow, and both are the fail-safe direction: a missing or thin analyst report is judged `low` and never skips, and a judge that fails (`None`, an exception, an unparseable payload) logs a warning and holds the debate. A run that would rather debate than guess is the whole design.
 
-Every run states which path it took. Skipped debates show Bull Researcher and Bear Researcher as `skipped` in the run view, and the live view and the saved report tree carry a **Debate Gate** section: the verdict, direction and confidence when the debate was skipped, the rounds played when it was held, or `never` when configuration disabled it.
+Every run states which path it took. Skipped debates show Bull Researcher and Bear Researcher as `skipped` in the live view, and the saved report tree and the complete-report display carry a **Debate Gate** section: the verdict, direction and confidence when the debate was skipped, the rounds played when it was held, or `never` when configuration disabled it.
 
 ### Fundamentals as filed
 
