@@ -83,7 +83,7 @@ stories:
     bcp_per_hour: 2.39           # 3 bcps / 75.5 min * 60 — wall-clock basis
     effort_hours: null           # pending a landing; merge-commit landing enables git-hours re-attribution
     attributed_by_trailer: true  # `Story: e02s03` on all 15 commits (kickoff 787a829 .. 85d7ddd)
-    commits: 21                  # story range 276cfc4..942cc60: 15 at the step-8 write + 6 step-7/8 record commits
+    commits: 22                  # story range 276cfc4..c0eb47c = 15 product/docs commits + 7 pipeline record commits (steps 1-8)
     merge_commits: 0             # decision mode — nothing landed
     branch: feat/e02s03
     landed: false
