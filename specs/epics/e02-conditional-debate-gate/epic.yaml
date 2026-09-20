@@ -2,7 +2,7 @@ id: e02
 title: Conditional Bull/Bear Debate Gate
 wsjf: 4.8          # (BV 8 + TC 5 + RR 6) / JS 4 — savings on every aligned run, default-behavior change, checkpoint/CLI coupling
 total_bcps: 16
-status: todo
+status: in_progress   # e02s01 done 2026-09-20; e02s02/e02s03 remain (mirrors execution-status.yaml)
 note: >-
   Gate the investment debate on evidence tension (grill-with-docs confirmed
   2026-09-20): LLM-judge node with Command routing, default auto with
@@ -13,7 +13,7 @@ stories:
   - id: e02s01
     title: "Tracer bullet: gate node routes aligned runs past the debate (library end-to-end)"
     bcps: 8
-    status: todo
+    status: done          # PR opened 2026-09-20, not merged; mirrors execution-status.yaml
     delta: MODIFIED   # debate becomes conditional; ADDED gate schema/agent/config
     spec: e02s01-gate-core-routing.md
     tasks: e02s01-tasks.yaml

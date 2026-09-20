@@ -6,7 +6,8 @@
 **risk:** P0 (decision-path routing; test-plan P0 scenarios live here)
 **context:** domain
 **bcps:** 8
-**status:** failing (e45s06 ledger — flips per task as verify exits 0)
+**status:** done (e45s06 ledger — all 9 task verifies exit 0; step 8 opened the PR for
+manual merge, so this flip records story completion, not a landed commit on `main`)
 
 **Context:** The Bull/Bear investment debate runs on every analysis even when the four
 analyst reports agree, burning `2 × max_debate_rounds` full LLM calls re-arguing a settled

@@ -203,3 +203,85 @@
   spec header flip, cycle metrics from story_start 04:21:39Z, lock release,
   handoff → build-epic/e02s02).
 - After story_ops PASS: ask user re PR merge (Safety), then roster begin e02s02 e02.
+
+## 2026-09-20 — steps 7-8 (story_ops) PASS: PR drafted, branch pushed, e02s01 closed
+
+**Step 7 — commit-message.** Branch review (main..HEAD = 17 commits; story range
+114f769..d96645a = 13): all Conventional Commits, no `!` and no `BREAKING CHANGE:`
+footer, no `Co-authored-by` (P1). Dominant outcome `feat(agents)` → **MINOR** bump
+(no custom `.releaserc`, so the CONVENTIONS § Types table is authoritative).
+Defensive categories touched: **fail-safe sentinel** (judge failure / unparseable
+payload → hold the debate; typo'd `TRADINGAGENTS_DEBATE_GATE` → startup `ValueError`
+naming always|auto|never) and **graceful degradation** (deliberately NOT used on the
+judge path — no free-text retry, it fails safe instead). Retry/Timeout untouched by
+this story; circuit breaker still not implemented. Fix ratio 3 fix / 13 story
+commits = 23 % (< 30 %, no deploy+smoke suggestion).
+Hygiene commit first (gate-routed): `0a5ad70 chore(specs): record e02s01 verification,
+audit and traceability artifacts` — the verify/audit evidence, trace matrix +
+TRACEABILITY_LATEST, codebase-wiki OKF bundle, fleet roster, and the modified
+progress.md + state.yaml. **Deviation disclosed:** it also carries the step-9b OKF
+refresh output `specs/conventions-wiki/` (26 sections) and `specs/agent-guide/`
+(13 sections) written by `decompose-conventions.sh` / `generate-agent-guide.sh`,
+which the build-epic skill mandates before step 8; no temp/scratch file is included.
+PR draft (team-pr squash title + body) — full text below for manual PR creation:
+
+```
+feat(agents): gate the bull/bear debate on analyst evidence tension
+
+Adds a Debate Gate node between the analyst phase and the investment debate: an
+LLM judge (quick model, structured DebateGateVerdict) decides whether genuine
+tension exists and routes via a LangGraph Command either into the debate or
+straight to the Research Manager, so a settled question no longer burns
+2 x max_debate_rounds full LLM calls.
+
+Skipping is conservative (frozen SC-e02s01-P0-04): skip only when the four
+reports are aligned, confidence is not "low", and the aligned direction is
+bullish or bearish. Mixed, unclear, direction-less, low-confidence and
+judge-failure runs all hold the debate — a failed judge is fail-safe to the
+debate, never a silent skip, and never a fabricated rating.
+
+Policy debate_gate: always|auto|never (default auto), overridable with
+TRADINGAGENTS_DEBATE_GATE and validated at config-build time, so a typo fails at
+startup naming the valid set instead of silently choosing a behaviour for an
+unattended run. The held-debate Research Manager prompt is byte-identical; the
+skipped path uses a separate variant that still yields a parseable 5-tier rating.
+
+Routed fixes carried in the same branch (discovered during the story):
+- trading_graph.py extraction back under the CONVENTIONS file-size cap (no
+  external import path changed; new graph/config_validation.py)
+- hermetic TestLoadOhlcvNoPoison (BUG-2026-09-20-no-data-handling-nonhermetic-cache)
+- honest never-mode policy-skip marker (no judge ran, so no judge finding)
+- strict pre-story node-sequence pin for always mode
+
+Story: e02s01
+```
+
+**Step 8 — release-branch (team-pr).** Decision: **PR**, no merge — `gh` CLI is not
+installed, so the branch was pushed to `origin` (fork, ordinary push, never force)
+and the compare URL emitted for manual PR creation. `main` untouched
+(`origin/main` = 2d17df8 before and after; `landed: false`).
+- Verification at tip 0a5ad70 (serial; pgrep/ps pre-check clean, sole pytest owner):
+  `pytest -q` → **1002 passed, 2 skipped, 88 subtests, exit 0** (3.59 s);
+  `ruff check .` → all checks passed. Traceability refresh re-run: 5/5 stories
+  tagged, **0 dark, 0 orphan, 2 stale** (e01s01/e01s02 tags still in code — e01
+  closed, informational). OKF wiki refresh re-run (26 + 13 sections).
+- Bookkeeping: execution-status e02s01 `done` + `completed_at`, spec header
+  `failing → done`, tasks ledger already `passing: 9/9`, state.yaml story_end /
+  cycle_minutes 73.5 / bcp_per_hour 6.53 + `pr` block + handoff → build-epic
+  (e02s02), cycle-times.yaml row, agent-locks confirmed released. e02 stays
+  `in_progress` (e02s02, e02s03 open). No tagging — semantic-release decides.
+- **Finding (for the parent):** `scripts/record-cycle-time.sh` cannot attribute this
+  story — no branch commit carries a `Story: e02s01` trailer, so its report shows
+  all 18 commits as `unattributed` (1.35 h whole-branch). The ledger row above is
+  wall-clock, labelled as such. If deterministic cycle metrics are wanted, adopt the
+  `Story: <id>` trailer in commit bodies (and add the trailer to the commit-message
+  skill's template).
+- **Recovery for a stalled push:** `git push origin feat/e02-conditional-debate-gate`
+  (add `--set-upstream` only if the orchestrator wants tracking); nothing to undo if
+  it never ran — the branch is local and `main` is untouched.
+- **G-12 caught a record drift I created:** flipping `stories.e02s01.status` to `done`
+  in the SoT while `epics/e02-conditional-debate-gate/epic.yaml` still said `todo`
+  made `scripts/golden-g12-status-consistency.sh` FAIL ("2 inconsistencies"). Fixed by
+  mirroring the capsule too: epic `status: todo → in_progress`, e02s01 `todo → done`.
+  G-12 PASS, `validate-specs-yaml.sh` OK, `check-stale-locks.sh` clean. Lesson for the
+  next story: the SoT flip and the capsule status flip belong in the same step-8 pass.

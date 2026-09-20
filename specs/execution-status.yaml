@@ -3,7 +3,7 @@ development_status:
   e01s01: done
   e01s02: done
   e02: in_progress
-  e02s01: in_progress
+  e02s01: done
   e02s02: todo
   e02s03: todo
 epics:
@@ -35,7 +35,7 @@ stories:
     tasks_passing: 0
     tasks_failing: 0
   e02s01:
-    status: in_progress
+    status: done
     title: 'Tracer bullet: gate node routes aligned runs past the debate (library end-to-end)'
     bcps: 8
     epic: e02
@@ -44,6 +44,13 @@ stories:
     tasks_failing: 0
     risk_max: P0
     started_at: '2026-09-20T04:21:39Z'
+    completed_at: '2026-09-20T05:35:10Z'
+    # Wall-clock cycle time (story_start → step-8 landing write), NOT git-hours
+    # effort: scripts/record-cycle-time.sh could not partition this story because
+    # the branch commits carry no `Story: e02s01` trailer (all 18 → unattributed).
+    cycle_minutes: 73.5
+    bcp_per_hour: 6.53
+    landed_via: 'team-pr — PR opened for manual merge (gh CLI absent); branch pushed, no merge to main'
   e02s02:
     status: todo
     title: Checkpoint policy keying + CLI surface (prompt step, skipped status, report section)

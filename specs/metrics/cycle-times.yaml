@@ -4,4 +4,23 @@
 #   bcp_per_hour = story_bcps / cycle_minutes * 60
 # Sourced from git commit history via `bash scripts/record-cycle-time.sh`.
 
-stories: []
+stories:
+  # 2026-09-20 e02s01 — written by build-epic step 8 (release-branch, team-pr).
+  # NOT the record-cycle-time.sh output: that script partitions by the `Story: <id>`
+  # commit trailer and this branch's commits carry none, so all 18 commits land in
+  # `unattributed` (report: effort 1.35 h for the whole branch, 0 attributable to
+  # e02s01). These numbers are wall-clock from metrics.story_start instead.
+  - id: e02s01
+    epic: e02
+    bcps: 8
+    story_start: '2026-09-20T04:21:39Z'
+    story_end: '2026-09-20T05:35:10Z'
+    cycle_minutes: 73.5
+    bcp_per_hour: 6.53
+    commits: 13            # 114f769..d96645a, story range (4 more pre-story on branch)
+    branch: feat/e02-conditional-debate-gate
+    landed: false          # team-pr: PR opened for manual merge, main untouched
+    source: wall-clock      # measured, not estimated; effort_hours unavailable (no trailer)
+    audit_score_pct: 100   # gate round 2, delta-only, specs/verifications/AUDIT-e02-e02s01.md
+    verify_status: pass    # specs/verifications/e02s01-verify.yaml, 7/7 phases
+    rework_count: 2        # develop round 2 + gate round 2 (both PASS)

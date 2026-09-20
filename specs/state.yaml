@@ -7,6 +7,17 @@ vcs:
   kind: git
   branch: feat/e02-conditional-debate-gate
   head: d96645a
+# pr: step 8 (release-branch) opened this by hand — `gh` is not installed in this
+# environment, so the pushed branch + this compare URL is the PR creation path.
+# The merge to main is NOT executed: it is gated on explicit user approval.
+pr:
+  mode: team-pr
+  url: https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02-conditional-debate-gate
+  title: 'feat(agents): gate the bull/bear debate on analyst evidence tension'
+  bump: minor
+  pushed: true
+  merged: false
+  merge_ref: null
 git:
   branch: feat/e02-conditional-debate-gate
   worktree: null
@@ -16,32 +27,47 @@ release:
   target_version: null
 metrics:
   story_start: '2026-09-20T04:21:39Z'
-  story_end: null
-  cycle_minutes: null
-  bcp_per_hour: null
+  story_end: '2026-09-20T05:35:10Z'
+  cycle_minutes: 73.5
+  bcp_per_hour: 6.53
+  cycle_time_source: wall-clock   # not git-hours: branch commits carry no `Story:` trailer
   skill_timings:
     plan-work:
       calls: 1
       total_seconds: 526.0
       avg_seconds: 526.0
+    release-branch:
+      calls: 1
+      total_seconds: 60.0
+      avg_seconds: 60.0
 epic_cycle:
   ship_epic_step: null
   story_bcps: 8
-  step: 7
+  step: 8
+  completed_steps: 1,2,3,4,5,6,7,8
+  audit_result: pass
+  verify_result: pass
+  story_status: done
+  story: e02s01
 handoff:
-  next_skill: commit-message
-  note: 'develop-tdd complete 2026-09-20 (round 1 + orchestrator correction): tasks 1-9 of e02s01 all
-    flipped to passing (verify commands exit 0), Preflight green (1000 passed, 2 skipped; ruff clean).
-    RED commit 114f769 (tests only) fails in isolation per scripts/verify-tdd-red-commit.sh; the GREEN
-    commit that implements tradingagents/ follows it. Branch feat/e02-conditional-debate-gate at repo
-    root; no merge, no push. Step 5 (verify-work) is next: cold-start smoke, full UAT gate, manual verification
-    for specs/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md. Correction round 2026-09-20
-    (orchestrator ruling): the skip predicate no longer requires confidence == "high"; it now matches
-    the frozen SC-e02s01-P0-04 rule exactly -- skip iff evidence_aligned and confidence != "low" and aligned_direction
-    in {bullish, bearish}; mixed / unclear / no-direction / low-confidence / judge failure all hold the
-    debate. Test-only commit 23f69fa pins the medium-confidence skip cases (fails in isolation) and fix
-    commit 45c7799 changes the predicate; all nine verifies re-run green afterwards. Remaining accepted
-    divergences: (a) DebateGateVerdict/render_debate_gate_marker live in tradingagents/agents/gate/schemas.py
-    and are re-exported from agents/schemas.py because that module is at the CONVENTIONS file-size cap
-    and must not grow; (c) the >100-char conflicting-arguments paragraph stays in test_structured_agents
-    #1321 wording (E501 is ignored repo-wide, so it is byte-identical, not a noqa).'
+  next_skill: build-epic
+  note: 'e02s01 (epic e02) CLOSED 2026-09-20 at step 8. Steps 1-3 pre-freeze; step
+    4 develop-tdd PASS over 2 rounds (13 story commits 114f769..d96645a); step 5 verify-work
+    PASS all 7 phases (specs/verifications/e02s01-verify.yaml); step 6 gate PASS round
+    1 at 98 then round 2 at 100/100, hard sections all PASS, 0 HIGH security findings
+    (specs/verifications/AUDIT-e02-e02s01.md); step 7 commit-message: PR draft + MINOR
+    bump (feat(agents), no breaking marker); step 8 release-branch in team-pr mode:
+    branch feat/e02-conditional-debate-gate pushed to origin (fork), PR is NOT merged
+    — main is untouched and the merge waits on explicit user approval (gh CLI absent,
+    so use the compare URL in state.pr.url). Story bookkeeping is committed (execution-status
+    e02s01 done + completed_at, spec header flipped to done, cycle metrics 73.5 min
+    / 6.53 bcp_per_hour, cycle-times.yaml row, e02s01 lock confirmed released). NEXT:
+    begin story e02s02 (Checkpoint policy keying + CLI surface, bcps 5, risk_max P1)
+    with step 1 survey-context on epic e02; the story_ops roster should re-run steps
+    1-3 for the new story (new branch/worktree, since this branch is now a PR under
+    review). e02 stays in_progress (e02s02, e02s03 open); e02s01 remains mergeable-pending-user-approval.
+    Routed findings for e02s02 from gate/verify/dispatch: _run_signature mirroring,
+    the debate_gate_node state[...] direct-read cosmetic, _judge_prompt extraction
+    advisory, gitignore tests/_tmp_cache, and the record-cycle-time finding (no `Story:`
+    commit trailer → story unattributable; adopt the trailer if deterministic cycle
+    metrics are wanted).'

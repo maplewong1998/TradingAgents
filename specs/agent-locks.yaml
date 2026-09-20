@@ -2,4 +2,7 @@
 # Acquire before running tests for a story; release when the story lands.
 # 2026-09-20: e02s01 lock released — plan frozen by user before develop-tdd
 # (see specs/product/snapshots/release-0.6.0/FROZEN.md). Re-acquire on unfreeze.
+# 2026-09-20 step 8 (release-branch): verified released at story close — no lock is
+# held for e02s01 and none needs releasing; re-acquire if e02s01 reopens. e02s02
+# acquires its own lock at kickoff.
 locks: []
