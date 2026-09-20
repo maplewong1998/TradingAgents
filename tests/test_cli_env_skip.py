@@ -5,11 +5,13 @@ test_env_overrides.py. These tests cover the CLI layer: an env-configured
 provider/model/language must skip its interactive prompt and use the value.
 """
 
+import io
 import os
 import unittest
 from unittest import mock
 
 import pytest
+from rich.console import Console
 
 
 @pytest.mark.unit
@@ -187,20 +189,18 @@ class TestDebateGateEnvNotice(unittest.TestCase):
 
     The class above stubs ``ask_debate_gate``, so it proves the menu is not shown
     but never exercises the branch that decides it: the gate policy step has its
-    own env check, and these tests pin its two halves (notice + no prompt, and
-    the value the config ends up with).
+    own env check, and these tests pin what it does with it (no prompt, no double
+    notice) and what the run ends up configured with.
     """
 
-    def _console(self) -> tuple:
-        import io
-        from rich.console import Console
-
+    def _console(self):
         buf = io.StringIO()
         return Console(file=buf, force_terminal=False, width=220), buf
 
-    def test_env_policy_short_circuits_the_menu_and_says_so(self):
+    def test_env_policy_short_circuits_the_menu_without_announcing_itself(self):
         """SC-e02s02-P1-02 — with the env var set the step returns the config value
-        without asking, and prints which env var decided it."""
+        without asking. It stays silent here: the notice belongs to the
+        config-building step, so it can be printed once for the run."""
         import cli.gate_policy as gp
 
         console, buf = self._console()
@@ -211,7 +211,7 @@ class TestDebateGateEnvNotice(unittest.TestCase):
 
         prompt.assert_not_called()          # no menu on the non-interactive path
         self.assertEqual(resolved, "always")
-        self.assertIn("TRADINGAGENTS_DEBATE_GATE", buf.getvalue())
+        self.assertEqual(buf.getvalue(), "")
 
     def test_the_env_notice_is_printed_once_across_the_run(self):
         """The step and the config builder both resolve the policy, and both know
@@ -230,7 +230,10 @@ class TestDebateGateEnvNotice(unittest.TestCase):
 
         prompt.assert_not_called()
         self.assertEqual(resolved, "never")
-        notice = [l for l in buf.getvalue().splitlines() if "TRADINGAGENTS_DEBATE_GATE" in l]
+        notice = [
+            line for line in buf.getvalue().splitlines()
+            if "TRADINGAGENTS_DEBATE_GATE" in line
+        ]
         self.assertEqual(len(notice), 1, f"the env notice must print once, got: {notice}")
 
 

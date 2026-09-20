@@ -72,12 +72,12 @@ def select_debate_gate(prefs: dict, config_policy: str, console, question_box) -
     used — the same precedence rule the round counts follow (#977,
     SC-e02s02-P1-02). ``console`` and ``question_box`` are the caller's, so the
     step prints like every other prompt instead of owning a second console.
+
+    The env case returns silently: ``resolve_debate_gate`` announces the override
+    where the config is built, and announcing it here too printed the same fact
+    twice in one run.
     """
     if os.environ.get("TRADINGAGENTS_DEBATE_GATE"):
-        console.print(
-            "[green]✓ Debate gate policy from environment:[/green] "
-            f"{config_policy} (set by TRADINGAGENTS_DEBATE_GATE)"
-        )
         return config_policy
 
     console.print(
@@ -94,7 +94,10 @@ def resolve_debate_gate(config_policy: str, selections: dict, console) -> str:
 
     Mirrors the round-count rule (#977, SC-e02s02-P1-02). When the env var is set,
     the value already on the config is the one that applies, and the user is told
-    which of the two answers won instead of silently discarding one of them.
+    which of the two answers won instead of silently discarding one of them. This
+    is the one notice for the override — ``select_debate_gate`` deliberately does
+    not print one of its own, because the same fact twice in one run reads as two
+    different settings.
     """
     if os.environ.get("TRADINGAGENTS_DEBATE_GATE"):
         console.print(
