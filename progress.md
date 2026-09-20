@@ -736,3 +736,24 @@ and the compare URL emitted for manual PR creation. `main` untouched
   quick-fixes QF-A (env-notice dedupe), QF-B (SystemExit + env-skip coverage,
   RED-first honesty), QF-C (.gitignore tests/_tmp_cache/); item 4 deferred untouched;
   final Preflight leg after the QFs; Story: e02s03 trailers.
+
+## 2026-09-20 — e02s03 develop r1 PASS; verify dispatched
+
+- develop (b4848a06) step 4 r1: PASS 5/5, tip e53ee9d, 11 commits (Story: e02s03
+  trailers). CHANGELOG ## [Unreleased] (churn + default change + restore switch, no
+  invented 0.6.0, pyproject untouched); .env.example TRADINGAGENTS_DEBATE_GATE;
+  README gate section + walkthrough + resume signature; tech-stack/glossary/CONVENTIONS
+  refresh (cap rows 1276/652/392 with the ruling-1 WHY note). QF-A RED-first env-notice
+  dedupe (2e359da→33d5d11); QF-B SystemExit test — HONESTY DISCLOSURE: passed
+  immediately (branch pre-existed), non-vacuity proven by mutation; QF-C gitignore.
+  Item 4 untouched (deferred). Final Preflight 1027/2/88 (+3), ruff clean ×4 legs, no
+  flake sighting. Spot-checked by orchestrator (Unreleased heading, cap rows, gitignore,
+  env coverage).
+- Measurement deviations recorded by develop (verify must re-measure): Any/noqa 31 not
+  32; Rich cli modules 5 not 14; _ENV_OVERRIDES=16, missing=[]; integration count 1→6.
+- state: epic_cycle.step=5 (root+worktree; worktree edit uncommitted, orchestrator-owned).
+- verify resident started (NEW for e02s03): e1f1740c-7795-437d-b65d-f3b13eec9102 —
+  step 5 r1 read-only: Preflight + task verifies re-run, spec §Verification Script +
+  SC-e02s03-* grep re-derivation, docs_accuracy phase (independent re-measurement incl.
+  wc -l of the three capped files), QF audits (incl. mutation-proof re-derivation and
+  item-4-untouched confirmation), regressions + house rules, flake capture-first rule.

@@ -55,7 +55,7 @@ metrics:
 epic_cycle:
   ship_epic_step: null
   story_bcps: 3
-  step: 4
+  step: 5
   completed_steps: 1,2 (frozen-plan verification/refresh pass — 5/5 tasks intact, 0 rewrites)
   audit_result: null
   verify_result: null
