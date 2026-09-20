@@ -49,7 +49,7 @@ metrics:
 epic_cycle:
   ship_epic_step: null
   story_bcps: 5
-  step: 4
+  step: 7
   completed_steps: 1,2
   audit_result: null
   verify_result: null
@@ -58,7 +58,7 @@ epic_cycle:
   metrics:
     story_start: '2026-09-20T07:37:31Z'
 handoff:
-  next_skill: verify-work
+  next_skill: commit-message
   note: 'e02s02 steps 1-2 PASS (2026-09-20 07:42-07:5xZ, main @ 90d16be). Step 1 survey-context: active_flow=build_epic,
     epic e02 in_progress, story e02s02 opened (execution-status started_at 2026-09-20T07:42:23Z; epic_cycle.metrics.story_start
     confirmed 07:37:31Z); validate-specs-yaml OK, check-spec-drift OK (5 clean), phase Execute, no blocker.
@@ -126,18 +126,18 @@ handoff:
     result: PASS
     round: 2
     tip: 7aae193
-    trigger: "verify round 1 failed acceptance_criteria: SC-e02s02-P3-01 INFO half (no INFO assertion, no ticker context)"
-    fixes: "909a7b5 test RED -> 7526937 fix(agents) INFO ticker context; 7aae193 fix(tests) quick-fix BUG-2026-09-20-no-data-handling-live-vendor-probe"
-    preflight: "1024 passed / 2 skipped / 88 subtests in 3.09s + ruff clean, serially behind a clean ps-based concurrency pre-check"
-    verifies: "T1 15, T2 32, T3 21, T4 10, T5 2, tests/test_no_data_handling.py 3"
-    routed_open: "tests/_tmp_cache gitignore entry (rides to e02s03/quick-fix)"
-    tip_note: "vcs.head = 7aae193, the tree the round-2 preflight ran on"
+    trigger: 'verify round 1 failed acceptance_criteria: SC-e02s02-P3-01 INFO half (no INFO assertion,
+      no ticker context)'
+    fixes: 909a7b5 test RED -> 7526937 fix(agents) INFO ticker context; 7aae193 fix(tests) quick-fix BUG-2026-09-20-no-data-handling-live-vendor-probe
+    preflight: 1024 passed / 2 skipped / 88 subtests, ruff clean, run twice behind clean concurrency pre-checks
+      (+22 tests over the 1002/2 baseline — 19 story + 3 round-2 logging)
+    verifies: T1 15, T2 32, T3 21, T4 10, T5 2, tests/test_no_data_handling.py 3
+    routed_open: tests/_tmp_cache gitignore entry (rides to e02s03/quick-fix)
+    tip_note: vcs.head = 7aae193, the tree the round-2 preflight ran on
     ledger: 6/6 tasks passing, story status passing
     commits: 6c4a702 test RED T1, bcf0352 feat T1, 790cea3 test RED T2, da4c0b9 feat T2, 1950fc1 test
       RED T3, 3257359 feat T3, a772d4f test RED T4, 265d820 feat T4, bfe3b9c test T5, ade51ad chore ledger
       flip
-    preflight: 1021 passed / 2 skipped / 88 subtests in 3.08s, ruff clean, run twice behind clean concurrency
-      pre-checks (+19 tests over the 1002/2 baseline)
     new_tests: 19
     file_caps: cli/main.py 1460 -> 1276 (new cli/gate_policy.py + cli/stream_handler.py, report surfaces
       moved to cli/complete_report.py); trading_graph.py 651 -> 652 (+1 line)
