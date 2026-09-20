@@ -135,13 +135,14 @@ Rules:
         except Exception as exc:
             return _fail_safe(state, exc)
 
-        # Skip only on a strong, directional verdict. `mixed` / `unclear` mean the
-        # reports agree on some evidence but not on a call, which is precisely the
-        # tension the debate exists to resolve; confidence below `high` means the
-        # judge itself is not sure the reports line up.
+        # Skip on the frozen rule (spec §17 SC-e02s01-P0-04): evidence_aligned
+        # with confidence != "low", in a definite direction. `low` is the judge
+        # saying it cannot tell whether the reports line up, and `mixed` /
+        # `unclear` / no direction mean the reports agree on some evidence but
+        # not on a call -- that is the tension the debate exists to resolve.
         if (
             not verdict.evidence_aligned
-            or verdict.confidence != "high"
+            or verdict.confidence == "low"
             or verdict.aligned_direction not in ("bullish", "bearish")
         ):
             return Command(
