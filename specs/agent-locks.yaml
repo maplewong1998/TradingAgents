@@ -13,7 +13,8 @@
 # 2026-09-20T08:41Z: e02s03 cycle opened by orchestrator — lock acquired.
 # 2026-09-20T09:1xZ step 3 (kickoff-branch): confirmed held and delegated to the resident
 # story_ops child — `agent` updated to story_ops, `locked_at` kept (orchestrator's acquire time).
-locks:
-  - story: e02s03
-    agent: story_ops
-    locked_at: '2026-09-20T08:41:06Z'
+# 2026-09-20T09:56Z step 8 (release-branch, team-pr decision mode): e02s03 lock RELEASED at story
+# close — the branch is pushed for the PR decision and this cycle holds no writer. That is the last
+# story of epic e02, so re-acquire (a new lock) only if the story reopens — e.g. if the landing-time
+# reconcile must resolve specs/state.yaml against the advanced origin/main.
+locks: []

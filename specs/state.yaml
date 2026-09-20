@@ -6,35 +6,38 @@ test_plan: required
 vcs:
   kind: git
   branch: feat/e02s03
-  head: 1d33a59
+  head: 85d7ddd          # reviewed tip at step 8 (step-7 hygiene commit); base=276cfc4
 pr:
   mode: team-pr
-  url: https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s02
-  title: 'feat(cli): add the debate-gate policy step and skipped-debate surfaces'
-  bump: minor
+  url: https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s03
+  title: 'docs(specs): refresh the CHANGELOG, .env.example, README and specs knowledge for the conditional debate gate'
+  bump: minor           # the branch's user-visible outcome is docs; the epic's feat(graph) owns the minor
   pushed: true
-  pushed_range: 3bb54bd..71bf36b (main) + main..feat/e02s02 (branch)
-  merged: true
-  merge_ref: 71bf36b
-  merged_locally: true
+  pushed_range: 'feat/e02s03 -> origin/feat/e02s03 @ 85d7ddd (ordinary push, no force, no tag); main NOT pushed to'
+  merged: false
+  merge_ref: null
+  merged_locally: false
+  compare_url: https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s03
+  decision: 'Open PR (team-pr); `gh` is absent so no PR object exists and the user opens the compare URL —
+    the Safety gate owns the merge/keep decision'
 git:
   branch: feat/e02s03
-  worktree: /home/maplewong1998/Repository/TradingAgents/.worktrees/e02s03
+  worktree: /home/maplewong1998/Repository/TradingAgents/.worktrees/e02s03   # kept while unmerged
 release:
   last_tag: null
   last_publish: null
   target_version: null
   ci_verified: false
-  ci_verified_reason: gh absent — accepted by explicit user decision (CI unwatched from this workstation;
-    the local Preflight on main before the push was green and no PR object exists)
+  ci_verified_reason: gh absent — CI cannot be watched from this workstation (accepted by explicit user decision);
+    worktree Preflight green immediately before the push (1027 passed / 2 skipped / 88 subtests, ruff clean)
 metrics:
   story_start: '2026-09-20T08:41:06Z'
-  story_end: null
-  cycle_minutes: null
-  bcp_per_hour: null
-  effort_hours: null
-  attributed_by_trailer: null
-  cycle_time_source: null
+  story_end: '2026-09-20T09:56:34Z'
+  cycle_minutes: 75.5
+  bcp_per_hour: 2.39
+  effort_hours: null    # pending a landing; a merge-commit landing enables git-hours via the Story: e02s03 trailers
+  attributed_by_trailer: true
+  cycle_time_source: wall-clock
   skill_timings:
     plan-work:
       calls: 2
@@ -59,18 +62,51 @@ metrics:
 epic_cycle:
   ship_epic_step: null
   story_bcps: 3
-  step: 7
+  step: 8
   completed_steps: 1,2 (frozen-plan verification/refresh pass — 5/5 tasks intact, 0 rewrites); 3 (kickoff-branch
-    — worktree + branch, root and worktree Preflight green); 4 (develop-tdd round 1 — 5/5 docs tasks GREEN,
-    3 quick-fixes landed, final Preflight green; ledger flipped)
-  audit_result: null
-  verify_result: null
-  story_status: in_progress
+    — worktree + branch, root and worktree Preflight green); 4 (develop-tdd — 5/5 docs tasks GREEN, 3 ruled
+    quick-fixes landed, ledger flipped); 5 (verify-work — PASS 9/9 phases); 6 (audit-code gate by the
+    gatekeeper — PASS 100/100, round 2 delta re-check PASS 100/100); 7 (commit-message — docs(specs) subject
+    + PR body persisted to specs/verifications/e02s03-pr-body.md); 8 (release-branch — branch pushed, PR
+    decision, bookkeeping)
+  audit_result: pass
+  verify_result: pass
+  story_status: done
   story: e02s03
   metrics:
     story_start: '2026-09-20T08:41:06Z'
 handoff:
-  next_skill: commit-message
+  next_skill: verify-work
+  e02s03_step8_landing_notes: >-
+    STEP 8 (release-branch, team-pr decision mode) — 2026-09-20T09:56:34Z: final Preflight at the
+    reviewed tip 85d7ddd = 1027 passed / 2 skipped / 88 subtests, ruff clean, validate-specs-yaml OK,
+    serial behind a clean ps-based pytest concurrency pre-check; 15/15 branch commits Conventional
+    Commits, every one carrying a Story: e02s03 trailer, zero co-authored-by footers. `gh` is absent,
+    so there is no PR object and no merge: branch feat/e02s03 was pushed to origin as an ordinary
+    (never force) push at 85d7ddd — compare URL
+    https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s03 — landed=false,
+    merge_ref=null, no tag, release.ci_verified=false with its reason. Nothing lands on main here; the
+    user's Safety gate owns the merge/keep decision, so the worktree and the branch stay in place.
+    Bookkeeping committed on the BRANCH in the same pass (G-12): execution-status e02s03 done +
+    completed_at + 75.5 min / 2.39 bcp_per_hour, epic e02 -> done in BOTH execution-status.yaml and
+    epic.yaml (the capsule directory is NOT archived — epic-close ceremony stays with the orchestrator);
+    the story spec header flipped failing -> done; state.yaml metrics/step-8 record; cycle-times.yaml
+    row on the wall-clock basis (effort_hours null: nothing has landed, so there is no merge commit to
+    attribute, and a merge-commit landing would enable git-hours via the Story: e02s03 trailers as it
+    did at e02s02); traceability matrix + OKF wiki regenerated after the status flip; the e02s03 story
+    lock RELEASED. NEXT PHASE (NOT a build-epic step): the PROJECT-level Phase 5 VERIFY — run-evals +
+    project verify-work, run off-main by the orchestrator after the landing; that is why next_skill is
+    verify-work. LANDING DISPATCHER NOTES (origin/main is b43eb5e+ while this branch's base is 276cfc4):
+    specs/state.yaml + specs/agent-locks.yaml take the BRANCH copy (then re-stamp post-landing vcs/pr
+    facts); progress.md is UNIONED chronologically with root-latest last (root carries this branch's
+    orchestration logs incl. the gate-child-failure adjudication); specs/fleet-agents.yaml keeps root's
+    newer copy plus a landing note; specs/verifications/* is the UNION of root (e02s03-verify-r1.yaml,
+    earlier evidence) and branch (AUDIT-e02-e02s03.md both rounds, e02s03-pr-body.md,
+    e02s03-kickoff-baseline.yaml). STANDING ROUTED QUEUE carried forward (post-e02, all non-blocking):
+    injectable reachability check as a fix-bug item (BUG-2026-09-20-no-data-handling-live-vendor-probe
+    follow-up); the check-import-boundaries tooling gap (specs/import-boundaries.json absent — the
+    script exits 0 but prints FAIL); e01s01/e01s02 trace-stale items; the CHANGELOG "Gate decisions log
+    at INFO" wording nit for the judged-hold branch that emits no gate log line.
   e02s03_develop_tdd_round2:
     result: PASS
     round: 2

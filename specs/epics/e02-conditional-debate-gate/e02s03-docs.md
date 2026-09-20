@@ -6,7 +6,7 @@
 **risk:** P2 (no behavioral change; discoverability of a default-behavior change)
 **context:** domain
 **bcps:** 3
-**status:** failing (e45s06 ledger)
+**status:** done (e45s06 ledger — 5/5 tasks passing; the frozen file's ledger flips at story close)
 
 **Context:** The default run behavior changes (debate becomes conditional under `auto`).
 Users must be able to discover the gate, the policy knob, and the restore-old-behavior
