@@ -1,0 +1,12 @@
+# specs/product/VISION_LATEST.yaml — north star / initiative framing.
+# STATUS: NOT YET ELABORATED — scaffolded by bigpowers init on 2026-09-20.
+
+vision:
+  statement: >-
+    TradingAgents is a multi-agent LLM framework that reproduces the structure of a
+    real trading firm: analysts gather evidence, researchers debate it, a trader
+    proposes a transaction, and a risk team plus portfolio manager produce the final
+    rating — with every step traceable, backtestable, and grounded in dated data.
+  status: draft
+  target_version: null
+  stakeholders: []

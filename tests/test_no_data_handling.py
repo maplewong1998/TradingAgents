@@ -8,6 +8,8 @@ Covers two systematic fixes:
 """
 
 import os
+import shutil
+import tempfile
 import unittest
 from unittest import mock
 
@@ -22,14 +24,17 @@ from tradingagents.dataflows.symbol_utils import NoMarketDataError
 @pytest.mark.unit
 class TestLoadOhlcvNoPoison(unittest.TestCase):
     def setUp(self):
-        self._tmp = os.path.join(os.path.dirname(__file__), "_tmp_cache")
-        os.makedirs(self._tmp, exist_ok=True)
+        # A unique directory per test. The previous fixed sibling path
+        # (tests/_tmp_cache) was shared state: a leftover cache file from an
+        # interrupted run -- or a second pytest process on the same worktree --
+        # made load_ohlcv serve that cache and never raise, failing this test
+        # once in every 15 full-suite runs and then self-healing in tearDown
+        # (BUG-2026-09-20-no-data-handling-nonhermetic-cache).
+        self._tmp = tempfile.mkdtemp(prefix="ta-no-data-handling-")
         set_config({"data_cache_dir": self._tmp})
 
     def tearDown(self):
-        for f in os.listdir(self._tmp):
-            os.remove(os.path.join(self._tmp, f))
-        os.rmdir(self._tmp)
+        shutil.rmtree(self._tmp, ignore_errors=True)
 
     def test_empty_download_raises_and_does_not_cache(self):
         empty = pd.DataFrame()

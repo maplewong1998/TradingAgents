@@ -1,0 +1,12 @@
+# specs/fleet-agents.yaml — resident specialist roster for the active story.
+# Managed by orchestrator. NOTE: .dsh/fleet/scripts/fleet-state.sh is absent in
+# this repo (no .dsh/ tree), so this file is edited directly with the file tools;
+# every command/entry is story-scoped by the `story` field below.
+story: e02s01
+epic: e02
+roles:
+  story_ops: cd1ea0ca-8167-4a8f-840f-0be9d13d8a02 # steps 7-8 (commit-message + release-branch, team-pr); steps 1-3 were done pre-freeze
+  develop: 2be0d4e9-e1e9-4edb-9650-3b1a38b71494   # step 4 — develop-tdd (sole writer); r1 PASS + correction PASS; r2 pre-landing fixes PASS (tip d96645a)
+  verify: a4c5424f-558b-4077-a6ce-447714a61b90     # step 5 — verify-work (read-only judge); r1 PASS all 7 phases
+  gate: 819cb80f-4f31-40ec-97bf-72bfbac92137       # step 6 — gatekeeper; r1 PASS 98/100; r2 delta-only re-check in flight
+updated_at: '2026-09-20T04:21:39Z'

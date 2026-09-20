@@ -1,0 +1,154 @@
+# specs/product/GLOSSARY_LATEST.yaml — ubiquitous language for TradingAgents.
+#
+# Extracted from the code as it exists today (map-codebase, 2026-09-20), not invented.
+# Canonical terms and their single source of truth in code. Run `define-language`
+# after a domain conversation to extend this file.
+
+terms:
+  - term: Analyst
+    definition: >-
+      A graph node that gathers one class of evidence and writes a report into
+      AgentState. Four exist: market, social/sentiment, news, fundamentals.
+    source: tradingagents/agents/analysts/, tradingagents/graph/analyst_execution.py
+    aliases: [analyst node]
+
+  - term: Selected Analysts
+    definition: >-
+      The ordered subset of analysts a run enables. The order defines the graph's
+      execution sequence and is part of the checkpoint signature.
+    source: tradingagents/graph/analyst_execution.py
+    aliases: [selected_analysts]
+
+  - term: Debate
+    definition: >-
+      A bounded adversarial exchange. Two kinds: the investment debate
+      (Bull vs Bear Researcher) and the risk debate (Aggressive, Neutral,
+      Conservative). Depth is capped by max_debate_rounds / max_risk_discuss_rounds.
+    source: tradingagents/graph/conditional_logic.py, tradingagents/default_config.py
+    aliases: [debate rounds, investment debate, risk debate]
+
+  - term: Investment Plan
+    definition: >-
+      The Research Manager's synthesis of the analyst reports and the investment
+      debate; the Trader's input.
+    source: tradingagents/agents/managers/research_manager.py
+    aliases: [investment_plan]
+
+  - term: Trader Proposal
+    definition: >-
+      A typed transaction proposal (action, reasoning, entry price, stop loss,
+      position sizing) produced by the Trader via structured output.
+    source: tradingagents/agents/schemas.py
+
+  - term: Rating (5-tier)
+    definition: >-
+      The canonical ordered scale Buy / Overweight / Hold / Underweight / Sell,
+      shared by the Research Manager, Portfolio Manager, signal processor, and
+      memory log so they cannot drift.
+    source: tradingagents/agents/utils/rating.py
+    aliases: [portfolio rating, RATINGS_5_TIER]
+
+  - term: REVIEW
+    definition: >-
+      The non-tradeable sentinel emitted when a decision carries no parseable
+      rating. It exists so a parsing failure is visible instead of silently
+      degrading to Hold.
+    source: tradingagents/agents/utils/rating.py
+    aliases: [RATING_REVIEW]
+
+  - term: Final Trade Decision
+    definition: >-
+      The Portfolio Manager's rendered markdown decision; the run's output and the
+      text the rating is extracted from.
+    source: tradingagents/agents/managers/portfolio_manager.py
+    aliases: [final_trade_decision]
+
+  - term: Memory Log
+    definition: >-
+      Persistent per-ticker decision journal. Stores each decision, settles it
+      against realized returns after the holding window, and injects prior lessons
+      into later same-ticker runs.
+    source: tradingagents/agents/utils/memory.py
+    aliases: [TradingMemoryLog, past_context]
+
+  - term: Holding Period
+    definition: >-
+      The number of trading days a logged decision stays pending before its
+      realized return can settle it (default 5).
+    source: tradingagents/default_config.py, tradingagents/graph/trading_graph.py
+    aliases: [holding_period_days, holding window]
+
+  - term: Benchmark / Alpha
+    definition: >-
+      The index a ticker's return is measured against, chosen by exchange suffix
+      (e.g. ^N225 for .T, SPY default). Alpha is the ticker return minus the
+      benchmark return over the holding window.
+    source: tradingagents/graph/trading_graph.py (_resolve_benchmark), tradingagents/default_config.py
+
+  - term: Vendor
+    definition: >-
+      An external market-data provider (yfinance, alpha_vantage, fred, sec_edgar,
+      polymarket, reddit, stocktwits). Vendors are selected per category and per
+      method, and the configured list IS the fallback chain.
+    source: tradingagents/dataflows/interface.py, tradingagents/default_config.py
+    aliases: [data vendor, data_vendors, tool_vendors]
+
+  - term: VendorError
+    definition: >-
+      Base class for every condition where a vendor cannot return usable data.
+      Three reactions exist: NoMarketDataError (no usable rows), VendorRateLimitError
+      (transient throttle), VendorNotConfiguredError (missing key/config).
+    source: tradingagents/dataflows/errors.py
+    aliases: [NoMarketDataError, VendorRateLimitError, VendorNotConfiguredError]
+
+  - term: Instrument Context
+    definition: >-
+      A deterministic, cached resolution of a ticker's real identity (company name,
+      exchange, currency) injected into every agent prompt so agents anchor to the
+      real instrument instead of hallucinating one from the price chart.
+    source: tradingagents/dataflows/symbol_utils.py, tradingagents/graph/trading_graph.py
+    aliases: [instrument_identity, instrument_context]
+
+  - term: Checkpoint
+    definition: >-
+      A per-ticker LangGraph SQLite checkpoint that lets a crashed run resume from
+      the last successful node. The thread ID includes a run signature (analysts,
+      debate depth, asset type, portfolio book) so a shape change starts fresh.
+    source: tradingagents/graph/checkpointer.py, tradingagents/graph/trading_graph.py
+    aliases: [thread_id, run signature, checkpoint_enabled]
+
+  - term: Asset Type
+    definition: >-
+      Which pipeline a run uses: "stock" (default) or "crypto". The CLI auto-detects
+      it from the ticker.
+    source: tradingagents/graph/trading_graph.py, cli/utils.py (detect_asset_type)
+    aliases: [asset_type]
+
+  - term: Structured Output
+    definition: >-
+      Pydantic-schema-bound LLM output for the Research Manager, Trader, and
+      Portfolio Manager, with an automatic free-text fallback when a provider or
+      model cannot honor the schema.
+    source: tradingagents/agents/utils/structured.py, tradingagents/agents/schemas.py
+    aliases: [bind_structured, invoke_structured_or_freetext]
+
+  - term: Provider Capabilities
+    definition: >-
+      The declarative per-model table (tool_choice, JSON mode/schema, reasoning
+      round-trip) that replaces model-name if-ladders in the LLM clients.
+    source: tradingagents/llm_clients/capabilities.py
+    aliases: [ModelCapabilities, get_capabilities]
+
+  - term: Output Language
+    definition: >-
+      The configured language for every agent whose output reaches the saved
+      report; English is the default and costs no extra tokens.
+    source: tradingagents/agents/utils/agent_utils.py (get_language_instruction)
+    aliases: [output_language]
+
+  - term: Backtest
+    definition: >-
+      A sweep of propagate() over a date range and/or ticker grid, summarizing
+      realized outcomes against the benchmark.
+    source: tradingagents/backtest.py, cli/main.py (backtest command)
+    aliases: [iter_grid, BacktestSummary]

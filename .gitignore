@@ -221,3 +221,12 @@ __marimo__/
 # Enterprise env file (secrets) and generated run reports
 .env.enterprise
 reports/
+
+# bigpowers — project-local symlink to the global install (machine-specific path)
+/scripts
+
+# bigpowers — dynamically acquired session lock, never committed
+specs/state.yaml.lock
+
+# codegraph — machine-generated symbol index (multi-MB binary)
+/.codegraph/

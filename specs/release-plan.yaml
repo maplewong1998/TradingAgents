@@ -1,0 +1,30 @@
+# specs/release-plan.yaml — release index and WSJF-ordered epic list.
+#
+# `release.version` is a non-authoritative MIRROR/label. semantic-release decides the
+# real version at merge from Conventional Commits; read it with `gh release view`.
+# Story status lives in specs/execution-status.yaml, never here.
+
+release:
+  version: "0.6.0"              # mirror of next expected tag, NOT authoritative — gh release view wins
+  codename: "Conditional Debate Gate"
+  status: planning              # planning | in_progress | released
+  semantic_release: true
+  bump_hint: minor              # feat(graph) — CI decides at merge
+
+epics:
+  - id: e02
+    title: Conditional Bull/Bear Debate Gate
+    wsjf: 4.8
+    capsule_dir: epics/e02-conditional-debate-gate
+    note: >-
+      Gate the investment debate on evidence tension: LLM-judge node with
+      Command routing, debate_gate always|auto|never (default auto),
+      conservative skip with fail-safe to debate. Risk debate untouched.
+      Scope + Prior Art: product/SCOPE_LATEST.yaml.
+  - id: e01
+    title: Bigpowers Adoption (bootstrap)
+    wsjf: 1.0
+    capsule_dir: epics/e01-bigpowers-adoption
+    note: >-
+      One-off repo bootstrap: link bigpowers scripts/, seed specs/ + conventions,
+      and derive the tech-stack doc via map-codebase. Closed 2026-09-20.

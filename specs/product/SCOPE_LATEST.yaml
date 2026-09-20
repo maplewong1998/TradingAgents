@@ -1,0 +1,277 @@
+# specs/product/SCOPE_LATEST.yaml — what is in and out of scope.
+# Produced by the scope-work skill (planning spine step 1).
+# STATUS: BOUNDED — 2026-09-20, after grill-with-docs confirmation of all four
+# design decisions (LLM-judge node; default auto with full config surface;
+# conservative skip criterion; risk debate out of scope with reusable design).
+
+scope:
+  initiative: conditional-bull-bear-debate-gate
+  feature_name: Conditional Bull/Bear Debate Gate
+  status: bounded
+  epic: e02   # story IDs assigned by slice-tasks; in_scope items map to e02sNN
+
+  core_value: >-
+    Pay for adversarial debate only when the evidence actually conflicts:
+    aligned runs get cheaper and faster, conflicted runs keep the full
+    bull/bear adversarial structure, and nothing silently changes decision
+    behavior in between.
+
+  summary: >-
+    The Bull/Bear investment debate currently runs on every analysis, but its
+    value presupposes divergence in the evidence (Liang et al. 2024), and
+    unconditional debate is often no better than cheaper baselines (Smit et al.
+    2024; Khan et al. 2025). When all analyst signals align, the debate burns
+    2 x max_debate_rounds full LLM calls re-arguing a settled question.
+
+    This initiative adds an internal gate between the analyst phase and the
+    investment debate that decides, per run, whether genuine tension exists.
+    The gate is an LLM judge producing a typed verdict over the four analyst
+    reports (the only analyst with typed output today is Sentiment; the others
+    are free prose and may be non-English). Skipping is conservative: only
+    clear alignment with adequate confidence skips; disagreement, ambiguity,
+    thin evidence, or any gate failure runs the debate — current behavior is
+    the fallback. A skipped debate reaches downstream agents as an explicit
+    alignment marker, never an empty transcript (house pattern #1176).
+
+    Policy is configurable (always / auto / never, default auto) across config,
+    environment, and the CLI; the mode joins the checkpoint run signature
+    (#1089) so resumes cannot cross policies. The gate mechanism is designed
+    for reuse by the risk debate later, but the risk loop is untouched now.
+
+  in_scope:
+    - id: S1
+      item: >-
+        Typed gate verdict (alignment, confidence, direction, rationale) as a
+        first-class schema alongside the existing agent schemas
+      maps_to: e02
+    - id: S2
+      item: >-
+        Debate Gate agent (LLM judge over the four analyst reports; structured
+        output; fail-safe to debate on any failure) following the house
+        agent-factory pattern
+      maps_to: e02
+    - id: S3
+      item: >-
+        Graph routing — gate sits between the analyst phase and the debate;
+        routes to the debate or straight to the Research Manager; every routing
+        target statically reachable (path-map completeness per #1088)
+      maps_to: e02
+    - id: S4
+      item: >-
+        Skipped-debate semantics downstream — explicit alignment marker in the
+        debate transcript; Research Manager prompt handles "no debate happened"
+        without fabricating conflict or drifting to Hold
+      maps_to: e02
+    - id: S5
+      item: >-
+        Policy surface — debate_gate config key (always|auto|never, default
+        auto) + TRADINGAGENTS_DEBATE_GATE env override + input validation;
+        always/never make zero LLM calls
+      maps_to: e02
+    - id: S6
+      item: >-
+        Checkpoint integration — gate mode joins the run signature (#1089) so a
+        resume under a different policy starts fresh
+      maps_to: e02
+    - id: S7
+      item: >-
+        CLI — gate choice in the interactive flow; live display shows the
+        debate as skipped instead of stuck "pending"; gate verdict + rationale
+        visible in run output and saved reports
+      maps_to: e02
+    - id: S8
+      item: >-
+        Test coverage per plan-tests (P1) — gate routing matrix, graph-level
+        skip/resume, RM prompt variant, CLI precedence; TDD
+      maps_to: e02
+    - id: S9
+      item: >-
+        Docs — CHANGELOG entry, .env.example, README config section
+      maps_to: e02
+
+  out_of_scope:
+    - item: Gating the risk debate (Aggressive/Neutral/Conservative loop)
+      reason: >-
+        Deferred by explicit decision. The risk loop consumes the trader plan,
+        not the debate transcript, so it is structurally independent. Revisit
+        with observed skip-rate and decision-quality data after the investment
+        gate ships; the gate mechanism is designed reusable.
+    - item: Structured (typed-direction) output for Market/News/Fundamentals analysts
+      reason: >-
+        Deferred, not rejected. Would enable a deterministic gate, but touches
+        three agents, their prompts, schemas, renderers, and tests — a much
+        larger change. The LLM judge removes the need for it in this initiative;
+        it remains the right long-term move for machine-readable reports.
+    - item: Scored tension threshold (0-10) with a tunable skip cutoff
+      reason: >-
+        Deferred (YAGNI). The conservative binary criterion (aligned AND
+        confident) was chosen; a threshold knob needs calibration data we do
+        not have yet.
+    - item: Changing debate depth semantics (max_debate_rounds / research_depth)
+      reason: >-
+        Not valuable here. The gate decides WHETHER to debate; depth still
+        decides HOW LONG. Existing behavior preserved.
+    - item: Backtest A/B harness measuring gated-vs-ungated decision quality
+      reason: >-
+        Deferred to the risk-debate follow-up decision; needs the gate shipped
+        first to produce comparable runs.
+    - item: Non-UTC CI job / timezone hardening of the test suite
+      reason: >-
+        Unrelated discovered defect follow-up (BUG-2026-09-20-ohlcv-cache-
+        freshness-tz). Separate initiative; do not fold into this epic.
+
+  constraints:
+    - No new runtime dependencies; langgraph floor >=0.4.8 already provides Command routing (verified on installed 1.2.11)
+    - Python >=3.10; Preflight (pytest -q && ruff check .) green at every step; ruff strict select unchanged
+    - Gate failure must never silently degrade — any error/unparseable verdict routes to the debate with a logged warning
+    - Gate verdict must be language-independent — non-English output_language runs gate identically (structured verdict, English-internal marker text)
+    - Checkpoint backward behavior — a mode change invalidates resume via the run signature; no migration of old checkpoints
+    - Default behavior changes (auto) — must be announced in CHANGELOG + README, with always available to restore exact current behavior
+    - CLI display must not hang or leave agents stuck at "pending" on skip (existing status logic hardcodes Bull/Bear transitions)
+
+  success_criteria:
+    - Aligned-evidence run — debate skipped, gate verdict + rationale recorded in state and saved report; RM plan carries a 5-tier rating and the alignment marker; no fabricated debate content
+    - Conflicted/ambiguous/thin-evidence run — full debate exactly as today
+    - debate_gate=always — graph path identical to current behavior, zero judge calls
+    - debate_gate=never — debate never runs, zero judge calls, explicit "disabled by configuration" marker downstream
+    - Gate structured-call failure in auto mode — debate runs, warning logged
+    - Resume with a different gate mode — fresh run (new thread signature); same mode resumes correctly
+    - CLI on skip — research team shows skipped (not pending); report tree renders the gate section
+    - Preflight green including the new tests; ruff clean
+
+  references:
+    - specs/tech-architecture/tech-stack.md (architecture + signals 2/3 — graph-shape duplication)
+    - specs/tech-architecture/IMPACT_LATEST.md (blast radius — graph wiring, checkpoint, CLI)
+    - Prior Art block below (research-first, 2026-09-20)
+    - "In-repo precedents: #1088 path maps, #1089 run signature, #1176 absence markers, #1170 REVIEW sentinel"
+    - https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph (Command judge-node pattern)
+    - https://docs.langchain.com/oss/python/langgraph/choosing-apis (conditional routing)
+
+# ---------------------------------------------------------------------------
+# Prior Art  (research-first, 2026-09-20)
+# Search order: this repo -> bigpowers skills -> package registries/opensrc -> web docs.
+# ---------------------------------------------------------------------------
+prior_art:
+
+  in_repo:
+    - name: "should_continue_debate + DEBATE_PATH_MAP (#1088)"
+      path: tradingagents/graph/conditional_logic.py, tradingagents/graph/setup.py
+      fit: extend
+      note: >-
+        Routing around/through the debate already uses conditional edges with a
+        COMPLETE path map so a drift return can never crash mid-run. The gate
+        must follow the same pattern (map every reachable target).
+    - name: "report_or_absent / opponent_argument_or_opening (#1176)"
+      path: tradingagents/agents/utils/agent_utils.py
+      fit: extend
+      note: >-
+        House pattern for absence: an empty input interpolated into a prompt
+        makes the model FABRICATE content. A skipped debate must reach the
+        Research Manager as an explicit marker, never an empty history
+        (its prompt currently asserts "The debate always contains conflicting
+        arguments").
+    - name: "SentimentReport.overall_band (structured, 6-tier)"
+      path: tradingagents/agents/schemas.py
+      fit: compose
+      note: >-
+        The Sentiment Analyst is the ONLY analyst emitting a typed direction
+        (band + 0-10 score + confidence) with a deterministic rendered header.
+        Market/news/fundamentals reports are free prose and may be non-English
+        (output_language), so a purely deterministic cross-report tension gate
+        has one reliable typed input today.
+    - name: "_run_signature checkpoint keying (#1089)"
+      path: tradingagents/graph/trading_graph.py
+      fit: extend
+      note: >-
+        Graph-shape config is keyed into the checkpoint thread ID. A new
+        debate-gate config mode must join the signature or a resume could
+        continue a run under a different gating policy.
+    - name: "research_depth CLI step (max_debate_rounds 1/3/5)"
+      path: cli/main.py, cli/prefs.py
+      fit: extend
+      note: >-
+        Existing config surface for debate DEPTH; the gate controls WHETHER to
+        debate at all. Natural place to surface an always/auto/never choice.
+    - name: "CLI status display hardcodes Bull/Bear transitions"
+      path: cli/main.py (update_research_team_status, ~L881/L915)
+      fit: extend
+      note: >-
+        Live display flips Bull Researcher to in_progress after analysts
+        finish; a skipped debate leaves Bull/Bear stuck at "pending" and the
+        saved report renders empty debate sections unless handled.
+
+  bigpowers_skills:
+    - name: design-interface
+      fit: compose
+      note: "Design It Twice for the gate interface (node+Command vs edge function)."
+    - name: deepen-architecture
+      fit: compose
+      note: "Gate belongs in graph/ layer; keeps ConditionalLogic cohesive."
+    - name: spike-prototype
+      fit: compose
+      note: "If the tension criterion needs empirical tuning before committing."
+    - name: plan-tests / develop-tdd
+      fit: compose
+      note: "P1 risk: routing change touches checkpoint resume + CLI display."
+
+  external:
+    - name: "LangGraph conditional edges (official docs)"
+      url: https://docs.langchain.com/oss/python/langgraph/choosing-apis
+      fit: adopt
+      note: >-
+        "Use the Graph API for complex decision trees and branching logic...
+        workflow.add_conditional_edges(source, should_continue)" — runtime
+        routing around a branch; nodes are never "spawned" per run, they are
+        compiled once and skipped by routing.
+    - name: "LangGraph Command(update=..., goto=...) (official docs)"
+      url: https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph
+      fit: adopt
+      note: >-
+        Canonical LLM-judge routing pattern: a node does
+        structured_llm.invoke(...) then returns Command(update={...}, goto=...)
+        — state update + routing in one checkpointed, stream-visible step.
+        Verified importable in installed langgraph 1.2.11 (floor >=0.4.8 also
+        supports Command; no dependency change needed).
+    - name: "Adaptive-RAG (LangGraph tutorial pattern)"
+      url: https://github.com/AbhinaavRamesh/langgraph-ollama-tutorial/blob/main/docs/rag_patterns/11-adaptive-rag.md
+      fit: compose
+      note: "Router LLM picks the path by input complexity — same shape as a debate gate."
+    - name: "Smit et al., Should we be going MAD? (ICML 2024)"
+      url: https://ar5iv.labs.arxiv.org/html/2311.17371
+      fit: adopt-evidence
+      note: >-
+        Multi-agent debate is hyperparameter-sensitive and often no better than
+        cheaper single-agent baselines — evidence that unconditional debate
+        wastes compute when there is nothing to resolve.
+    - name: "Khan et al., If Multi-Agent Debate is the Answer, What is the Question? (2025)"
+      url: https://ar5iv.labs.arxiv.org/html/2502.08788
+      fit: adopt-evidence
+      note: "MAD gains shrink against proper baselines; debate pays off on specific task conditions, not universally."
+    - name: "Liang et al., Encouraging Divergent Thinking through Multi-Agent Debate (EMNLP 2024)"
+      url: https://aclanthology.org/2024.emnlp-main.992/
+      fit: adopt-evidence
+      note: "The adversarial-duel design this repo borrows; its value is surfacing divergence — presupposes tension exists."
+    - name: "Du et al., Improving Factuality and Reasoning through Multiagent Debate (ICML 2024)"
+      url: https://dl.acm.org/doi/abs/10.5555/3692070.3692537
+      fit: adopt-evidence
+      note: "Foundational pro-debate result; motivates keeping debate when evidence conflicts."
+    - name: "SELENE: Selective and Evidence-Weighted LLM Debating (EACL 2026 industry)"
+      url: https://aclanthology.org/2026.eacl-industry.7/
+      fit: adopt-evidence
+      note: "SELECTIVE debate — invoke debate only where it adds reliability; direct precedent for a gate."
+    - name: "Wald-SPRT compute governor for multi-agent debates (2026)"
+      url: https://ar5iv.labs.arxiv.org/html/2605.19193
+      fit: adopt-evidence
+      note: "Statistical early-stopping when agents converge — the 'stop debating on agreement' analogue."
+    - name: "opensrc cache"
+      path: npx opensrc
+      fit: none
+      note: "Installed opensrc CLI has no `search` subcommand (only `fetch`); fell through to web docs per skill."
+
+verdict: >-
+  COMPOSE + EXTEND, no new dependencies. Adopt LangGraph's conditional-edge /
+  Command routing (already a dependency; verified in langgraph 1.2.11). Extend
+  the repo's own patterns: complete path maps (#1088), absence markers (#1176),
+  checkpoint signature keying (#1089), research_depth config surface. Nothing
+  needs to be built from scratch except the tension criterion itself, whose
+  mechanism (LLM judge) was confirmed via grill-with-docs on 2026-09-20.

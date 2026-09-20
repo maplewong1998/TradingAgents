@@ -377,3 +377,16 @@ def render_sentiment_report(report: SentimentReport) -> str:
         "",
         report.narrative,
     ])
+
+
+# ---------------------------------------------------------------------------
+# Debate Gate (e02s01)
+# ---------------------------------------------------------------------------
+
+# Re-exported so agents keep importing every schema from one place. The
+# definitions live in ``agents/gate/schemas.py``: this module is already at the
+# file-size cap (CONVENTIONS.md § File-Size Exceptions), so it must not grow.
+from tradingagents.agents.gate.schemas import (  # noqa: E402,F401
+    DebateGateVerdict,
+    render_debate_gate_marker,
+)
