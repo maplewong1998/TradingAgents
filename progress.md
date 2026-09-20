@@ -969,3 +969,19 @@ and the compare URL emitted for manual PR creation. `main` untouched
   ci.yml only, pyproject pinned 0.5.0); frozen plan snapshot is named release-0.6.0;
   the delivered change is feat-level => semver minor => 0.6.0; my phase spec mentions
   a v1.0.0 MVP tag, which conflicts with both the frozen naming and minor semantics.
+
+## 2026-09-20 — Phase 6 decisions recorded; release-edit child dispatched
+
+- USER DECISIONS (ask_user_question): release_version = "v0.6.0 deliberate manual"
+  (CHANGELOG Unreleased → 0.6.0 - 2026-09-20, F1 wording fix folded in, pyproject
+  bump, tag AFTER an explicit final go); security_sweep = "Skip — covered by record"
+  (basis recorded in state.yaml release.security_basis: 3× gate AUDITs 0 HIGH +
+  S-05 secrets scan 0 leaks + blind-spots 0 HIGH).
+- state.yaml: release.target_version 0.6.0; release.security_basis set.
+- Release-edit child dispatched (subagent background): d9f3a633-2d82-44a5-8301-3929238dd125
+  — CHANGELOG Unreleased→0.6.0 (+F1 fix), README F1 fix, pyproject 0.6.0 + canonical
+  pins, docs-task greps re-run, FULL Preflight green before push, commit
+  chore(release): v0.6.0 with manual-release declaration + Story: e02 trailer,
+  push main, NO tag (final go comes from the user).
+- On its report: verify → final ask_user_question "push tag v0.6.0?" → tag + push +
+  release bookkeeping (release.last_tag) → project cycle complete.

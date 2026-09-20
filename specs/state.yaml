@@ -29,11 +29,14 @@ git:
 release:
   last_tag: null
   last_publish: null
-  target_version: null
+  target_version: 0.6.0
   ci_verified: false
   ci_verified_reason: gh absent — CI cannot be watched from this workstation (accepted by explicit user
     decision); worktree Preflight green immediately before the push (1027 passed / 2 skipped / 88 subtests,
     ruff clean)
+  security_basis: Dedicated sweep skipped by explicit user decision — substance covered by per-story gate
+    security sections (0 HIGH across AUDIT-e02-e02s01/02/03), the Phase 5 S-05 secrets scan (63 gate log
+    records, 0 credential/payload leaks), and specs/blind-spots.json (0 HIGH)
 metrics:
   story_start: '2026-09-20T08:41:06Z'
   story_end: '2026-09-20T09:56:34Z'
