@@ -109,14 +109,29 @@ def test_a_skipped_debate_leaves_no_research_agent_pending():
     assert buffer.agent_status["Market Analyst"] == "completed"
 
     marker = "**Debate skipped by the Debate Gate.**"
-    apply_value_chunk(buffer, _chunk(investment_debate_state={
+    debaters_skipped = {
         "bull_history": "", "bear_history": "", "history": marker,
         "current_response": marker, "judge_decision": "", "count": 0,
-    }, debate_gate_verdict=marker))
+    }
+    apply_value_chunk(
+        buffer,
+        _chunk(investment_debate_state=dict(debaters_skipped), debate_gate_verdict=marker),
+    )
 
     assert buffer.agent_status["Bull Researcher"] == "skipped"
     assert buffer.agent_status["Bear Researcher"] == "skipped"
+
+    # ... and the stream leaves nobody in the research team stuck at 'pending':
+    # the Research Manager is the agent the gate handed the marker to.
+    apply_value_chunk(buffer, _chunk(
+        investment_debate_state={
+            **debaters_skipped, "judge_decision": "**Recommendation**: Buy",
+        },
+        debate_gate_verdict=marker, investment_plan="PLAN",
+    ))
     assert [a for a in RESEARCH_TEAM if buffer.agent_status[a] == "pending"] == []
+    assert buffer.agent_status["Bull Researcher"] == "skipped"
+    assert buffer.agent_status["Bear Researcher"] == "skipped"
 
 
 @pytest.mark.unit
@@ -192,5 +207,107 @@ def test_the_progress_panel_renders_the_skipped_status(monkeypatch):
     layout = m.create_layout()
     m.update_display(layout, stats_handler=None, start_time=None)
     rendered = StringIO()
-    Console(file=rendered, width=120).print(layout)
+    # An explicit height: the live view is sized to the terminal, and a short
+    # default console would render the layout's progress panel off the end.
+    Console(file=rendered, width=120, height=60).print(layout)
     assert "skipped" in rendered.getvalue()
+
+
+# --- end-to-end on the CLI path (e02s02, SC-e02s02-P2-01 + P2-02) -------------
+
+
+def _stub_gate_llm(verdict):
+    """The gate's structured judge, stubbed: it answers with ``verdict``."""
+
+    class _Structured:
+        def invoke(self, prompt):
+            return verdict
+
+    class _LLM:
+        def with_structured_output(self, schema, **kwargs):
+            return _Structured()
+
+    return _LLM()
+
+
+@pytest.mark.integration
+def test_the_cli_stream_end_to_end_shows_a_skip_and_the_gate_section(monkeypatch, tmp_path):
+    """One auto-mode run, driven through the same per-chunk handler run_analysis
+    uses and finished through the same report surfaces: the real gate node
+    decides to skip, Bull/Bear read 'skipped' (nothing left pending), and the
+    Debate Gate section reaches both the saved report tree and the on-screen
+    report."""
+    from io import StringIO
+
+    from rich.console import Console
+
+    import cli.complete_report as complete_report
+    import cli.main as m
+    from cli.stream_handler import apply_value_chunk, settle_agent_statuses
+    from tradingagents.agents.gate import create_debate_gate
+    from tradingagents.agents.schemas import DebateGateVerdict
+    from tradingagents.dataflows.config import set_config
+    from tradingagents.reporting import render_debate_gate_section, write_report_tree
+
+    verdict = DebateGateVerdict(
+        evidence_aligned=True,
+        confidence="high",
+        aligned_direction="bullish",
+        rationale="All four reports point the same way.",
+    )
+    set_config({"debate_gate": "auto"})
+    gate_update = dict(create_debate_gate(_stub_gate_llm(verdict))({
+        "company_of_interest": "NVDA",
+        "asset_type": "stock",
+        "trade_date": "2026-09-20",
+        "market_report": "MKT: trend up",
+        "sentiment_report": "SENTIMENT: constructive",
+        "news_report": "NEWS: guidance raised",
+        "fundamentals_report": "FUNDAMENTALS: margins expanding",
+    }).update)
+    marker = gate_update["investment_debate_state"]["history"]
+    assert marker.strip()  # the run really is a skip, not a held debate
+
+    # The stream the CLI sees: values chunks, one per finished node.
+    chunks = [
+        {"market_report": "MKT: trend up"},
+        gate_update,
+        {
+            "investment_debate_state": {
+                **gate_update["investment_debate_state"],
+                "judge_decision": "**Recommendation**: Buy",
+            },
+            "investment_plan": "RM PLAN",
+        },
+        {"trader_investment_plan": "TRADE"},
+        {"risk_debate_state": {"aggressive_history": "AGGRESSIVE"}},
+        {"risk_debate_state": {"judge_decision": "PM DECISION"}},
+    ]
+
+    buffer = m.MessageBuffer()
+    buffer.init_for_analysis(["market"])
+    final_state = {}
+    for chunk in chunks:
+        apply_value_chunk(buffer, chunk)
+        final_state.update(chunk)
+    settle_agent_statuses(buffer)
+
+    assert buffer.agent_status["Bull Researcher"] == "skipped"
+    assert buffer.agent_status["Bear Researcher"] == "skipped"
+    assert buffer.agent_status["Research Manager"] == "completed"
+    assert [a for a in RESEARCH_TEAM if buffer.agent_status[a] == "pending"] == []
+    assert buffer.agent_status["Portfolio Manager"] == "completed"
+
+    section = render_debate_gate_section(final_state)
+    assert section == marker
+    assert verdict.rationale in section
+
+    report = write_report_tree(final_state, "NVDA", tmp_path).read_text(encoding="utf-8")
+    assert "Debate Gate" in report
+    assert verdict.rationale in report
+
+    rendered = StringIO()
+    monkeypatch.setattr(complete_report, "console", Console(file=rendered, width=100))
+    complete_report.display_complete_report(final_state)
+    assert "Debate Gate" in rendered.getvalue()
+    assert verdict.rationale in rendered.getvalue()

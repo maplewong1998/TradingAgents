@@ -96,7 +96,16 @@ tasks:
       renders the gate section end to end.
     verify: ".venv/bin/python -m pytest -q tests/test_cli_display.py tests/test_debate_gate.py -k end_to_end"
     risk: P1
-    status: failing
+    status: passing
+    # D3 evidence: the new end-to-end test is NOT RED-first — the frozen task order
+    # implements the behaviour in tasks 3-4 before this coverage task, so it passed
+    # on first run at the tip. Isolation proof instead: against the pre-task-3 tree
+    # (git archive 1950fc1 + this test file, PYTHONPATH-forced) it fails with
+    # ImportError: cannot import name 'render_debate_gate_section'; at the tip the
+    # verify is 2 passed (pre-existing held-path test + this one).
+    added_tests:
+      - tests/test_cli_display.py::test_the_cli_stream_end_to_end_shows_a_skip_and_the_gate_section
+    green_commit: "test(cli): drive an auto-mode skip end to end through the CLI surfaces"
     allure:
       severity: high
       categories: ["integration", "cli", "debate-gate"]
