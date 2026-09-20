@@ -67,14 +67,20 @@ stories:
     risk_max: P1
     started_at: '2026-09-20T07:42:23Z'
     completed_at: '2026-09-20T08:33:00Z'
-    # Wall-clock cycle time (story_start → step-8 write), the same basis as e02s01. The
-    # git-hours column is deliberately not claimed: it degenerates to 0.0 on a squash landing
-    # (e02s01) and was not measured on this push-only branch.
+    # Cycle time on both bases, labelled: cycle_minutes is wall-clock (story_start → step-8 write,
+    # e02s01's basis). effort_hours IS claimed for e02s02 because the user chose a MERGE-COMMIT
+    # landing, which preserves the per-commit history that record-cycle-time.sh attributes via the
+    # `Story: e02s02` trailers (e02s01's squash degenerated it to 0.0 h).
     cycle_minutes: 55.5
     bcp_per_hour: 5.41              # 5 bcps / 55.5 min * 60 — wall-clock basis
-    cycle_time_source: wall-clock
-    landed_via: 'step 8 — branch feat/e02s02 pushed to origin for a PR decision; NOT merged
-      (gh absent, so the merge stays the user Safety gate; CI unverified)'
+    effort_hours: 0.77              # git-hours, 19 story commits / 47 min coding span, additivity PASS
+    attributed_by_trailer: true     # `Story: e02s02` on the story commits + the merge commit
+    cycle_time_source: wall-clock + git-hours
+    merge_style: merge-commit       # user Safety-gate decision (no gh: local land instead of the team-pr squash default)
+    merge_ref: 71bf36b
+    landed_via: 'step 8 — merged to main as MERGE COMMIT 71bf36b (parents 3bb54bd + 2333a1b) and pushed
+      to origin 3bb54bd..71bf36b; worktree .worktrees/e02s02 removed, branches kept (CI unverified:
+      gh absent — accepted by explicit user decision)'
   e02s03:
     status: todo
     title: Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack,

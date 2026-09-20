@@ -40,12 +40,13 @@ stories:
     verify_status: pass          # specs/verifications/e02s01-verify.yaml, 7/7 phases
     rework_count: 2              # develop round 2 + gate round 2 (both PASS)
 
-  # 2026-09-20 e02s02 — written by build-epic step 8 (release-branch, team-pr decision mode).
-  # Wall-clock basis, same as e02s01. NOTE the git-effort caveat: every story commit carries a
-  # `Story: e02s02` trailer, but a SQUASH landing measures a 0-min coding span (e02s01's
-  # experience), so the git-hours column is deliberately not claimed here; if effort metrics
-  # matter, land this branch with a MERGE COMMIT — that choice is the user's at the Safety gate.
-  # This row records a pushed branch awaiting that merge, so landed stays false until then.
+  # 2026-09-20 e02s02 — written by build-epic step 8 (release-branch, team-pr decision mode, then
+  # LANDED on the user's Safety-gate choice). Both cycle bases are labelled and both are claimed:
+  # cycle_minutes is wall-clock (story_start → step-8 write), effort_hours is git-derived via the
+  # `Story: e02s02` trailers. The user chose a MERGE-COMMIT landing precisely so git-effort survives
+  # — e02s01's squash measured a 0-min coding span and degenerated to 0.0 h. `record-cycle-time.sh
+  # report --range 3bb54bd..HEAD` gives e02s02 0.77 h / 19 commits / 47 min coding span, additivity
+  # PASS (1 unattributed commit, 0.02 h — the merge/cockpit commits).
   - id: e02s02
     epic: e02
     bcps: 5
@@ -53,12 +54,15 @@ stories:
     story_end: '2026-09-20T08:33:00Z'
     cycle_minutes: 55.5          # wall-clock story_start → step-8 write
     bcp_per_hour: 5.41           # 5 bcps / 55.5 min * 60 — wall-clock basis
-    commits: 19                  # 06d984e..branch tip: 17 develop/verify/gate + 2 step-7/8 hygiene (20 incl. the step-3 commit off main)
-    merge_commits: 0             # not merged: PR decision, gh absent, user Safety gate pending
+    effort_hours: 0.77           # git-hours via trailers (merge-commit landing; additivity PASS)
+    lead_time_minutes: 47        # coding span reported for the story range
+    attributed_by_trailer: true  # `Story: e02s02` on the story commits and the merge commit
+    commits: 19                  # story range 06d984e..2333a1b: 17 develop/verify/gate + 2 step-7/8 hygiene
+    merge_commits: 1             # 71bf36b — MERGE COMMIT, main parents 3bb54bd + 2333a1b
     branch: feat/e02s02
-    landed: false
-    merge_ref: null
-    source: wall-clock           # cycle_minutes; git-hours not measured (squash degeneracy, see note)
+    landed: true
+    merge_ref: 71bf36b
+    source: wall-clock + git-hours   # cycle_minutes = wall-clock; effort_hours/lead_time = git-derived
     audit_score_pct: 100         # gate round 1, full delta, specs/verifications/AUDIT-e02-e02s02.md
     verify_status: pass          # specs/verifications/e02s02-verify-r2.yaml, 9/9 phases (round 1 fail -> round 2 pass)
     rework_count: 3              # develop round 2 + verify round 2 + quick-fix BUG during round 2

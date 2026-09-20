@@ -640,3 +640,35 @@ and the compare URL emitted for manual PR creation. `main` untouched
   branches kept; no tag.
 - After landed=true: open e02s03 cycle (roster begin e02s03 e02, lock, step 1, new
   story_ops for steps 1-2) carrying the consolidated routed queue.
+
+## 2026-09-20T08:4xZ — e02s02 LANDED on main (MERGE COMMIT 71bf36b)
+
+- Safety gate: user chose "Merge commit locally" (preserve git-effort attribution) and
+  "proceed to e02s03 automatically".
+- Landing: `git merge --no-ff feat/e02s02` → merge commit `71bf36b` (parents `3bb54bd`
+  main + `2333a1b` branch), drafted `feat(cli)` subject and condensed PR body plus a
+  `Story: e02s02` trailer. Pushed `3bb54bd..71bf36b` (ordinary push, no force, no tag —
+  semantic-release owns versions). `main` = `71bf36b`, `feat/e02s02` kept local+remote.
+- Conflicts resolved by the agreed rule: `specs/state.yaml` and `specs/agent-locks.yaml`
+  took the BRANCH copy (`locks: []`, then re-stamped with the post-landing vcs/pr facts);
+  `progress.md` was unioned — this file keeps the orchestrator log through the step-7
+  dispatch, interleaves the two resident `develop` narratives at their phases (round 1
+  and round 2), and ends with the root-latest landing section above; `specs/verifications/*`
+  unioned automatically (root's r1/r2 + flake capture, branch's AUDIT + pr-body);
+  `specs/fleet-agents.yaml` kept root's newer copy and gained the landing note.
+- Preflight on main BEFORE the push: 1024 passed / 2 skipped / 88 subtests, `ruff check .`
+  clean, exit 0, serial behind a clean `ps -eo pid,args` pre-check; `validate-specs-yaml` OK.
+- Cycle attribution is REAL this time: `record-cycle-time.sh report --range 3bb54bd..HEAD`
+  → e02s02 `0.77 h` / 19 commits / 47 min coding span, additivity PASS (contrast e02s01's
+  squash → 0.0 h). Wall-clock 55.5 min / 5.41 BCP-per-hour kept alongside; both bases are
+  labelled in state.yaml, execution-status.yaml and the cycle-times row.
+- Cleanup: worktree `.worktrees/e02s02` removed after `git merge-base --is-ancestor
+  feat/e02s02 main` and a clean TRACKED tree; branches deliberately NOT deleted (e02s01
+  precedent); root `.git/info/exclude` mirror left as-is (harmless, and `.gitignore` now
+  carries `.worktrees/` on main). Root left checked out on `main`, tree clean.
+- e02 stays `in_progress` with e02s03 `todo` — the capsule is NOT archived.
+- NEXT: e02s03 (Docs + knowledge refresh, 3 bcps, P2) at step 1 survey-context, carrying
+  the routed queue: CONVENTIONS cap row `cli/main.py 1460` → actual 1276; double env notice
+  (`cli/gate_policy.py:76-81`, `:99-104`); `tests/_tmp_cache` gitignore/ban; injectable
+  reachability check; untested `ask_debate_gate` SystemExit branch; CHANGELOG wording for
+  the one-time `gate=<mode>` signature churn; plus the standing A10 record items.
