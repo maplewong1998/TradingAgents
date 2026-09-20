@@ -39,3 +39,27 @@ stories:
     audit_score_pct: 100         # gate round 2, delta-only, specs/verifications/AUDIT-e02-e02s01.md
     verify_status: pass          # specs/verifications/e02s01-verify.yaml, 7/7 phases
     rework_count: 2              # develop round 2 + gate round 2 (both PASS)
+
+  # 2026-09-20 e02s02 — written by build-epic step 8 (release-branch, team-pr decision mode).
+  # Wall-clock basis, same as e02s01. NOTE the git-effort caveat: every story commit carries a
+  # `Story: e02s02` trailer, but a SQUASH landing measures a 0-min coding span (e02s01's
+  # experience), so the git-hours column is deliberately not claimed here; if effort metrics
+  # matter, land this branch with a MERGE COMMIT — that choice is the user's at the Safety gate.
+  # This row records a pushed branch awaiting that merge, so landed stays false until then.
+  - id: e02s02
+    epic: e02
+    bcps: 5
+    story_start: '2026-09-20T07:37:31Z'
+    story_end: '2026-09-20T08:33:00Z'
+    cycle_minutes: 55.5          # wall-clock story_start → step-8 write
+    bcp_per_hour: 5.41           # 5 bcps / 55.5 min * 60 — wall-clock basis
+    commits: 19                  # 06d984e..branch tip: 17 develop/verify/gate + 2 step-7/8 hygiene (20 incl. the step-3 commit off main)
+    merge_commits: 0             # not merged: PR decision, gh absent, user Safety gate pending
+    branch: feat/e02s02
+    landed: false
+    merge_ref: null
+    source: wall-clock           # cycle_minutes; git-hours not measured (squash degeneracy, see note)
+    audit_score_pct: 100         # gate round 1, full delta, specs/verifications/AUDIT-e02-e02s02.md
+    verify_status: pass          # specs/verifications/e02s02-verify-r2.yaml, 9/9 phases (round 1 fail -> round 2 pass)
+    rework_count: 3              # develop round 2 + verify round 2 + quick-fix BUG during round 2
+    routed_open: 'tests/_tmp_cache gitignore entry; CONVENTIONS.md cli/main.py cap row stale (1460 -> 1276); double env notice (cli/gate_policy.py:76-81, :99-104) — all to e02s03'
