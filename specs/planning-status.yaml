@@ -1,0 +1,11 @@
+# specs/planning-status.yaml — discover-phase checklist.
+# Driven by the run-planning skill: survey-context → scope-work → research-first
+# → elaborate-spec → plan-release → slice-tasks. Optional; read by visual-dashboard.
+
+discover:
+  survey_context: done          # tech-stack.md derived via map-codebase
+  scope_work: done              # SCOPE_LATEST.yaml bounded 2026-09-20 (conditional-bull-bear-debate-gate)
+  research_first: done          # Prior Art recorded in SCOPE_LATEST.yaml; verdict compose+extend
+  elaborate_spec: done          # grill-with-docs 2026-09-20: 4 design decisions confirmed by user
+  plan_release: done            # e02 indexed in release-plan.yaml (WSJF 4.8, bump_hint minor)
+  slice_tasks: done             # e02s01-03 sliced; -tasks.yaml with verify commands written

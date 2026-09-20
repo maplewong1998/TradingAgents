@@ -1,0 +1,20 @@
+id: e01
+title: Bigpowers Adoption (bootstrap)
+wsjf: 1.0
+total_bcps: 5
+status: done
+note: >-
+  One-off repository bootstrap performed on 2026-09-20. Not product work: it
+  provisions the spec-driven lifecycle (scripts/ link, specs/ cockpit,
+  conventions, and the derived tech-stack doc) so later epics have a spine.
+stories:
+  - id: e01s01
+    title: Derive the tech-stack doc from the codebase
+    bcps: 3
+    status: done
+    spec: e01s01-tech-stack-map.md
+  - id: e01s02
+    title: Seed AGENTS.md and CONVENTIONS.md
+    bcps: 2
+    status: done
+    spec: e01s02-seed-conventions.md

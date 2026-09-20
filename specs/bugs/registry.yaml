@@ -1,0 +1,19 @@
+# specs/bugs/registry.yaml — bug registry maintained by inspect-quality / investigate-bug.
+# One entry per specs/bugs/BUG-*.md investigation.
+
+bugs:
+  - id: BUG-2026-09-20-ohlcv-cache-freshness-tz
+    title: OHLCV cache-freshness tests fail in any non-UTC timezone
+    severity: P1
+    status: fixed
+    route: quick-fix
+    file: BUG-2026-09-20-ohlcv-cache-freshness-tz.md
+    discovered: "2026-09-20"
+    fixed: "2026-09-20"
+    summary: >-
+      Test helper mixed pandas 3.0's UTC-based naive Timestamp.timestamp() with
+      fromtimestamp()'s local interpretation, shifting the fake mtime by the UTC
+      offset. Green in CI (TZ=UTC); 3 failures at UTC+08:00. Test-only fix.
+    follow_up: >-
+      CI only runs TZ=UTC, so this class of bug is structurally invisible there.
+      Consider a non-UTC CI job or a tzset autouse fixture.

@@ -1,0 +1,71 @@
+story_id: e02s02
+title: "Checkpoint policy keying + CLI surface (prompt step, skipped status, report section)"
+spec: e02s02-checkpoint-cli.md
+status: failing
+bcps: 5
+# TDD ledger (e45s06). Scenario IDs from e02-TEST_PLAN_LATEST.md.
+tasks:
+  - id: 1
+    description: >-
+      RED+GREEN checkpoint: extend tests/test_checkpoint_lifecycle.py — signature
+      differs across gate modes; resume under a changed mode starts fresh; same
+      mode resumes (SC-e02s02-P1-01). Then add gate=<mode> to
+      TradingAgentsGraph._run_signature (#1089 pattern).
+    verify: ".venv/bin/python -m pytest -q tests/test_checkpoint_lifecycle.py tests/test_checkpoint_resume.py"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["integration", "checkpoint"]
+  - id: 2
+    description: >-
+      CLI prompt step for the gate policy (Auto/Always/Never) next to Research
+      Depth; prefs allowlist + sanitize (SC-e02s02-P2-03); env precedence +
+      env-skip notice matching research_depth handling (SC-e02s02-P1-02).
+    verify: ".venv/bin/python -m pytest -q tests/test_cli_prefs.py tests/test_cli_config_precedence.py tests/test_cli_env_skip.py"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "cli", "config"]
+  - id: 3
+    description: >-
+      Live display: Bull/Bear show 'skipped' when the stream shows the gate routed
+      to the Research Manager; no agent stuck 'pending'; analyst status + wall-time
+      logic untouched (SC-e02s02-P2-01).
+    verify: ".venv/bin/python -m pytest -q tests/test_cli_display.py"
+    risk: P2
+    status: failing
+    allure:
+      severity: normal
+      categories: ["unit", "cli", "display"]
+  - id: 4
+    description: >-
+      Report surface: Debate Gate section in reporting.write_report_tree and the
+      CLI complete-report display for skipped / held(N turns) / disabled-by-config
+      (SC-e02s02-P2-02); gate INFO + failure WARNING logging via caplog
+      (SC-e02s02-P3-01).
+    verify: ".venv/bin/python -m pytest -q tests/test_debate_gate.py -k 'report or logging'"
+    risk: P2
+    status: failing
+    allure:
+      severity: normal
+      categories: ["unit", "reporting", "observability"]
+  - id: 5
+    description: >-
+      E2E CLI test with a fake graph stream: auto-mode skip shows 'skipped' and
+      renders the gate section end to end.
+    verify: ".venv/bin/python -m pytest -q tests/test_cli_display.py tests/test_debate_gate.py -k end_to_end"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["integration", "cli", "debate-gate"]
+  - id: 6
+    description: "Full Preflight green."
+    verify: ".venv/bin/python -m pytest -q && ruff check ."
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["preflight"]

@@ -1,0 +1,7 @@
+# specs/metrics/cycle-times.yaml — per-story cycle-time ledger.
+#
+# Appended by release-branch when a story lands:
+#   bcp_per_hour = story_bcps / cycle_minutes * 60
+# Sourced from git commit history via `bash scripts/record-cycle-time.sh`.
+
+stories: []

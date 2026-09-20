@@ -1,0 +1,65 @@
+development_status:
+  e01: done
+  e01s01: done
+  e01s02: done
+  e02: todo
+  e02s01: todo
+  e02s02: todo
+  e02s03: todo
+
+epics:
+  e01:
+    status: done
+    title: Bigpowers Adoption (bootstrap)
+    wsjf: 1.0
+    total_bcps: 5
+  e02:
+    status: todo
+    title: Conditional Bull/Bear Debate Gate
+    wsjf: 4.8
+    total_bcps: 16
+
+stories:
+  e01s01:
+    status: done
+    title: 'Derive the tech-stack doc from the codebase'
+    bcps: 3
+    epic: e01
+    tasks_total: 0
+    tasks_passing: 0
+    tasks_failing: 0
+  e01s02:
+    status: done
+    title: Seed AGENTS.md and CONVENTIONS.md
+    bcps: 2
+    epic: e01
+    tasks_total: 0
+    tasks_passing: 0
+    tasks_failing: 0
+  e02s01:
+    status: todo
+    title: 'Tracer bullet: gate node routes aligned runs past the debate (library end-to-end)'
+    bcps: 8
+    epic: e02
+    tasks_total: 9
+    tasks_passing: 0
+    tasks_failing: 9
+    risk_max: P0
+  e02s02:
+    status: todo
+    title: 'Checkpoint policy keying + CLI surface (prompt step, skipped status, report section)'
+    bcps: 5
+    epic: e02
+    tasks_total: 6
+    tasks_passing: 0
+    tasks_failing: 6
+    risk_max: P1
+  e02s03:
+    status: todo
+    title: 'Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary)'
+    bcps: 3
+    epic: e02
+    tasks_total: 5
+    tasks_passing: 0
+    tasks_failing: 5
+    risk_max: P2

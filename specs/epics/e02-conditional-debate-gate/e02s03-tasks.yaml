@@ -1,0 +1,59 @@
+story_id: e02s03
+title: "Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary)"
+spec: e02s03-docs.md
+status: failing
+bcps: 3
+# TDD ledger (e45s06). Docs story: verify commands are grep gates + Preflight.
+tasks:
+  - id: 1
+    description: >-
+      CHANGELOG entry under the next release section — feat(graph): conditional
+      bull/bear debate gate; announces the default change (auto), one-time
+      checkpoint signature re-keying, TRADINGAGENTS_DEBATE_GATE, and
+      debate_gate=always as the exact-behavior restore (SC-e02s03-P2-01).
+    verify: "grep -qi 'debate gate' CHANGELOG.md && grep -q 'TRADINGAGENTS_DEBATE_GATE' CHANGELOG.md"
+    risk: P2
+    status: failing
+    allure:
+      severity: normal
+      categories: ["docs"]
+  - id: 2
+    description: >-
+      .env.example — TRADINGAGENTS_DEBATE_GATE with a comment explaining
+      always|auto|never and the default.
+    verify: "grep -q 'TRADINGAGENTS_DEBATE_GATE' .env.example"
+    risk: P3
+    status: failing
+    allure:
+      severity: minor
+      categories: ["docs"]
+  - id: 3
+    description: >-
+      README — configuration section documents debate_gate; CLI walkthrough
+      mentions the new prompt step; one paragraph on when the debate is skipped
+      and the fail-safe direction.
+    verify: "grep -q 'debate_gate' README.md"
+    risk: P3
+    status: failing
+    allure:
+      severity: minor
+      categories: ["docs"]
+  - id: 4
+    description: >-
+      specs knowledge refresh — tech-stack.md architecture flow gains the Debate
+      Gate node (Signals note on setup_graph updated); GLOSSARY_LATEST.yaml gains
+      'Debate Gate', 'Alignment Marker', 'debate_gate policy' (SC-e02s03-P3-01).
+    verify: "grep -q 'Debate Gate' specs/tech-architecture/tech-stack.md && grep -q 'debate_gate' specs/product/GLOSSARY_LATEST.yaml"
+    risk: P3
+    status: failing
+    allure:
+      severity: minor
+      categories: ["docs", "specs"]
+  - id: 5
+    description: "Full Preflight + specs validation green."
+    verify: ".venv/bin/python -m pytest -q && ruff check . && bash scripts/validate-specs-yaml.sh"
+    risk: P2
+    status: failing
+    allure:
+      severity: normal
+      categories: ["preflight"]

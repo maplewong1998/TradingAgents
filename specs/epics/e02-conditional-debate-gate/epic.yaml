@@ -1,0 +1,33 @@
+id: e02
+title: Conditional Bull/Bear Debate Gate
+wsjf: 4.8          # (BV 8 + TC 5 + RR 6) / JS 4 — savings on every aligned run, default-behavior change, checkpoint/CLI coupling
+total_bcps: 16
+status: todo
+note: >-
+  Gate the investment debate on evidence tension (grill-with-docs confirmed
+  2026-09-20): LLM-judge node with Command routing, default auto with
+  always/auto/never policy, conservative skip (aligned AND confident, failure
+  ⇒ debate), risk debate untouched. Scope: specs/product/SCOPE_LATEST.yaml
+  (initiative conditional-bull-bear-debate-gate).
+stories:
+  - id: e02s01
+    title: "Tracer bullet: gate node routes aligned runs past the debate (library end-to-end)"
+    bcps: 8
+    status: todo
+    delta: MODIFIED   # debate becomes conditional; ADDED gate schema/agent/config
+    spec: e02s01-gate-core-routing.md
+    tasks: e02s01-tasks.yaml
+  - id: e02s02
+    title: "Checkpoint policy keying + CLI surface (prompt step, skipped status, report section)"
+    bcps: 5
+    status: todo
+    delta: MODIFIED   # run signature + CLI display/report behavior
+    spec: e02s02-checkpoint-cli.md
+    tasks: e02s02-tasks.yaml
+  - id: e02s03
+    title: "Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary)"
+    bcps: 3
+    status: todo
+    delta: ADDED
+    spec: e02s03-docs.md
+    tasks: e02s03-tasks.yaml
