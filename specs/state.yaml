@@ -6,7 +6,7 @@ test_plan: required
 vcs:
   kind: git
   branch: feat/e02-conditional-debate-gate
-  head: cee9452
+  head: d96645a
 git:
   branch: feat/e02-conditional-debate-gate
   worktree: null
@@ -27,9 +27,9 @@ metrics:
 epic_cycle:
   ship_epic_step: null
   story_bcps: 8
-  step: 4
+  step: 7
 handoff:
-  next_skill: develop-tdd
+  next_skill: commit-message
   note: 'develop-tdd complete 2026-09-20 (round 1 + orchestrator correction): tasks 1-9 of e02s01 all
     flipped to passing (verify commands exit 0), Preflight green (1000 passed, 2 skipped; ruff clean).
     RED commit 114f769 (tests only) fails in isolation per scripts/verify-tdd-red-commit.sh; the GREEN

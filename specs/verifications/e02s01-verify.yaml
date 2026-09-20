@@ -1,0 +1,37 @@
+# specs/verifications/e02s01-verify.yaml — step 5 (verify-work) evidence for story e02s01.
+# Written by the orchestrator from the resident verify specialist's closing report
+# (verify is read-only by dispatch and cannot persist this file itself).
+# Verifier: subagent a4c5424f-558b-4077-a6ce-447714a61b90, round 1, 2026-09-20.
+story: e02s01
+epic: e02
+branch: feat/e02-conditional-debate-gate
+head: 6a9f155
+round: 1
+verdict: pass
+phases:
+  cold_start: pass
+  preflight: pass
+  task_verifies: pass
+  manual_uat: pass
+  acceptance_criteria: pass
+  regressions: pass
+  house_rules: pass
+terminal_verdict:
+  command: ".venv/bin/python -m pytest -q && ruff check ."
+  result: "1000 passed, 2 skipped, 88 subtests, exit 0 (3.03s, serial, no concurrent pytest); ruff: All checks passed!"
+evidence:
+  task_verifies: "tasks 1-9 each exit 0 (collect-only 54; schema/marker 6; gate 54; initial_state 1; graph 3 + path_map 18; research_manager 5; config 6; node_sequence/end_to_end 3)"
+  manual_uat: "spec §Verification Script items 1-4 observed; TRADINGAGENTS_DEBATE_GATE=bogus raises ValueError naming always/auto/never at config time"
+  acceptance_criteria: "all six §17 scenarios asserted with substance; verifier's independent probes replay the frozen skip rule (always→Bull 0 calls; never→RM 0 calls; auto medium+bullish→RM; auto medium+mixed→Bull; judge error→Bull+WARNING)"
+  regressions: "test_structured_agent_prompts.py + test_risk_router_path_map.py + test_structured_agents.py (#1321 pin) + test_env_overrides.py → 89 passed"
+  house_rules: "issue citations present; route_to_vendor except-count unchanged (4); no cli imports in tradingagents/; unparseable signal ⇒ REVIEW; held-debate RM paragraph byte-identical to 114f769^ (AST-verified)"
+non_blocking_findings:
+  - "tests/test_debate_gate.py:826 'always' test asserts required-node presence + Bull<Bear<RM ordering, not strict sequence equality vs main"
+  - "never-mode skip marker claims evidence alignment though no judge ran (_skip() bypasses the predicate) — wording should differ for the policy path"
+  - "P0-02 expected ordering hard-coded, not derived from a pre-story baseline"
+  - "cosmetic: debate_gate_node reads state[...] directly; KeyError if a caller omits a report key (all real graph paths pre-initialize)"
+record_integrity_notes:   # routed under ruling A10 — fix-forward, never gate-blocking
+  - "story spec still says 'status: failing' (flips when the story lands)"
+  - "spec §17 P0-04 line omits the direction clause present in the step-1 routing matrix (frozen text; note for e02s03 docs pass)"
+  - "tasks file predates the gate/schemas.py module split (accepted divergence 1)"
+verified_at: '2026-09-20T05:05:00Z'

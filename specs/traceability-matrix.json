@@ -1,0 +1,264 @@
+{
+  "generated_at": "2026-09-20T05:33:08.328341+00:00",
+  "matrix_version": "1.0",
+  "stories": [
+    {
+      "id": "e01s01",
+      "title": "Derive the tech-stack doc from the codebase",
+      "epic_id": "e01",
+      "epic_title": "Bigpowers Adoption (bootstrap)",
+      "bcp": 0,
+      "wsjf": 1.0,
+      "status": "done",
+      "links": [
+        {
+          "file": "specs/bugs/BUG-2026-09-20-ohlcv-cache-freshness-tz.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/epics/e01-bigpowers-adoption/e01s01-tech-stack-map.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/tech-architecture/tech-stack.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/tech-architecture/TECH_STACK_LATEST.md",
+          "line": 0,
+          "confidence": "medium",
+          "method": "file_heuristic"
+        }
+      ],
+      "link_count": 4
+    },
+    {
+      "id": "e01s02",
+      "title": "Seed AGENTS.md and CONVENTIONS.md",
+      "epic_id": "e01",
+      "epic_title": "Bigpowers Adoption (bootstrap)",
+      "bcp": 0,
+      "wsjf": 1.0,
+      "status": "done",
+      "links": [
+        {
+          "file": "specs/epics/e01-bigpowers-adoption/e01s02-seed-conventions.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        }
+      ],
+      "link_count": 1
+    },
+    {
+      "id": "e02s01",
+      "title": "Tracer bullet: gate node routes aligned runs past the debate (library end-to-end)",
+      "epic_id": "e02",
+      "epic_title": "Conditional Bull/Bear Debate Gate",
+      "bcp": 0,
+      "wsjf": 4.8,
+      "status": "in_progress",
+      "links": [
+        {
+          "file": "tests/test_debate_gate.py",
+          "line": 1,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/bugs/BUG-2026-09-20-no-data-handling-nonhermetic-cache.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/verifications/e02s01-verify.yaml",
+          "line": 5,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/verifications/AUDIT-e02-e02s01.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/verifications/AUDIT-e02-e02s01.md",
+          "line": 104,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s01-tasks.yaml",
+          "line": 11,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md",
+          "line": 88,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md",
+          "line": 88,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/epics/e02-conditional-debate-gate/e02s01-tasks.yaml",
+          "line": 11,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/fleet-agents.yaml",
+          "line": 5,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "tests/test_vendor_errors.py",
+          "line": 0,
+          "confidence": "medium",
+          "method": "file_heuristic"
+        },
+        {
+          "file": "tests/test_vendor_routing.py",
+          "line": 0,
+          "confidence": "medium",
+          "method": "file_heuristic"
+        },
+        {
+          "file": "tradingagents/agents/gate/debate_gate.py",
+          "line": 0,
+          "confidence": "medium",
+          "method": "file_heuristic"
+        },
+        {
+          "file": "tradingagents.egg-info/dependency_links.txt",
+          "line": 0,
+          "confidence": "medium",
+          "method": "file_heuristic"
+        }
+      ],
+      "link_count": 16
+    },
+    {
+      "id": "e02s02",
+      "title": "Checkpoint policy keying + CLI surface (prompt step, skipped status, report section)",
+      "epic_id": "e02",
+      "epic_title": "Conditional Bull/Bear Debate Gate",
+      "bcp": 0,
+      "wsjf": 4.8,
+      "status": "todo",
+      "links": [
+        {
+          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s02-checkpoint-cli.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/epics/e02-conditional-debate-gate/e02s02-checkpoint-cli.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/epics/e02-conditional-debate-gate/e02s02-tasks.yaml",
+          "line": 0,
+          "confidence": "low",
+          "method": "task_reference"
+        }
+      ],
+      "link_count": 3
+    },
+    {
+      "id": "e02s03",
+      "title": "Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary)",
+      "epic_id": "e02",
+      "epic_title": "Conditional Bull/Bear Debate Gate",
+      "bcp": 0,
+      "wsjf": 4.8,
+      "status": "todo",
+      "links": [
+        {
+          "file": "specs/product/snapshots/release-0.6.0/epics/e02-conditional-debate-gate/e02s03-docs.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/epics/e02-conditional-debate-gate/e02s03-docs.md",
+          "line": 3,
+          "confidence": "high",
+          "method": "explicit_tag"
+        },
+        {
+          "file": "specs/epics/e01-bigpowers-adoption/e01s01-tech-stack-map.md",
+          "line": 0,
+          "confidence": "medium",
+          "method": "file_heuristic"
+        },
+        {
+          "file": "specs/tech-architecture/TECH_STACK_LATEST.md",
+          "line": 0,
+          "confidence": "medium",
+          "method": "file_heuristic"
+        },
+        {
+          "file": "specs/tech-architecture/tech-stack.md",
+          "line": 0,
+          "confidence": "medium",
+          "method": "file_heuristic"
+        },
+        {
+          "file": "specs/epics/e02-conditional-debate-gate/e02s03-tasks.yaml",
+          "line": 0,
+          "confidence": "low",
+          "method": "task_reference"
+        }
+      ],
+      "link_count": 6
+    }
+  ],
+  "summary": {
+    "total_stories": 5,
+    "tagged_stories": 5,
+    "dark_stories": [],
+    "dark_count": 0,
+    "orphan_tags": [],
+    "orphan_count": 0,
+    "stale_tags": [
+      "e01s01",
+      "e01s02"
+    ],
+    "stale_count": 2,
+    "oracle_stats": {
+      "high": 20,
+      "medium": 8,
+      "low": 2
+    }
+  }
+}

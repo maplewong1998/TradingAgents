@@ -156,3 +156,50 @@
   1002 passed, 2 skipped; ruff clean. Ledger 9 passing / 0 failing; counters unchanged.
 - Deferred as instructed: e02s02 `_run_signature` mirroring, the state[...] KeyError cosmetic and
   the _judge_prompt extraction advisory.
+
+## 2026-09-20 — develop round 2 PASS; gate round 2 (delta) dispatched
+
+- develop (2be0d4e9) round 2: all five pre-landing items landed; tip d96645a;
+  Preflight 1002 passed / 2 skipped, ruff clean; ledger 9/9 passing.
+  Spot-checked by orchestrator: trading_graph.py 651 lines (cap 672), hermetic
+  TestLoadOhlcvNoPoison, honest never-mode policy marker.
+- ORCHESTRATOR RULING accepted item-1 deviation: second extraction into NEW
+  tradingagents/graph/config_validation.py (re-imported; external import paths
+  unchanged) because the frozen baseline is exactly 672 lines — the audit-sanctioned
+  alternative home; __init__ validation call preserved per gate guidance #1.
+  Develop tried and reverted the GraphSetup choke-point variant.
+- Flake UPGRADED to deterministic: planting tests/_tmp_cache/FAKE-YFin-data.csv
+  reproduces the 1/15 failure; BUG-2026-09-20-no-data-handling-nonhermetic-cache.md
+  + registry entry logged; fix = per-test mkdtemp.
+- Commits: c0e46ba, cc71f9f, 7a5d639 (test-only RED, fails in isolation), 4d675a5,
+  cee9452, d96645a.
+- state.yaml: epic_cycle.step=6, next_skill=audit-code, vcs.head=d96645a.
+- Gate round 2 (delta-only) sent to SAME gate id 819cb80f-4f31-40ec-97bf-72bfbac92137:
+  verify the five items, pinned contracts (P1-02 ValueError, byte-identical RM
+  paragraph), file-size FAIL cleared, no new capped-file growth, one full Preflight
+  re-run, re-derived score under A10.
+- On gate round 2 PASS: trace refresh (scripts/trace-stories.sh) → story_ops child
+  for steps 7-8 (commit-message + release-branch; workflow_mode team-pr → PR, Safety
+  gate asks the user before landing on main) → e02s01 done → roster begin e02s02.
+
+## 2026-09-20 — gate round 2 PASS (100/100); steps 7-8 dispatched
+
+- gate r2 delta-only: PASS, score 100 (41/41). Round-1 file-size FAIL CLEARED
+  (trading_graph.py 651 ≤ 672). All five fixes independently re-derived (flake repro
+  replayed in /tmp; 7a5d639 structural RED; AST-identical code moves; setup.py
+  zero-diff confirmed). Pinned contracts hold. Preflight ×3 green. Report appended:
+  specs/verifications/AUDIT-e02-e02s01.md "Round 2" section.
+- Gate disclosures routed: one-shot first-import anomaly on test_no_data_handling.py
+  (non-reproducible ×7, hermetic by construction — awareness only); standing queue
+  for e02s02 (_run_signature mirroring) and cosmetics/advisories; registry follow-up
+  (gitignore tests/_tmp_cache); A10 record items → e02s03.
+- Orchestrator ran trace refresh (scripts/trace-stories.sh) — TRACEABILITY_LATEST.md +
+  traceability-matrix.json regenerated 13:31.
+- state.yaml: epic_cycle.step=7, next_skill=commit-message.
+- story_ops started: cd1ea0ca-8167-4a8f-840f-0be9d13d8a02 — STEP 7 (commit-message,
+  PR draft) then STEP 8 (release-branch, team-pr): hygiene commit of untracked
+  pipeline records, push branch to origin (fork), emit compare URL (gh NOT installed),
+  NO merge to main (user Safety gate), step-8 bookkeeping (execution-status done,
+  spec header flip, cycle metrics from story_start 04:21:39Z, lock release,
+  handoff → build-epic/e02s02).
+- After story_ops PASS: ask user re PR merge (Safety), then roster begin e02s02 e02.
