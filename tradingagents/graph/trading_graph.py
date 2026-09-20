@@ -400,8 +400,8 @@ class TradingAgentsGraph:
         """Graph-shape inputs that must invalidate a checkpoint if changed.
 
         Keyed into the checkpoint thread ID so a resume under a different analyst
-        selection, debate/risk depth, or asset mode starts fresh instead of
-        silently continuing the previous graph (#1089).
+        selection, debate/risk depth, gating policy, or asset mode starts fresh
+        instead of silently continuing the previous graph (#1089).
         """
         return "|".join([
             "analysts=" + ",".join(self.selected_analysts),
@@ -410,6 +410,7 @@ class TradingAgentsGraph:
             f"asset={asset_type}",
             # None, an empty book and a changed book are three different runs.
             f"portfolio={portfolio.fingerprint() if portfolio is not None else 'none'}",
+            f"gate={self.config.get('debate_gate', 'auto')}",  # policy reroutes (e02s02)
         ])
 
     def propagate(self, company_name, trade_date, asset_type: str = "stock", portfolio=None):
