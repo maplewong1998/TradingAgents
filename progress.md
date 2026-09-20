@@ -802,3 +802,22 @@ and the compare URL emitted for manual PR creation. `main` untouched
   round 2, then a delta-only gate round 2 (new commits land ⇒ re-gate per the gate's
   own rule).
 - state: epic_cycle.step=4 (root+worktree) during the fix round.
+
+## 2026-09-20 — e02s03 develop r2 PASS; gate r2 (delta) dispatched
+
+- develop (b4848a06) r2 docs-only fix-forward: PASS, tip bc376b6. All six routed notes
+  + O2 landed, each figure re-measured at tip (72 console.print; 75/428/12612; ~1.8×;
+  README step-position vs main.py:645/:653/:708/:730; CHANGELOG thin-report semantics
+  vs debate_gate.py:153-157/:227 per README:272 model; AGENTS.md 1276). R3 no-op by
+  design. AUDIT report committed onto the branch (was untracked — landing must not lose
+  it). T1-T4 verifies + Preflight ×2 green (1027/2/88, ruff, validate-specs-yaml).
+  Accepted judgment calls: two commits (docs fix + bookkeeping naming the verified
+  tree) and docs(specs) scope for the cross-file fix.
+- state: epic_cycle.step=6 (root+worktree; develop left next_skill=audit-code with a
+  note_on_next_skill rather than silently changing it — correct escalation).
+- Gate r2 (delta-only) sent to SAME gate id 8a6c1d36: verify the six edits + truth of
+  each restated figure at tip, delta is docs-only, AUDIT text unmodified (append r2
+  section), Preflight once, score re-derivation under A10.
+- On gate r2 PASS: trace refresh → story_ops steps 7-8 (landing note: main now
+  34c1652+, branch base 276cfc4 — branch-copy-wins state.yaml reconcile) → user
+  Safety gate (merge-commit default) → epic e02 closes → Phase 5 VERIFY.
