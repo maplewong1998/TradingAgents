@@ -336,3 +336,45 @@ and the compare URL emitted for manual PR creation. `main` untouched
   story_ops for steps 1-2 (survey-context + plan-work), with the gate's standing
   requirement queued for e02s02 planning/develop: mirror graph shape into
   _run_signature (IMPACT_LATEST.md:48).
+
+## 2026-09-20 — e02s01 LANDED on main (squash d7557e4); preflight green on main
+
+- Hygiene on the branch: `3485c44 chore(specs): record e02s01 blind-spot scan output`
+  (specs/blind-spots.json + the orchestrator's progress entry, which had to be
+  committed or `git checkout main` would refuse the squash). Branch pushed.
+- Landing: `git checkout main` (2d17df8 == origin/main, no fast-forward needed) →
+  `git merge --squash feat/e02-conditional-debate-gate` → ONE commit
+  `d7557e4 feat(agents): gate the bull/bear debate on analyst evidence tension`,
+  trailer `Story: e02s01`, 116 files / +7205, no deletions, no venv or scratch paths,
+  no Co-authored-by. Nothing tagged: semantic-release decides versions.
+- **Preflight on main before the push was RED on the first attempt:** `1 failed,
+  1001 passed, 2 skipped` — `tests/test_no_data_handling.py::TestLoadOhlcvNoPoison::
+  test_empty_download_raises_and_does_not_cache` (exit 1). Not reproducible: the test
+  passes in isolation and the full suite then ran clean 9× in a row (2 + 6 runs plus
+  the authoritative commanded run), all `1002 passed / 2 skipped` with ruff clean.
+  The run did not race another pytest (ps pre-check clean) and `tests/_tmp_cache` does
+  not exist. Same class as the gate's routed "one-shot first-import anomaly" on this
+  file (non-reproducible ×7). Not dismissed: routed to e02s02/next story with the
+  instruction to capture `--tb=long` if it recurs. Push proceeded on the green
+  authoritative run, per the explicit user decision to accept an unwatched CI.
+- Pushed: `origin/main 2d17df8..d7557e4` (ordinary push, fast-forward, no force).
+  `origin/feat/e02-conditional-debate-gate` stays at 3485c44 — branch kept, no deletion.
+- **Cycle attribution — trailer adopted, and what it revealed:** with `Story: e02s01`
+  on d7557e4, `record-cycle-time.sh report --range 2d17df8..HEAD` now attributes the
+  story (1 commit, no longer `unattributed`) **but effort is 0.00 h with a 0-min
+  coding span**, because a squash collapses the session into a single commit and the
+  git-hours model has no interval left to measure. Wall-clock (73.5 min → 6.53
+  bcp/hour) therefore stays the operative value; the row now carries `effort_hours:
+  0.0`, `attributed_by_trailer: true`, `landed: true`, `merge_ref: d7557e4` and a note.
+  **Consequence for the next landing: prefer a merge commit over a squash if git-effort
+  metrics are wanted.**
+- **Tool defect found and fixed-in-pass:** `bash scripts/record-cycle-time.sh append`
+  writes its OKF story-metrics bundle INTO `specs/metrics/cycle-times.yaml`, turning the
+  ledger into a 2-document stream — `scripts/validate-specs-yaml.sh` then FAILED with
+  "expected a single document in the stream". Fix: the bundle now lives in its canonical
+  OKF shape at `specs/metrics/e02s01-story-metrics.okf.md` and the ledger is one document
+  again (validator OK). `scripts/` is a symlink to the global bigpowers install, so the
+  tool was not patched — logged here and in the ledger header instead.
+- Landed-state validation: `validate-specs-yaml.sh` OK, G-12 PASS, `check-stale-locks.sh`
+  clean, execution-status/state/cycle-times all parse and agree (e02s01 done, landed,
+  merge_ref d7557e4). Checked out on `main` at story close, working tree clean.

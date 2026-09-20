@@ -36,7 +36,8 @@ stories:
     tasks_failing: 0
   e02s01:
     status: done
-    title: 'Tracer bullet: gate node routes aligned runs past the debate (library end-to-end)'
+    title: 'Tracer bullet: gate node routes aligned runs past the debate (library
+      end-to-end)'
     bcps: 8
     epic: e02
     tasks_total: 9
@@ -45,15 +46,19 @@ stories:
     risk_max: P0
     started_at: '2026-09-20T04:21:39Z'
     completed_at: '2026-09-20T05:35:10Z'
-    # Wall-clock cycle time (story_start → step-8 landing write), NOT git-hours
-    # effort: scripts/record-cycle-time.sh could not partition this story because
-    # the branch commits carry no `Story: e02s01` trailer (all 18 → unattributed).
+    # Wall-clock cycle time (story_start → step-8 landing write). The git-hours
+    # alternative degenerated to zero: the landing was a squash (d7557e4, one
+    # commit), so record-cycle-time.sh measures a 0-min coding span.
     cycle_minutes: 73.5
-    bcp_per_hour: 6.53
-    landed_via: 'team-pr — PR opened for manual merge (gh CLI absent); branch pushed, no merge to main'
+    bcp_per_hour: 6.53            # 8 bcps / 73.5 min * 60 — wall-clock basis
+    effort_hours: 0.0             # git-hours: degenerate on a single squash commit
+    lead_time_minutes: 0          # git-hours: first commit == merge commit
+    attributed_by_trailer: true   # `Story: e02s01` trailer on d7557e4
+    landed_via: 'step 8 — squash-merged to main d7557e4 and pushed to origin (CI unverified: gh absent)'
   e02s02:
     status: todo
-    title: Checkpoint policy keying + CLI surface (prompt step, skipped status, report section)
+    title: Checkpoint policy keying + CLI surface (prompt step, skipped status, report
+      section)
     bcps: 5
     epic: e02
     tasks_total: 6
@@ -62,7 +67,8 @@ stories:
     risk_max: P1
   e02s03:
     status: todo
-    title: Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary)
+    title: Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack,
+      glossary)
     bcps: 3
     epic: e02
     tasks_total: 5

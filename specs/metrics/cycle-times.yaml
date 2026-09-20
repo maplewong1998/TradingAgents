@@ -3,24 +3,39 @@
 # Appended by release-branch when a story lands:
 #   bcp_per_hour = story_bcps / cycle_minutes * 60
 # Sourced from git commit history via `bash scripts/record-cycle-time.sh`.
+#
+# 2026-09-20 (e02s01): `record-cycle-time.sh append` writes its OKF story-metrics
+# bundle INTO this file, which made it a 2-document stream and broke
+# `scripts/validate-specs-yaml.sh` ("expected a single document in the stream").
+# The bundle now lives in specs/metrics/e02s01-story-metrics.okf.md — its canonical
+# OKF shape (YAML frontmatter + markdown body, per the script's own pointer to
+# specs/templates/story-metrics.okf.md) — so this ledger stays one document.
+# scripts/ is a symlink to the global bigpowers install: never edited, so the tool
+# defect is logged rather than patched (see the step-8 record in progress.md).
 
 stories:
-  # 2026-09-20 e02s01 — written by build-epic step 8 (release-branch, team-pr).
-  # NOT the record-cycle-time.sh output: that script partitions by the `Story: <id>`
-  # commit trailer and this branch's commits carry none, so all 18 commits land in
-  # `unattributed` (report: effort 1.35 h for the whole branch, 0 attributable to
-  # e02s01). These numbers are wall-clock from metrics.story_start instead.
+  # 2026-09-20 e02s01 — written by build-epic step 8 (release-branch → landed on main).
+  # Row updated after the landing commit adopted a `Story: e02s01` trailer: the trailer
+  # works (record-cycle-time.sh no longer reports this story as `unattributed`), but the
+  # git-hours effort degenerates to 0.0 h because the landing was a SQUASH — one commit
+  # with a 0-min coding span, so no inter-commit interval is left to measure. The
+  # wall-clock cycle time therefore stays the operative value; the OKF bundle below is
+  # the script's own output (2-document YAML: list row + OKF story-metrics document).
   - id: e02s01
     epic: e02
     bcps: 8
     story_start: '2026-09-20T04:21:39Z'
     story_end: '2026-09-20T05:35:10Z'
-    cycle_minutes: 73.5
-    bcp_per_hour: 6.53
-    commits: 13            # 114f769..d96645a, story range (4 more pre-story on branch)
+    cycle_minutes: 73.5          # wall-clock story_start → landing write
+    bcp_per_hour: 6.53           # 8 bcps / 73.5 min * 60 — wall-clock basis
+    effort_hours: 0.0            # git-hours via trailer: degenerate on the squash
+    attributed_by_trailer: true  # `Story: e02s01` on d7557e4
+    commits: 13                  # story range 114f769..d96645a on the branch (4 more pre-story)
+    merge_commits: 1             # d7557e4 squash on main
     branch: feat/e02-conditional-debate-gate
-    landed: false          # team-pr: PR opened for manual merge, main untouched
-    source: wall-clock      # measured, not estimated; effort_hours unavailable (no trailer)
-    audit_score_pct: 100   # gate round 2, delta-only, specs/verifications/AUDIT-e02-e02s01.md
-    verify_status: pass    # specs/verifications/e02s01-verify.yaml, 7/7 phases
-    rework_count: 2        # develop round 2 + gate round 2 (both PASS)
+    landed: true
+    merge_ref: d7557e4
+    source: wall-clock           # cycle_minutes; the git-effort column is 0.0 (see note)
+    audit_score_pct: 100         # gate round 2, delta-only, specs/verifications/AUDIT-e02-e02s01.md
+    verify_status: pass          # specs/verifications/e02s01-verify.yaml, 7/7 phases
+    rework_count: 2              # develop round 2 + gate round 2 (both PASS)
