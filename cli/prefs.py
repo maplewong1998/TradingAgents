@@ -22,12 +22,13 @@ from pathlib import Path
 
 from cli.models import AnalystType, AssetType
 from cli.utils import _llm_provider_table, filter_analysts_for_asset_type
+from tradingagents.agents.gate.debate_gate import DEBATE_GATE_MODES
 from tradingagents.llm_clients.model_catalog import get_model_options
 
 _PREFS_PATH = Path(os.path.expanduser("~")) / ".tradingagents" / "cli_prefs.json"
 
 REMEMBERED = (
-    "output_language", "analysts", "research_depth", "llm_provider",
+    "output_language", "analysts", "research_depth", "debate_gate", "llm_provider",
     "quick_think_llm", "deep_think_llm", "backend_url",
 )
 
@@ -66,6 +67,10 @@ def sanitize(prefs: dict, asset_type) -> dict:
         kept["output_language"] = prefs["output_language"]
     if prefs.get("research_depth") in (1, 3, 5):
         kept["research_depth"] = prefs["research_depth"]
+    # A policy the gate cannot honour must not come back as a menu default: the
+    # mode set is owned by the gate, so it is validated against the same tuple.
+    if prefs.get("debate_gate") in DEBATE_GATE_MODES:
+        kept["debate_gate"] = prefs["debate_gate"]
 
     known = {a.value for a in AnalystType}
     analysts = [a for a in prefs.get("analysts") or [] if a in known]

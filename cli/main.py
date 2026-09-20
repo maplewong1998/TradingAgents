@@ -14,12 +14,13 @@ from rich.layout import Layout
 from rich.live import Live
 from rich.markdown import Markdown
 from rich.panel import Panel
-from rich.rule import Rule
 from rich.spinner import Spinner
 from rich.table import Table
 from rich.text import Text
 
 from cli.announcements import display_announcements, fetch_announcements
+from cli.complete_report import display_complete_report, save_report_to_disk
+from cli.gate_policy import resolve_debate_gate, select_debate_gate
 from cli.prefs import load_last_run, sanitize, save_last_run
 from cli.stats_handler import StatsCallbackHandler
 from cli.utils import (
@@ -54,7 +55,6 @@ from tradingagents.graph.analyst_execution import (
 )
 from tradingagents.graph.trading_graph import TradingAgentsGraph
 from tradingagents.portfolio import load_portfolio
-from tradingagents.reporting import write_report_tree
 
 console = Console()
 
@@ -634,6 +634,14 @@ def _prompt_selections(prefs):
         )
         selected_research_depth = select_research_depth(prefs.get("research_depth"))
 
+    # Step 5b: Bull/Bear debate policy (skipped when set via
+    # TRADINGAGENTS_DEBATE_GATE). Same env-precedence rule as the steps above: the
+    # env overlay already carries the value, so an unattended run is not stopped
+    # by a prompt (e02s02).
+    selected_debate_gate = select_debate_gate(
+        prefs, DEFAULT_CONFIG["debate_gate"], console, create_question_box
+    )
+
     # Step 6: LLM Provider (skipped when set via TRADINGAGENTS_LLM_PROVIDER).
     # The backend URL comes from TRADINGAGENTS_LLM_BACKEND_URL when set,
     # otherwise the provider's default endpoint — the same value the menu
@@ -750,6 +758,7 @@ def _prompt_selections(prefs):
         "analysis_date": analysis_date,
         "analysts": selected_analysts,
         "research_depth": selected_research_depth,
+        "debate_gate": selected_debate_gate,
         "llm_provider": selected_llm_provider.lower(),
         "backend_url": backend_url,
         "quick_think_llm": selected_shallow_thinker,
@@ -778,72 +787,6 @@ def get_analysis_date():
             console.print(
                 "[red]Error: Invalid date format. Please use YYYY-MM-DD[/red]"
             )
-
-
-def save_report_to_disk(final_state, ticker: str, save_path: Path):
-    """Save the complete analysis report to disk (shared CLI/API writer)."""
-    return write_report_tree(final_state, ticker, save_path)
-
-
-def display_complete_report(final_state):
-    """Display the complete analysis report sequentially (avoids truncation)."""
-    console.print()
-    console.print(Rule("Complete Analysis Report", style="bold green"))
-
-    # I. Analyst Team Reports
-    analysts = []
-    if final_state.get("market_report"):
-        analysts.append(("Market Analyst", final_state["market_report"]))
-    if final_state.get("sentiment_report"):
-        analysts.append(("Sentiment Analyst", final_state["sentiment_report"]))
-    if final_state.get("news_report"):
-        analysts.append(("News Analyst", final_state["news_report"]))
-    if final_state.get("fundamentals_report"):
-        analysts.append(("Fundamentals Analyst", final_state["fundamentals_report"]))
-    if analysts:
-        console.print(Panel("[bold]I. Analyst Team Reports[/bold]", border_style="cyan"))
-        for title, content in analysts:
-            console.print(Panel(Markdown(content), title=title, border_style="blue", padding=(1, 2)))
-
-    # II. Research Team Reports
-    if final_state.get("investment_debate_state"):
-        debate = final_state["investment_debate_state"]
-        research = []
-        if debate.get("bull_history"):
-            research.append(("Bull Researcher", debate["bull_history"]))
-        if debate.get("bear_history"):
-            research.append(("Bear Researcher", debate["bear_history"]))
-        if debate.get("judge_decision"):
-            research.append(("Research Manager", debate["judge_decision"]))
-        if research:
-            console.print(Panel("[bold]II. Research Team Decision[/bold]", border_style="magenta"))
-            for title, content in research:
-                console.print(Panel(Markdown(content), title=title, border_style="blue", padding=(1, 2)))
-
-    # III. Trading Team
-    if final_state.get("trader_investment_plan"):
-        console.print(Panel("[bold]III. Trading Team Plan[/bold]", border_style="yellow"))
-        console.print(Panel(Markdown(final_state["trader_investment_plan"]), title="Trader", border_style="blue", padding=(1, 2)))
-
-    # IV. Risk Management Team
-    if final_state.get("risk_debate_state"):
-        risk = final_state["risk_debate_state"]
-        risk_reports = []
-        if risk.get("aggressive_history"):
-            risk_reports.append(("Aggressive Analyst", risk["aggressive_history"]))
-        if risk.get("conservative_history"):
-            risk_reports.append(("Conservative Analyst", risk["conservative_history"]))
-        if risk.get("neutral_history"):
-            risk_reports.append(("Neutral Analyst", risk["neutral_history"]))
-        if risk_reports:
-            console.print(Panel("[bold]IV. Risk Management Team Decision[/bold]", border_style="red"))
-            for title, content in risk_reports:
-                console.print(Panel(Markdown(content), title=title, border_style="blue", padding=(1, 2)))
-
-        # V. Portfolio Manager Decision
-        if risk.get("judge_decision"):
-            console.print(Panel("[bold]V. Portfolio Manager Decision[/bold]", border_style="green"))
-            console.print(Panel(Markdown(risk["judge_decision"]), title="Portfolio Manager", border_style="blue", padding=(1, 2)))
 
 
 def update_research_team_status(status):
@@ -1030,6 +973,10 @@ def _build_run_config(selections: dict, checkpoint: bool | None) -> dict:
             )
         else:
             config[key] = selections["research_depth"]
+    # The debate policy follows the same rule (SC-e02s02-P1-02): an explicit
+    # TRADINGAGENTS_DEBATE_GATE — already applied to DEFAULT_CONFIG at import —
+    # wins over the interactive pick, and the user is told which one won.
+    config["debate_gate"] = resolve_debate_gate(config["debate_gate"], selections, console)
     config["quick_think_llm"] = selections["quick_think_llm"]
     config["deep_think_llm"] = selections["deep_think_llm"]
     config["backend_url"] = selections["backend_url"]

@@ -33,7 +33,16 @@ tasks:
       env-skip notice matching research_depth handling (SC-e02s02-P1-02).
     verify: ".venv/bin/python -m pytest -q tests/test_cli_prefs.py tests/test_cli_config_precedence.py tests/test_cli_env_skip.py"
     risk: P1
-    status: failing
+    status: passing
+    # D3 evidence: RED commit 790cea3 (6 new tests failing, pre-existing 26 green).
+    red_tests:
+      - tests/test_cli_prefs.py::test_the_debate_gate_policy_is_remembered_only_while_it_is_choosable
+      - tests/test_cli_prefs.py::test_a_remembered_gate_policy_prefills_the_menu
+      - tests/test_cli_prefs.py::test_a_gate_policy_is_asked_for_and_remembered_after_a_run
+      - tests/test_cli_config_precedence.py::test_env_debate_gate_wins_over_the_prompt_choice_and_says_so
+      - tests/test_cli_config_precedence.py::test_the_gate_choice_reaches_the_config_without_env
+      - tests/test_cli_env_skip.py::TestDebateGateSkippedFromEnv::test_gate_env_skips_the_policy_prompt
+    green_commit: "feat(cli): offer the debate-gate policy as a prompt step with env precedence"
     allure:
       severity: high
       categories: ["unit", "cli", "config"]
