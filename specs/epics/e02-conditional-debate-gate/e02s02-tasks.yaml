@@ -1,7 +1,7 @@
 story_id: e02s02
 title: "Checkpoint policy keying + CLI surface (prompt step, skipped status, report section)"
 spec: e02s02-checkpoint-cli.md
-status: failing
+status: passing
 bcps: 5
 # TDD ledger (e45s06). Scenario IDs from e02-TEST_PLAN_LATEST.md.
 tasks:
@@ -113,7 +113,16 @@ tasks:
     description: "Full Preflight green."
     verify: ".venv/bin/python -m pytest -q && ruff check ."
     risk: P1
-    status: failing
+    status: passing
+    # 2026-09-20 worktree .worktrees/e02s02 @ bfe3b9c verified: 1021 passed / 2 skipped
+    # / 88 subtests (baseline 1002/2 -> +19 new tests this story), ruff "All checks
+    # passed!", pytest exit 0. Two consecutive green runs, each behind a clean
+    # concurrency pre-check (ps -eo pid,args | grep -E "[p]ython -m pytest").
+    # FLAKE SIGHTING #4 (one-shot class, still unproven): the first full-suite run of
+    # this leg failed tests/test_no_data_handling.py::TestLoadOhlcvNoPoison::
+    # test_empty_download_raises_and_does_not_cache; the immediate isolated
+    # --tb=long run PASSED (traceback unobtainable), then the full suite was green
+    # twice. Reported to the orchestrator as a routed watch item, not a story defect.
     allure:
       severity: high
       categories: ["preflight"]

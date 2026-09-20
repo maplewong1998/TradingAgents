@@ -403,3 +403,35 @@ and the compare URL emitted for manual PR creation. `main` untouched
   are uncommitted on main — story_ops commits them in its next hygiene pass.
 - Pending after steps 1-2 notice: orchestrator runs the Phase 4 plan gate, then STEP 3
   kickoff-branch → worktree <root>/.worktrees/e02s02, branch feat/e02s02 off main.
+
+## e02s02 STEP 4 (develop-tdd), round 1 — 2026-09-20 (resident `develop`)
+
+- Worktree `.worktrees/e02s02` @ `feat/e02s02`, own venv. Six tasks run RED-first, in
+  frozen order, each flip citing the new test node IDs (ruling D3).
+- Commits (`Story: e02s02` trailer on each; no merge, no push):
+  - `chore(specs)` cockpit pickup (orchestrator's epic_cycle.step=4, untouched)
+  - T1 `test(graph)` RED 6c4a702 → `feat(graph)` bcf0352 — `gate=<mode>` joins
+    `_run_signature` (one line; trading_graph.py 651 → 652).
+  - T2 `test(cli)` RED 790cea3 → `feat(cli)` da4c0b9 — new `cli/gate_policy.py`
+    (prompt step 5b, env precedence) + `debate_gate` in `cli/prefs.py`; report
+    surfaces moved unchanged to `cli/complete_report.py` to satisfy the 1460 cap
+    (main.py 1460 → 1407).
+  - T3 `test(cli)` RED 1950fc1 → `feat(cli)` 3257359 — new `cli/stream_handler.py`
+    owns the per-chunk status mapping; `skipped` is terminal for Bull/Bear
+    (main.py → 1276).
+  - T4 `test(reporting)` RED a772d4f → `feat(reporting)` 265d820 —
+    `render_debate_gate_section` in `tradingagents/reporting.py`, used by the saved
+    report tree and the CLI complete-report display.
+  - T5 `test(cli)` bfe3b9c — end-to-end auto-mode skip through the CLI surfaces.
+- Preflight (T6): 1021 passed / 2 skipped / 88 subtests, ruff clean, twice.
+  FLAKE SIGHTING #4: the first run of this leg failed the known one-shot
+  `TestLoadOhlcvNoPoison` case; the isolated `--tb=long` capture attempt PASSED
+  (no traceback) and both full runs after it were green. Routed, not a story defect.
+- Rulings applied: D1 (skip-vs-held keyed on the debate transcript via
+  `cli.stream_handler.debate_was_skipped` and `reporting.render_debate_gate_section`,
+  never on `debate_gate_verdict` presence/text — spec line 55 ruled wrong), D2 (the
+  report re-renders the persisted marker; no new AgentState field), D3 (per-task
+  `red_tests:`/`added_tests:` evidence in the ledger), D4 (all new CLI code in new
+  modules; `cli/main.py` shrank by 184 lines), D5 (no fabricated RED for the
+  already-landed P3-01 logging), D6 (ledger verify commands authoritative).
+- NEXT: step 5 verify-work.

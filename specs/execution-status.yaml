@@ -62,8 +62,8 @@ stories:
     bcps: 5
     epic: e02
     tasks_total: 6
-    tasks_passing: 0
-    tasks_failing: 6
+    tasks_passing: 6
+    tasks_failing: 0
     risk_max: P1
     started_at: '2026-09-20T07:42:23Z'
   e02s03:
