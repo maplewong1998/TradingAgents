@@ -295,3 +295,44 @@ and the compare URL emitted for manual PR creation. `main` untouched
   and `gh` is absent, so `release.ci_verified: false` is recorded in state.yaml. The
   user/orchestrator must read the PR's checks on GitHub before any merge decision —
   local Preflight is green but that is not the same fact.
+
+## 2026-09-20 — steps 7-8 PASS (story_ops cd1ea0ca); e02s01 awaits merge decision
+
+- story_ops verdict: step 7 pass (PR title/body drafted; feat(agents) ⇒ MINOR; all 21
+  branch commits conventional, no AI attribution), step 8 pass in team-pr mode:
+  branch pushed to origin at fcd59ec (fork; main untouched at 2d17df8), compare URL
+  https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02-conditional-debate-gate
+  landed=false pending USER merge approval (Safety gate). gh absent ⇒ CI unverified
+  (release.ci_verified: false recorded).
+- Bookkeeping committed: execution-status e02s01 done (completed_at 05:35:10Z), spec
+  header done, epic capsule mirrored, cycle metrics 73.5 min / 6.53 BCP-per-hour
+  (state + execution-status + cycle-times.yaml), lock released, handoff → e02s02.
+  Final-tip validation: 1002 passed / 2 skipped, ruff clean, G-12 PASS, locks clean,
+  trace 5/5 tagged 0 dark 0 orphan.
+- LESSONS routed (orchestrator record):
+  1. Step-8 must flip SoT + epic capsule in the SAME pass (G-12 fails otherwise).
+  2. Adopt a `Story: <id>` commit trailer in develop/story_ops commit templates so
+     record-cycle-time.sh can attribute stories deterministically (this story's
+     ledger row is wall-clock-labelled).
+  3. Hygiene deviation accepted: 0a5ad70 also carries build-epic §9b OKF refresh
+     output (specs/conventions-wiki/, specs/agent-guide/) — skill-mandated pre-step-8.
+  4. Untracked specs/blind-spots.json left by story_ops tooling — commit with next
+     story's hygiene pass.
+- Next: user Safety decision on merge; then roster begin e02s02 e02 (fresh residents)
+  with the gate's standing requirement: e02s02 MUST mirror the graph shape into
+  _run_signature (IMPACT_LATEST.md:48).
+
+## 2026-09-20 — Safety gate: user approved local merge; landing in flight
+
+- ask_user_question answers: merge_decision = "Merge locally now" (squash into main,
+  push origin main, CI-unverified accepted); next_story = "Yes, proceed automatically".
+- story_ops (cd1ea0ca) re-tasked: commit blind-spots.json on branch → squash-merge to
+  main with subject "feat(agents): gate the bull/bear debate on analyst evidence
+  tension" + `Story: e02s01` trailer (attribution lesson adopted) → Preflight on main
+  must be green before push → push origin main → bookkeeping (state.yaml branch/head/
+  pr.merged/merge_ref, cycle-time re-attribution if the trailer works) → stay on main.
+  Branch kept (no deletion without user request). No tag.
+- On landed=true notice: roster begin e02s02 e02 (fresh residents), dispatch new
+  story_ops for steps 1-2 (survey-context + plan-work), with the gate's standing
+  requirement queued for e02s02 planning/develop: mirror graph shape into
+  _run_signature (IMPACT_LATEST.md:48).
