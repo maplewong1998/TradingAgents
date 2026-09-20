@@ -38,8 +38,8 @@ metrics:
   story_end: '2026-09-20T09:56:34Z'
   cycle_minutes: 75.5
   bcp_per_hour: 2.39
-  effort_hours: 0.98             # git-hours via the `Story: e02s03` trailers (record-cycle-time.sh, additivity PASS)
-  lead_time_minutes: 59
+  effort_hours: 1.77             # git-hours via the `Story: e02s03` trailers (record-cycle-time.sh, additivity PASS)
+  lead_time_minutes: 106
   attributed_by_trailer: true
   cycle_time_source: wall-clock + git-hours
   skill_timings:
@@ -93,7 +93,7 @@ handoff:
     specs/fleet-agents.yaml were root-only changes and merged cleanly. Preflight on main BEFORE the push:
     1027 passed / 2 skipped / 88 subtests, ruff clean, validate-specs-yaml OK, serial behind a clean ps
     pre-check. Pushed main 37dbc93..26f3916 (ordinary push, no force, no tag). Git-effort is real:
-    `record-cycle-time.sh report --range 37dbc93..HEAD` -> e02s03 0.98 h / 23 commits / 59 min coding
+    `record-cycle-time.sh report --range 37dbc93..HEAD` -> e02s03 1.77 h / 24 commits / 106 min coding
     span, ADDITIVITY PASS against the whole-range oracle — the merge-commit landing did what e02s01's
     squash could not (0.0 h). Worktree .worktrees/e02s03 removed after `git merge-base --is-ancestor
     feat/e02s03 main` and a clean TRACKED tree; local and remote branches feat/e02s03 kept (e02s01/e02s02
