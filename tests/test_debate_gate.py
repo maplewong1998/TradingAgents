@@ -1057,3 +1057,67 @@ def test_the_complete_report_display_carries_the_gate_section(monkeypatch):
     shown = rendered.getvalue()
     assert "Debate Gate" in shown
     assert "All four reports point the same way." in shown
+
+
+# ---------------------------------------------------------------------------
+# Gate decisions are observable at INFO (e02s02, SC-e02s02-P3-01)
+#
+# The frozen scenario asks for the verdict + rationale at INFO *with the ticker
+# context*, matching the failure WARNING. A decision nobody can attribute to an
+# instrument is not auditable in a log that interleaves concurrent runs.
+# ---------------------------------------------------------------------------
+
+_GATE_LOGGER = "tradingagents.agents.gate.debate_gate"
+
+
+def _info_text(caplog) -> str:
+    infos = [r for r in caplog.records if r.levelno == logging.INFO]
+    assert infos, "the gate decision must be observable at INFO, not only on failure"
+    return " ".join(r.getMessage() for r in infos)
+
+
+@pytest.mark.unit
+def test_gate_logging_names_the_ticker_and_the_rationale_on_a_skip(caplog):
+    # scenario: SC-e02s02-P3-01 — skip: the alignment finding and whose run it is.
+    llm = _GateLLM(result=_hold_verdict())
+    state = _state(company_of_interest="MSFT")
+
+    with _policy("auto"), caplog.at_level(logging.INFO, logger=_GATE_LOGGER):
+        command = create_debate_gate(llm)(state)
+
+    assert _routed(command) == RM
+    text = _info_text(caplog)
+    assert _hold_verdict().rationale in text
+    assert "MSFT" in text
+    # A skip is a decision, not a failure: nothing here is a warning.
+    assert not [r for r in caplog.records if r.levelno >= logging.WARNING]
+
+
+@pytest.mark.unit
+def test_gate_logging_names_the_ticker_on_a_policy_skip(caplog):
+    # scenario: SC-e02s02-P3-01 — the configuration path logs too (no judge call).
+    llm = _GateLLM(result=_hold_verdict())
+    state = _state(company_of_interest="TSLA")
+
+    with _policy("never"), caplog.at_level(logging.INFO, logger=_GATE_LOGGER):
+        command = create_debate_gate(llm)(state)
+
+    assert _routed(command) == RM
+    assert llm.invocations == 0
+    text = _info_text(caplog)
+    assert "TSLA" in text
+    assert "never" in text  # which policy stopped it
+
+
+@pytest.mark.unit
+def test_gate_warning_still_names_the_ticker_on_failure(caplog):
+    # The failure path was already correct; the INFO half had to catch up to it.
+    llm = _GateLLM(error=RuntimeError("provider exploded"))
+
+    with _policy("auto"), caplog.at_level(logging.INFO, logger=_GATE_LOGGER):
+        command = create_debate_gate(llm)(_state(company_of_interest="NVDA"))
+
+    assert _routed(command) == BULL
+    warnings = [r for r in caplog.records if r.levelno >= logging.WARNING]
+    assert warnings
+    assert any("NVDA" in r.getMessage() for r in warnings)
