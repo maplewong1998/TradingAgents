@@ -1,0 +1,92 @@
+story_id: e02s02
+epic_id: e02
+round: 2
+verified_at: "2026-09-20T09:1x:xxZ"
+verifier: verify-work (resident verify child, build-epic step 5, round 2 — re-entry on the same worktree)
+worktree: /home/maplewong1998/Repository/TradingAgents/.worktrees/e02s02
+branch: feat/e02s02
+tip: efb751771451b7353615e828f4f1b5553a376620
+round1_tip: e9d4f265be3c7df9d8e5ea17bcd3fce4c9e486a6
+risk: P1
+mode: read-only judge (no file in either tree modified; scratch in /tmp only)
+overall_verdict: pass
+delta_files: "tradingagents/agents/gate/debate_gate.py, tests/test_debate_gate.py, tests/test_no_data_handling.py, specs/bugs/BUG-2026-09-20-no-data-handling-live-vendor-probe.md, specs/bugs/registry.yaml, specs/epics/e02-conditional-debate-gate/e02s02-tasks.yaml, specs/state.yaml, progress.md — git diff --name-only e9d4f26..HEAD"
+
+phases:
+  cold_start:
+    verdict: pass   # re-run, not carried
+    commands:
+      - "env -i ... .venv/bin/python -c import tradingagents, trading_graph, agents.gate.debate_gate, cli.main, cli.gate_policy, cli.stream_handler, cli.complete_report, tradingagents.reporting -> all imports OK"
+      - "env -i ... .venv/bin/tradingagents --help -> exit 0"
+  preflight:
+    verdict: pass
+    run1: {command: ".venv/bin/python -m pytest -q --tb=long", result: "1024 passed, 2 skipped, 22 warnings, 88 subtests passed in 3.64s", exit_code: 0, capture: /tmp/e02s02_r2_preflight.txt, concurrency_precheck: empty}
+    run2_task6_leg: {command: ".venv/bin/python -m pytest -q && .venv/bin/python -m ruff check .", result: "1024 passed / 2 skipped / 88 subtests; Ruff: All checks passed!", exit_code: 0, capture: /tmp/e02s02_r2_task6.txt}
+    delta_vs_round1: "1021 -> 1024 passed (+3 INFO logging tests); baseline main 5c7a9ac 1002/2 unchanged"
+    flake: "none observed in either round-2 full-suite run"
+  task_verifies:
+    verdict: pass
+    results:
+      - {task: 1, command: ".venv/bin/python -m pytest -q tests/test_checkpoint_lifecycle.py tests/test_checkpoint_resume.py", result: "15 passed", exit_code: 0}
+      - {task: 2, command: ".venv/bin/python -m pytest -q tests/test_cli_prefs.py tests/test_cli_config_precedence.py tests/test_cli_env_skip.py", result: "32 passed", exit_code: 0}
+      - {task: 3, command: ".venv/bin/python -m pytest -q tests/test_cli_display.py", result: "21 passed", exit_code: 0}
+      - {task: 4, command: ".venv/bin/python -m pytest -q tests/test_debate_gate.py -k 'report or logging'", result: "10 passed, 54 deselected (7 -> 10; +3 logging)", exit_code: 0}
+      - {task: 5, command: ".venv/bin/python -m pytest -q tests/test_cli_display.py tests/test_debate_gate.py -k end_to_end", result: "2 passed, 83 deselected", exit_code: 0}
+      - {task: 6, command: ".venv/bin/python -m pytest -q && ruff check .", result: "1024/2/88 + All checks passed!", exit_code: 0}
+  manual_uat:
+    verdict: pass   # re-run, not carried
+    offline_script: "/tmp/e02s02_uat_offline.py -> 18/18 checks, exit 0 (no provider key available; real gate node, real stream handler, real Rich layout, real report surfaces, real env precedence)"
+    script_items: {1: "15 passed", 2: "53 passed (prefs/config/env/display)", 5: "full Preflight green"}
+  acceptance_criteria:
+    verdict: pass
+    P3_01:
+      status: "CLOSED — was the round-1 failure"
+      new_tests:
+        - "tests/test_debate_gate.py::test_gate_logging_names_the_ticker_and_the_rationale_on_a_skip — INFO text carries the rationale AND 'MSFT'; asserts no WARNING record on a skip"
+        - "tests/test_debate_gate.py::test_gate_logging_names_the_ticker_on_a_policy_skip — 'never' policy INFO carries 'TSLA' and 'never', with llm.invocations == 0"
+        - "tests/test_debate_gate.py::test_gate_logging_warning_still_names_the_ticker_on_failure — WARNING path still names 'NVDA' (pre-existing behavior pinned)"
+      implementation: "tradingagents/agents/gate/debate_gate.py:182-184 (skip INFO) and :205-207 (policy-skip INFO) log _instrument(state); _instrument(state) at :238-244 returns state['company_of_interest'] or 'the instrument'; _fail_safe (:227-231) now calls the same helper, whose expansion is byte-identical to the previous WARNING argument"
+      red_first: "tree e9d4f26 (=909a7b5^) + the tip's test file, strict isolation: 2 failed / 1 passed; assertion excerpts 'assert MSFT in \"Debate Gate: skipping the debate -- All four reports point the same way.\"' (test_debate_gate.py:1091) and 'assert TSLA in \"Debate Gate: skipping the debate by configuration (debate_gate=never)\"' (:1108). At 909a7b5 itself (test-only commit, pre-fix source): 2 failed / 1 passed."
+    other_five:
+      status: "untouched by the delta and re-run green — P1-01 (15 in test_checkpoint_lifecycle/resume), P1-02 (test_cli_config_precedence + test_cli_env_skip), P2-01 (test_cli_display 21), P2-02 (5 report tests in test_debate_gate), P2-03 (test_cli_prefs)"
+  regressions:
+    verdict: pass
+    commands:
+      - {command: "pytest -q <the 8 round-1 named files>", result: "138 passed (135 + the 3 new logging tests)"}
+      - {command: "pytest -q tests/test_debate_gate.py -k 'fail_safe or routes_to_the_debate or routes_past_the_debate or policy or node_sequence or process_signal'", result: "24 passed (e02s01 SC-P0-01 WARNING/fail-safe + routing matrix intact)"}
+      - {command: "pytest -q tests/test_no_data_handling.py", result: "3 passed"}
+  house_rules:
+    verdict: pass
+    checks:
+      - "delta commits: 909a7b5 test(agents) [Story: e02s02], 7526937 fix(agents) [Story: e02s02], 7aae193 fix(tests) [Bug: BUG-2026-09-20-no-data-handling-live-vendor-probe, no Story trailer — separate quick-fix as declared], efb7517 chore(specs) [Story: e02s02]"
+      - "no merge commits in the delta; feat/e02s02 still has no upstream (not pushed); worktree clean apart from the orchestrator-owned specs/state.yaml cockpit edit"
+      - "caps intact: tradingagents/agents/gate/debate_gate.py 256 (< 300), cli/main.py 1276 (<= 1460), tradingagents/graph/trading_graph.py 652 (<= 672)"
+      - "the changed private helpers have no external callers: _skip/_skip_by_policy are called only at debate_gate.py:98 and :166 (grep of tests/ and tradingagents/)"
+      - "WARNING path untouched: the _fail_safe argument changed to _instrument(state), which is the identical expression previously inlined (diff review); tests/test_debate_gate.py::test_gate_exception_is_fail_safe_and_logged passes"
+  rulings_compliance:
+    verdict: pass
+    D3: "909a7b5 is test-only (64 added lines, one file: tests/test_debate_gate.py) and fails against 7526937^ — proven twice under editable-finder-neutralised isolation (/tmp/e02s02_iso_site/sitecustomize.py)"
+    D5: "the round-1 gap is closed rather than waived: the INFO half is now implemented and asserted; no RED was fabricated for the pre-existing WARNING half — its test was added as a guard and passes at both trees"
+    D1_D2_D4: "not touched by the delta (no cli/, no reporting.py, no agent_states.py, no checkpoint code in git diff --name-only e9d4f26..HEAD); round-1 verification carries"
+  quickfix_audit:
+    verdict: pass
+    commit: 7aae193
+    scope: "test-only + BUG spec + registry entry (tests/test_no_data_handling.py +12 lines, all inside setUp)"
+    assertion_integrity: "the test body is unchanged: still assertRaises(NoMarketDataError), still assertEqual(os.listdir(self._tmp), []) and the second-call re-fetch check — nothing weakened, no skip/xfail"
+    stub_scoping: "mock.patch.object(stockstats_utils, 'vendor_reachable', return_value=True) started in setUp and undone via addCleanup(self._reachable.stop); independent in-process check (pytest.main on the module, then identity comparison) shows vendor_reachable is restored afterwards: True/function"
+    hermeticity_rederived:
+      pre_fix_tree_e9d4f26_probe_blocked: "1 failed, 2 passed — VendorRateLimitError at stockstats_utils.py:39 (deterministic reproduction, matches the /tmp/e02s02_baseline_run.txt capture)"
+      post_fix_tip_probe_blocked: "3 passed"
+      post_fix_tip_normal: "3 passed"
+      method: "/tmp/e02s02_blockhead/sitecustomize.py patches requests.head to raise ConnectionError at interpreter start (utils imports the requests module, so vendor_reachable is affected)"
+    bug_artifact: "specs/bugs/BUG-2026-09-20-no-data-handling-live-vendor-probe.md in house format (status/severity/route/symptom/root cause/capture/deterministic reproduction/fix/regression guard/follow-up/verify) with the round-1 capture embedded including the failing run's '1 failed, 1001 passed, 2 skipped, 88 subtests passed in 3.84s'; registry.yaml entry carries id/severity/status/route/summary/follow_up and credits the capture. Follow-ups routed to e02s03/quick-fix (tests/_tmp_cache ignore; injectable reachability check)."
+  flake:
+    status: "resolved by the audited quick-fix; no capture needed this round (both full-suite runs green)"
+    capture_from_round1: /tmp/e02s02_baseline_run.txt
+    resolution: "test-only stub of the live probe; production behavior unchanged and still covered by the outage path"
+
+terminal_verdict:
+  command: ".venv/bin/python -m pytest -q && .venv/bin/python -m ruff check ."
+  exit_code: 0
+  captured_at: "2026-09-20T09:0x:xxZ"
+  note: "single contiguous run in the worktree behind an empty ps-based pytest pre-check"

@@ -520,3 +520,24 @@ and the compare URL emitted for manual PR creation. `main` untouched
   delta house rules, explicit carry-forward of round-1 passing phases.
 - Outstanding routed (e02s03/quick-fix): tests/_tmp_cache gitignore/ban (kept open in
   the new BUG spec's follow-up).
+
+## 2026-09-20 — e02s02 verify r2 PASS; gate r1 dispatched
+
+- verify (b0a6a107) r2: PASS all 9 phases @ efb7517. Preflight reproduced 1024/2 (+3 =
+  the new logging tests); T4 verify 7→10; acceptance_criteria CLOSED (INFO ticker
+  assertions substantive: skip=MSFT+rationale+no-WARNING, policy-skip=TSLA+never+0 LLM
+  calls, WARNING still NVDA); RED-first re-proven under editable-finder-neutralised
+  isolation (2 failed/1 passed at e9d4f26+tip tests AND at 909a7b5); quick-fix 7aae193
+  audited test-only, assertion intact, stub scoped+restored, hermeticity independently
+  re-derived with requests.head blocked (pre-fix 1F/2P → post-fix 3P both ways);
+  regressions 138 + e02s01 subset 24 + no_data_handling 3; caps 256/1276/652.
+  Evidence archived: specs/verifications/e02s02-verify-r2.yaml (root main).
+- A10 routed (non-blocking): ledger cites post-rename node ID for the round-2 RED test
+  (renamed inside GREEN, body unchanged); _tmp_cache ignore + injectable reachability
+  → e02s03/quick-fix.
+- state: epic_cycle.step=6, next_skill=audit-code (root committed; worktree edit
+  uncommitted — story_ops step 7 folds it).
+- gate resident started (NEW for e02s02): bbf65d1c-e6ab-449f-b0dd-132060eb14a4 —
+  audit-code --gate + >=94% AND gate over git diff 5c7a9ac..efb7517 (17 commits),
+  A10 scoping, D1-D6 + quick-fix precedent declared adjudicated, report to
+  specs/verifications/AUDIT-e02-e02s02.md IN THE WORKTREE (lands with the branch).
