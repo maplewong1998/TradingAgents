@@ -867,13 +867,15 @@ def _run(graph):
 
 @pytest.mark.integration
 def test_node_sequence_with_always_matches_the_unconditional_debate():
-    # scenario: SC-e02s01-P0-02 — `always` restores exact prior behavior and the gate
-    # spends nothing; the sequence is the one main produced before this story.
-    graph, llm = _compiled_graph("always")
-    with _policy("always"):
-        visited, _final = _run(graph)
-    assert GATE in visited
-    for node in (
+    # scenario: SC-e02s01-P0-02 — `always` must produce the sequence main produced
+    # before this story, node for node. Presence-plus-ordering would not notice a
+    # dropped second debate round or a re-entered analyst phase, so the pre-story
+    # sequence is pinned exactly.
+    #
+    # Pinned from an independent run of the frozen pre-story code: `git archive
+    # 534782e | tar -x` then the same stub harness against that checkout (its
+    # setup.py contains no "Debate Gate"), which printed exactly this list.
+    pre_story_sequence = [
         "Market Analyst",
         "Msg Clear Market",
         BULL,
@@ -884,9 +886,15 @@ def test_node_sequence_with_always_matches_the_unconditional_debate():
         "Conservative Analyst",
         "Neutral Analyst",
         "Portfolio Manager",
-    ):
-        assert node in visited, f"{node} missing from {visited}"
-    assert visited.index(BULL) < visited.index(BEAR) < visited.index(RM)
+    ]
+
+    graph, llm = _compiled_graph("always")
+    with _policy("always"):
+        visited, _final = _run(graph)
+
+    # The only permitted addition is the gate hop itself, taken exactly once.
+    assert visited.count(GATE) == 1
+    assert [node for node in visited if node != GATE] == pre_story_sequence
     assert llm.prompts == []  # zero judge calls
 
 
