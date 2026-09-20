@@ -821,3 +821,16 @@ and the compare URL emitted for manual PR creation. `main` untouched
 - On gate r2 PASS: trace refresh → story_ops steps 7-8 (landing note: main now
   34c1652+, branch base 276cfc4 — branch-copy-wins state.yaml reconcile) → user
   Safety gate (merge-commit default) → epic e02 closes → Phase 5 VERIFY.
+
+## 2026-09-20 — e02s03 gate r2 child FAILED mid-turn; resumed per rule 8
+
+- Gate resident 8a6c1d36 (e02s03 r2 delta re-check) failed before finishing. Rule-8
+  recovery: list_agents once → id PRESENT [ready]; worktree report carries its
+  appended round-2 section (UNCOMMITTED, append-only, round 1 intact) concluding
+  GATE r2: PASS, score 100, hard sections all PASS, 6/6 routed notes closed + O2,
+  Preflight 1027/2/88 re-derived at tip.
+- Action: ONE resume send_message to the SAME id (no respawn — reuse rule) asking only
+  for the structured verdict JSON; report file left uncommitted for story_ops step-7
+  hygiene. Worktree otherwise clean at bc376b6; root on main, clean.
+- On its verdict notice: trace refresh → story_ops (608064ee) steps 7-8 → user Safety
+  gate (merge-commit default) → epic e02 closes → Phase 5 VERIFY.
