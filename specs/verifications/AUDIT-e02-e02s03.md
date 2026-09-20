@@ -196,3 +196,78 @@ Found by this audit (new instances, same A10 class):
 - Record-integrity findings: 6 routed (R1–R6), non-blocking per ruling A10, fix-forward recommended — R4/R6 are user-facing README/CHANGELOG sentences and R1/R2/R5 are tech-stack figures; all six are one-line edits that can land in a single docs fix-forward commit.
 
 **GATE e02/e02s03 round 1: PASS.** Next per audit-code handoff: the epic's step-6 gate is satisfied; `request-review`'s 94% AND-gate is met by score 100 + zero hard-section FAILs.
+
+---
+
+# Round 2 — delta-only re-check (tip bc376b6)
+
+```yaml
+round: 2
+audited_at: '2026-09-20'
+base_of_delta: e53ee9d (round-1 audited tip)
+tip: bc376b6
+delta_commits: 2 (1d33a59 docs(specs) six-note fix-forward + AUDIT commit; bc376b6 chore(specs) round-2 record) — both Conventional Commits, both Story: e02s03
+verdict: pass
+score: 100
+hard_sections: {code: PASS, test: PASS, security: PASS}
+```
+
+## 1. Delta shape — docs/records ONLY ✓
+
+`git diff --name-status e53ee9d..bc376b6`: AGENTS.md, CHANGELOG.md, README.md,
+specs/epics/.../e02s03-tasks.yaml (comment-only round-2 note; task statuses unchanged at passing),
+specs/state.yaml (cockpit record), specs/tech-architecture/tech-stack.md, +
+specs/verifications/AUDIT-e02-e02s03.md (ADDED — the round-1 report committed to the branch).
+**Zero product-code or test-logic change**: no cli/, tradingagents/, tests/, .env.example,
+CONVENTIONS.md, pyproject.toml, .gitignore or scripts/ file appears in the delta. The round-1
+code/test/security derivations (QF-A hunk, F.I.R.S.T, secrets scan, caps, boundaries) therefore
+stand unchanged at this tip; the gate code anchors were nonetheless re-checked (see §2).
+R3 deliberately not edited per ruling — the docs still state only the defensible primary 31
++ breakdown (14/11/6/0), which re-measures exactly at this tip.
+
+## 2. The six routed notes + O2 — each edit landed and each restated figure re-derived TRUE at bc376b6
+
+| Note | Edit as landed | Re-derivation at tip | Verdict |
+|---|---|---|---|
+| R1 | tech-stack.md:140 "73"→"72 `console.print(...)` calls" | `grep -rn 'console.print' cli/ \| wc -l` → 72 | ✓ closed |
+| R2 | tech-stack.md:146 "75 test files, 428 `pytest.mark.unit` tests"; :184 "428 unit tests over 12612 source lines" | `ls tests/*.py \| wc -l` → 75; `grep -rn pytest.mark.unit tests/ \| wc -l` → 428; `find tradingagents cli -name '*.py' \| xargs wc -l` → 12612 | ✓ closed |
+| R4 | README.md:193 "ends with"→"picks up the **Debate Gate Policy** step right after Research Depth, before the provider and thinking-agent steps" | cli/main.py: Step 5 :623 → Step 5b :645 → Step 6 provider :653 → Step 7 thinking agents :708 → Step 8 :730 (code unchanged in delta; positions re-grepped) — "right after Research Depth" and "before the provider and thinking-agent steps" both TRUE | ✓ closed |
+| R5 | tech-stack Signal 1 "by 2×"→"by ~1.8×" | 1276/718 = 1.78 → "~1.8×" TRUE (cli/main.py untouched by the delta; 1276 stands from round 1's wc -l) | ✓ closed |
+| R6 | CHANGELOG.md:29 thin/missing report moved OUT of the WARNING list: now "judged `low` and holds the debate without a warning"; WARNING scoped to "a judge that fails (an exception, a `None`, an unparseable payload)" | debate_gate.py:153-157 skip-rule rejection returns the hold Command with no logging (re-read at tip); `_fail_safe` WARNING at :227 (re-read at tip); matches the README:272 model wording the note prescribed | ✓ closed |
+| O2a | AGENTS.md cli/** row "1460-line"→"1276-line module" | AGENTS.md:18 grep ✓; wc -l cli/main.py = 1276 (round 1, file untouched since) | ✓ closed |
+| O2b | tech-stack Signal 2 run-signature list gains "`gate=<debate_gate mode>`" | trading_graph.py:413 `f"gate={self.config.get('debate_gate', 'auto')}"` — list now analysts/debate/risk/asset/portfolio/gate = exact code match | ✓ closed |
+
+Residual nit (optional, non-blocking, pre-existing code untouched): the CHANGELOG Added bullet's
+"Gate decisions log at INFO" remains true for both skip paths (:182, :205) and failures log WARNING
+(:227), but the judged-hold branch (:153-164) emits no gate log line; the operative claim "a silent
+skip is never the outcome" is TRUE. A future wording tweak ("Gate *skips* log at INFO") would close
+it; nothing in this delta was required to. Cosmetic only — AGENTS.md §Test still says "74 test files"
+under the exclude-conftest convention while tech-stack now says 75 by `ls tests/*.py`; the two counts
+use different stated methods and each is internally consistent — no action.
+
+## 3. Committed AUDIT report integrity ✓
+
+`git diff HEAD -- specs/verifications/AUDIT-e02-e02s03.md` → empty (worktree == committed blob);
+198 lines; head/tail match the round-1 text as written by this auditor; zero occurrences of
+"round 2" before this appended section. The branch carries the **unmodified** round-1 report.
+
+## 4. Preflight re-run at tip (worktree .venv, serial, behind the ps ritual) ✓
+
+`ps -eo pid,args | grep -E "[p]ython -m pytest" | grep -v "bash -c"` → empty, then
+`.venv/bin/python -m pytest -q && .venv/bin/ruff check . && bash scripts/validate-specs-yaml.sh`
+→ **1027 passed, 2 skipped, 22 warnings, 88 subtests, 3.12s**; `All checks passed!`;
+`validate-specs-yaml: OK`. The same 2 expected skips. Develop's round-2 numbers reproduce exactly.
+
+## 5. Score and verdict
+
+Checklist unchanged from round 1 (41 items, docs-only delta): every section re-affirmed —
+Supply Chain & Security (no secrets in the delta; docs-only wording), Scope (delta implements
+exactly the ruled six notes + O2, nothing else), Boy Scout (figures now match the tree),
+Provenance (ledger round-2 note is comment-only; both commits carry Story trailers),
+Test Coverage / Types / SOLID / Style unaffected (no code or test change).
+
+`score = round(100 * 41 / 41) = 100`. Hard sections: code PASS, test PASS, security PASS.
+Open HIGH security findings: 0. Record-integrity findings: 6/6 routed notes closed by this delta
+(+ O2), one optional residual nit listed above — nothing open that blocks.
+
+**GATE e02/e02s03 round 2: PASS.** Step-6 gate satisfied for the final story of epic e02.

@@ -59,7 +59,7 @@ metrics:
 epic_cycle:
   ship_epic_step: null
   story_bcps: 3
-  step: 4
+  step: 7
   completed_steps: 1,2 (frozen-plan verification/refresh pass — 5/5 tasks intact, 0 rewrites); 3 (kickoff-branch
     — worktree + branch, root and worktree Preflight green); 4 (develop-tdd round 1 — 5/5 docs tasks GREEN,
     3 quick-fixes landed, final Preflight green; ledger flipped)
@@ -70,30 +70,30 @@ epic_cycle:
   metrics:
     story_start: '2026-09-20T08:41:06Z'
 handoff:
-  next_skill: audit-code
+  next_skill: commit-message
   e02s03_develop_tdd_round2:
     result: PASS
     round: 2
     tip: 1d33a59
     story: e02s03
-    trigger: "six non-blocking A10 routing notes from the gate round 1 (AUDIT-e02-e02s03.md, score 100,
+    trigger: 'six non-blocking A10 routing notes from the gate round 1 (AUDIT-e02-e02s03.md, score 100,
       record-integrity section) landed as ONE docs-only fix-forward commit before steps 7-8: R1 console.print
-      73 -> 72, R2 test files/unit tests/source lines -> 75/428/12612 at the same method, R4 README
-      walkthrough position (Step 5b, not the end), R5 Signal 1 ratio 2x -> ~1.8x, R6 CHANGELOG thin-report
-      logging claim, and O2 (AGENTS.md cli/** 1460 -> 1276 lines; tech-stack Signal 2 gains gate=<debate_gate
+      73 -> 72, R2 test files/unit tests/source lines -> 75/428/12612 at the same method, R4 README walkthrough
+      position (Step 5b, not the end), R5 Signal 1 ratio 2x -> ~1.8x, R6 CHANGELOG thin-report logging
+      claim, and O2 (AGENTS.md cli/** 1460 -> 1276 lines; tech-stack Signal 2 gains gate=<debate_gate
       mode>). R3 needed no edit — the doc states only the primary 31 markers plus its breakdown, and the
-      audit's own note says nothing depends on the disowned 39."
-    commit: "1d33a59 docs(specs): restate the six routed record-integrity notes at tip"
-    scope: "AGENTS.md, CHANGELOG.md, README.md, specs/tech-architecture/tech-stack.md, the ledger note,
+      audit''s own note says nothing depends on the disowned 39.'
+    commit: '1d33a59 docs(specs): restate the six routed record-integrity notes at tip'
+    scope: AGENTS.md, CHANGELOG.md, README.md, specs/tech-architecture/tech-stack.md, the ledger note,
       specs/state.yaml (folds the orchestrator's uncommitted next_skill=audit-code edit and reflow untouched;
       epic_cycle.step stays 4), and the round's audit report committed onto the branch so landing cannot
-      lose it. No code, no test, no ledger-semantics change — statuses stay 5/5 passing."
-    verifies: "T1 0, T2 0, T3 0, T4 0 (all four grep gates re-run on the edited tree, since tasks 1/3/4
-      grep CHANGELOG/README/tech-stack, the three edited files the orchestrator named)"
-    preflight: "1027 passed / 2 skipped / 88 subtests, ruff clean, validate-specs-yaml OK — serial, exit 0,
-      behind the ps-based pytest concurrency pre-check. TestLoadOhlcvNoPoison never failed."
-    note_on_next_skill: left as the orchestrator set it (audit-code). Cycle-wise step 6 already passed this
-      round, so the next forward step is 7 commit-message — reported, not silently changed.
+      lose it. No code, no test, no ledger-semantics change — statuses stay 5/5 passing.
+    verifies: T1 0, T2 0, T3 0, T4 0 (all four grep gates re-run on the edited tree, since tasks 1/3/4
+      grep CHANGELOG/README/tech-stack, the three edited files the orchestrator named)
+    preflight: 1027 passed / 2 skipped / 88 subtests, ruff clean, validate-specs-yaml OK — serial, exit
+      0, behind the ps-based pytest concurrency pre-check. TestLoadOhlcvNoPoison never failed.
+    note_on_next_skill: left as the orchestrator set it (audit-code). Cycle-wise step 6 already passed
+      this round, so the next forward step is 7 commit-message — reported, not silently changed.
   e02s03_develop_tdd_round1:
     result: PASS
     round: 1
