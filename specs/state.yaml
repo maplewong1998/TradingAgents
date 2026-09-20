@@ -6,7 +6,7 @@ test_plan: required
 vcs:
   kind: git
   branch: main
-  head: 71bf36b   # the e02s02 MERGE COMMIT (merge-commit landing on the user's explicit choice)
+  head: 71bf36b
 pr:
   mode: team-pr
   url: https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s02
@@ -16,33 +16,31 @@ pr:
   pushed_range: 3bb54bd..71bf36b (main) + main..feat/e02s02 (branch)
   merged: true
   merge_ref: 71bf36b
-  merged_locally: true          # no PR object: `gh` is absent, so the user's Safety gate chose a local MERGE COMMIT (not the team-pr squash default) to keep git-effort attribution
+  merged_locally: true
 git:
   branch: main
-  worktree: null                # .worktrees/e02s02 removed after the landing (ancestry + clean-tree checks passed)
+  worktree: null
 release:
   last_tag: null
   last_publish: null
   target_version: null
   ci_verified: false
-  ci_verified_reason: gh absent — accepted by explicit user decision (CI unwatched from this workstation;
-    the local Preflight on main before the push was green and no PR object exists)
+  ci_verified_reason: gh absent — accepted by explicit user decision (CI unwatched
+    from this workstation; the local Preflight on main before the push was green and
+    no PR object exists)
 metrics:
   story_start: '2026-09-20T08:41:06Z'
   story_end: null
   cycle_minutes: null
   bcp_per_hour: null
-  # e02s02 closed records (kept for history): wall-clock 55.5 min / 5.41 bcp_per_hour;
-  # git-hours 0.77 effort_hours via Story: e02s02 trailers under the merge-commit landing
-  # 71bf36b (additivity PASS). See specs/metrics/cycle-times.yaml.
   effort_hours: null
   attributed_by_trailer: null
   cycle_time_source: null
   skill_timings:
     plan-work:
-      calls: 1
+      calls: 2
       total_seconds: 526.0
-      avg_seconds: 526.0
+      avg_seconds: 263.0
     release-branch:
       calls: 1
       total_seconds: 60.0
@@ -51,11 +49,16 @@ metrics:
       calls: 1
       total_seconds: 482.0
       avg_seconds: 482.0
+    survey-context:
+      calls: 1
+      total_seconds: 74.0
+      avg_seconds: 74.0
 epic_cycle:
   ship_epic_step: null
   story_bcps: 3
-  step: 1
-  completed_steps: null
+  step: 2
+  completed_steps: 1,2 (frozen-plan verification/refresh pass — 5/5 tasks intact,
+    0 rewrites)
   audit_result: null
   verify_result: null
   story_status: todo
@@ -63,15 +66,15 @@ epic_cycle:
   metrics:
     story_start: '2026-09-20T08:41:06Z'
 handoff:
-  next_skill: survey-context
-  note: 'e02s03 cycle opened by the orchestrator 2026-09-20T08:41Z (user decision: proceed
-    automatically after the e02s02 merge-commit landing 71bf36b). Story: Docs + knowledge
-    refresh (CHANGELOG, .env.example, README, tech-stack, glossary), 3 bcps, risk P2,
-    delta ADDED, 5 frozen tasks in specs/epics/e02-conditional-debate-gate/e02s03-docs.md
+  next_skill: kickoff-branch
+  note: 'e02s03 cycle opened by the orchestrator 2026-09-20T08:41Z (user decision:
+    proceed automatically after the e02s02 merge-commit landing 71bf36b). Story: Docs
+    + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary), 3
+    bcps, risk P2, delta ADDED, 5 frozen tasks in specs/epics/e02-conditional-debate-gate/e02s03-docs.md
     + e02s03-tasks.yaml. The e02s03 ROUTED QUEUE lives in handoff.release_branch_step8
-    below (items 1-7 + standing A10 record items) — step 2 must map each queue item to
-    a frozen task or report it as a gap for orchestrator ruling; do NOT silently expand
-    scope. Steps 1-2 dispatched to a fresh story_ops resident.'
+    below (items 1-7 + standing A10 record items) — step 2 must map each queue item
+    to a frozen task or report it as a gap for orchestrator ruling; do NOT silently
+    expand scope. Steps 1-2 dispatched to a fresh story_ops resident.'
   develop_tdd_round1:
     result: PASS
     round: 1
@@ -80,72 +83,106 @@ handoff:
     result: PASS
     round: 2
     tip: 7aae193
-    trigger: 'verify round 1 failed acceptance_criteria: SC-e02s02-P3-01 INFO half (no INFO assertion,
-      no ticker context)'
-    fixes: 909a7b5 test RED -> 7526937 fix(agents) INFO ticker context; 7aae193 fix(tests) quick-fix BUG-2026-09-20-no-data-handling-live-vendor-probe
-    preflight: 1024 passed / 2 skipped / 88 subtests, ruff clean, run twice behind clean concurrency pre-checks
-      (+22 tests over the 1002/2 baseline — 19 story + 3 round-2 logging)
+    trigger: 'verify round 1 failed acceptance_criteria: SC-e02s02-P3-01 INFO half
+      (no INFO assertion, no ticker context)'
+    fixes: 909a7b5 test RED -> 7526937 fix(agents) INFO ticker context; 7aae193 fix(tests)
+      quick-fix BUG-2026-09-20-no-data-handling-live-vendor-probe
+    preflight: 1024 passed / 2 skipped / 88 subtests, ruff clean, run twice behind
+      clean concurrency pre-checks (+22 tests over the 1002/2 baseline — 19 story
+      + 3 round-2 logging)
     verifies: T1 15, T2 32, T3 21, T4 10, T5 2, tests/test_no_data_handling.py 3
     routed_open: tests/_tmp_cache gitignore entry (rides to e02s03/quick-fix)
     tip_note: vcs.head = 7aae193, the tree the round-2 preflight ran on
     ledger: 6/6 tasks passing, story status passing
-    commits: 6c4a702 test RED T1, bcf0352 feat T1, 790cea3 test RED T2, da4c0b9 feat T2, 1950fc1 test
-      RED T3, 3257359 feat T3, a772d4f test RED T4, 265d820 feat T4, bfe3b9c test T5, ade51ad chore ledger
-      flip
+    commits: 6c4a702 test RED T1, bcf0352 feat T1, 790cea3 test RED T2, da4c0b9 feat
+      T2, 1950fc1 test RED T3, 3257359 feat T3, a772d4f test RED T4, 265d820 feat
+      T4, bfe3b9c test T5, ade51ad chore ledger flip
     new_tests: 19
-    file_caps: cli/main.py 1460 -> 1276 (new cli/gate_policy.py + cli/stream_handler.py, report surfaces
-      moved to cli/complete_report.py); trading_graph.py 651 -> 652 (+1 line)
-    rulings: D1 transcript-based skip discrimination (spec line 55 ruled wrong), D2 no new AgentState
-      field, D3 per-task red_tests evidence in the ledger, D4 new modules for all new CLI code, D5 no
-      fabricated RED for the P3-01 logging, D6 ledger verifies authoritative
-    routed: 'FLAKE SIGHTING #4 of the one-shot TestLoadOhlcvNoPoison class (first full-suite run of this
-      leg; isolated --tb=long attempt passed, so no traceback; both later runs green)'
-  # step 8 (release-branch) record — its own key so it reads as a sibling of the develop
-  # rounds above rather than as part of the round-2 `routed` note.
-  release_branch_step8: >-
-    STEP 8 (release-branch, team-pr decision mode) — 2026-09-20T08:33Z: final Preflight at the reviewed
-    tip 1024 passed / 2 skipped / 88 subtests, ruff clean, serial behind a clean ps-based concurrency
-    pre-check; all 17 story commits conventional, zero co-authored-by trailers, no secret patterns.
-    `gh` is absent, so there is no PR object and no merge: branch feat/e02s02 is pushed to origin as an
-    ordinary (never force) push — compare URL
-    https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s02 — landed=false,
-    merge_ref=null, release.ci_verified=false with the reason recorded. Bookkeeping committed on the
-    branch: execution-status e02s02 done + completed_at + 55.5 min / 5.41 bcp_per_hour; spec header and
-    epic capsule mirrored in the SAME pass (G-12); cycle-times.yaml row on the wall-clock basis (a squash
-    landing degenerates git-effort to 0.0h — choosing a merge-commit landing is the user decision);
-    e02s02 story lock RELEASED; e02 stays in_progress with e02s03 todo.
-    NEXT: e02s03 (Docs + knowledge refresh, 3 bcps, risk P2) starting at step 1 survey-context on epic
-    e02. ROUTED QUEUE for e02s03: (1) CONVENTIONS.md cap-table row cli/main.py 1460 is stale — actual
-    1276 after the e02s02 extraction; refresh during the docs pass. (2) double env notice on the
-    interactive path (cli/gate_policy.py:76-81 and :99-104) when TRADINGAGENTS_DEBATE_GATE is set —
-    values accurate, wording redundant. (3) gitignore or ban tests/_tmp_cache (BUG-2026-09-20-no-data-
-    handling-nonhermetic-cache and the -live-vendor-probe follow-up). (4) injectable reachability check
-    (same BUG follow-up). (5) the ask_debate_gate SystemExit branch is untested. (6) the e02s03 CHANGELOG
-    entry must state the one-time checkpoint-signature churn (`gate=<mode>` invalidates pre-e02s02 threads
-    once), the Debate Gate default-policy change and the restore switch. (7) cover the ask_debate_gate env
-    notice in the env-skip tests. STANDING A10 RECORD ITEMS (unscored, non-blocking): the frozen story
-    spec section 17 direction clause and the Zoom-Out omissions of trading_graph.py and agent_states.py;
-    the state.yaml divergence lists; progress.md at the project root. LANDING NOTE (MAIN DRIFT):
-    origin/main advanced past 5c7a9ac (cockpit commits carrying e02s02-verify-r1.yaml, r2 and the flake
-    capture) while this branch was cut from 5c7a9ac, and BOTH sides edited specs/state.yaml — at the
-    landing the BRANCH copy of specs/state.yaml is authoritative (step-8 record, closed e02s02 metrics,
-    e02s03 handoff), so reconcile main deliberately instead of merging that file textually.
-    LANDED (2026-09-20T08:4xZ): the user Safety gate chose "Merge commit locally" (preserving
-    git-effort attribution) and "proceed to e02s03 automatically". `git merge --no-ff feat/e02s02`
-    produced the MERGE COMMIT 71bf36b on main (parents 3bb54bd + 2333a1b) with the drafted subject and
-    a Story: e02s02 trailer. Conflicts resolved by the landing rule: specs/state.yaml and
-    specs/agent-locks.yaml took the BRANCH copy (locks: [], re-stamped here with the post-landing vcs/pr
-    facts); progress.md was unioned chronologically (root log through the step-7 dispatch, the two
-    resident develop narratives interleaved at their phases, the orchestrator's root-latest landing
-    section last); specs/verifications/* unioned automatically (r1/r2 + flake capture from main, AUDIT +
-    pr-body from the branch); specs/fleet-agents.yaml kept root's newer copy and gained the landing note.
-    Preflight on main BEFORE the push: 1024 passed / 2 skipped / 88 subtests, ruff clean, exit 0, serial
-    behind a clean ps concurrency pre-check; validate-specs-yaml OK. Pushed main 3bb54bd..71bf36b
-    (ordinary push, no force, no tag — semantic-release owns versions). Git-effort is now real:
-    `scripts/record-cycle-time.sh report --range 3bb54bd..HEAD` -> e02s02 0.77 h / 19 commits / 47 min
-    coding span, additivity PASS — the merge-commit landing did what e02s01's squash could not (0.0 h).
-    Worktree .worktrees/e02s02 removed after `git merge-base --is-ancestor feat/e02s02 main` and a clean
-    TRACKED tree; local and remote branches feat/e02s02 kept (e02s01 precedent, no deletion without a
-    user request); the root .git/info/exclude mirror was left in place (harmless, and .gitignore now
-    carries .worktrees/ on main). e02 stays in_progress with e02s03 todo — the capsule is NOT archived
-    (archive only when every e02 story is done).
+    file_caps: cli/main.py 1460 -> 1276 (new cli/gate_policy.py + cli/stream_handler.py,
+      report surfaces moved to cli/complete_report.py); trading_graph.py 651 -> 652
+      (+1 line)
+    rulings: D1 transcript-based skip discrimination (spec line 55 ruled wrong), D2
+      no new AgentState field, D3 per-task red_tests evidence in the ledger, D4 new
+      modules for all new CLI code, D5 no fabricated RED for the P3-01 logging, D6
+      ledger verifies authoritative
+    routed: 'FLAKE SIGHTING #4 of the one-shot TestLoadOhlcvNoPoison class (first
+      full-suite run of this leg; isolated --tb=long attempt passed, so no traceback;
+      both later runs green)'
+  e02s03_routed_queue: "STEP 2 (plan-work, frozen-plan VERIFICATION/REFRESH pass)\
+    \ — 2026-09-20T09:0xZ: no frozen artifact rewritten.\n5/5 tasks carry a runnable\
+    \ verify:; every one of the five baseline-runs RED on the current tree, so the\n\
+    failing ledger is genuine and no verify is a no-op. plan-consistency-check.sh\
+    \ on the capsule:\nCRITICAL=0 HIGH=0 MED=0. Frozen snapshot == live e02s03 spec/tasks\
+    \ byte-for-byte (only story status differs).\nROUTED-QUEUE MAPPING (state.yaml\
+    \ handoff.release_branch_step8 items 1-7 + standing A10):\n1) CONVENTIONS.md cap-table\
+    \ row (cli/main.py 1460 vs actual 1276) -> GAP: docs task 4 additionally updates\n\
+    \   CONVENTIONS.md § File-Size Exceptions (cli/main.py 1276, trading_graph.py\
+    \ 672); same commit, no new task.\n2) double env notice (cli/gate_policy.py:76-81\
+    \ + :99-104) -> GAP: code+test change, outside the frozen docs\n   plan; proposed\
+    \ as a separate quick-fix commit in-story at step 4 (dedupe so the notice prints\
+    \ once).\n3) gitignore or ban tests/_tmp_cache -> GAP: data-only; quick-fix commit\
+    \ in-story at step 4\n   (`.gitignore` entry) or defer past e02.\n4) injectable\
+    \ reachability check (BUG-2026-09-20-no-data-handling-live-vendor-probe follow-up)\
+    \ -> GAP:\n   test-architecture change, exceeds 3 bcps; proposed defer past e02\
+    \ into a fix-bug story.\n5) ask_debate_gate SystemExit branch untested (cli/gate_policy.py:58-62)\
+    \ -> GAP: test addition; proposed\n   separate quick-fix commit in-story at step\
+    \ 4 (1 test) or defer past e02.\n6) CHANGELOG one-time checkpoint-signature churn\
+    \ + default-policy change + restore switch -> task 1.\n7) cover the ask_debate_gate\
+    \ env notice in env-skip tests -> task 5 (preflight) plus the step-4 quick-fix\n\
+    \   touching tests/test_cli_env_skip.py; no separate task.\nSTANDING A10 RECORD\
+    \ ITEMS (unscored, non-blocking): frozen e02s01 §17 P0-04 direction clause omitted\n\
+    (frozen text — record only, never rewrite); Zoom-Out omissions of trading_graph.py\
+    \ and agent_states.py;\nprogress.md at the project root. All recorded, none blocking."
+  release_branch_step8: 'STEP 8 (release-branch, team-pr decision mode) — 2026-09-20T08:33Z:
+    final Preflight at the reviewed tip 1024 passed / 2 skipped / 88 subtests, ruff
+    clean, serial behind a clean ps-based concurrency pre-check; all 17 story commits
+    conventional, zero co-authored-by trailers, no secret patterns. `gh` is absent,
+    so there is no PR object and no merge: branch feat/e02s02 is pushed to origin
+    as an ordinary (never force) push — compare URL https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s02
+    — landed=false, merge_ref=null, release.ci_verified=false with the reason recorded.
+    Bookkeeping committed on the branch: execution-status e02s02 done + completed_at
+    + 55.5 min / 5.41 bcp_per_hour; spec header and epic capsule mirrored in the SAME
+    pass (G-12); cycle-times.yaml row on the wall-clock basis (a squash landing degenerates
+    git-effort to 0.0h — choosing a merge-commit landing is the user decision); e02s02
+    story lock RELEASED; e02 stays in_progress with e02s03 todo. NEXT: e02s03 (Docs
+    + knowledge refresh, 3 bcps, risk P2) starting at step 1 survey-context on epic
+    e02. ROUTED QUEUE for e02s03: (1) CONVENTIONS.md cap-table row cli/main.py 1460
+    is stale — actual 1276 after the e02s02 extraction; refresh during the docs pass.
+    (2) double env notice on the interactive path (cli/gate_policy.py:76-81 and :99-104)
+    when TRADINGAGENTS_DEBATE_GATE is set — values accurate, wording redundant. (3)
+    gitignore or ban tests/_tmp_cache (BUG-2026-09-20-no-data- handling-nonhermetic-cache
+    and the -live-vendor-probe follow-up). (4) injectable reachability check (same
+    BUG follow-up). (5) the ask_debate_gate SystemExit branch is untested. (6) the
+    e02s03 CHANGELOG entry must state the one-time checkpoint-signature churn (`gate=<mode>`
+    invalidates pre-e02s02 threads once), the Debate Gate default-policy change and
+    the restore switch. (7) cover the ask_debate_gate env notice in the env-skip tests.
+    STANDING A10 RECORD ITEMS (unscored, non-blocking): the frozen story spec section
+    17 direction clause and the Zoom-Out omissions of trading_graph.py and agent_states.py;
+    the state.yaml divergence lists; progress.md at the project root. LANDING NOTE
+    (MAIN DRIFT): origin/main advanced past 5c7a9ac (cockpit commits carrying e02s02-verify-r1.yaml,
+    r2 and the flake capture) while this branch was cut from 5c7a9ac, and BOTH sides
+    edited specs/state.yaml — at the landing the BRANCH copy of specs/state.yaml is
+    authoritative (step-8 record, closed e02s02 metrics, e02s03 handoff), so reconcile
+    main deliberately instead of merging that file textually. LANDED (2026-09-20T08:4xZ):
+    the user Safety gate chose "Merge commit locally" (preserving git-effort attribution)
+    and "proceed to e02s03 automatically". `git merge --no-ff feat/e02s02` produced
+    the MERGE COMMIT 71bf36b on main (parents 3bb54bd + 2333a1b) with the drafted
+    subject and a Story: e02s02 trailer. Conflicts resolved by the landing rule: specs/state.yaml
+    and specs/agent-locks.yaml took the BRANCH copy (locks: [], re-stamped here with
+    the post-landing vcs/pr facts); progress.md was unioned chronologically (root
+    log through the step-7 dispatch, the two resident develop narratives interleaved
+    at their phases, the orchestrator''s root-latest landing section last); specs/verifications/*
+    unioned automatically (r1/r2 + flake capture from main, AUDIT + pr-body from the
+    branch); specs/fleet-agents.yaml kept root''s newer copy and gained the landing
+    note. Preflight on main BEFORE the push: 1024 passed / 2 skipped / 88 subtests,
+    ruff clean, exit 0, serial behind a clean ps concurrency pre-check; validate-specs-yaml
+    OK. Pushed main 3bb54bd..71bf36b (ordinary push, no force, no tag — semantic-release
+    owns versions). Git-effort is now real: `scripts/record-cycle-time.sh report --range
+    3bb54bd..HEAD` -> e02s02 0.77 h / 19 commits / 47 min coding span, additivity
+    PASS — the merge-commit landing did what e02s01''s squash could not (0.0 h). Worktree
+    .worktrees/e02s02 removed after `git merge-base --is-ancestor feat/e02s02 main`
+    and a clean TRACKED tree; local and remote branches feat/e02s02 kept (e02s01 precedent,
+    no deletion without a user request); the root .git/info/exclude mirror was left
+    in place (harmless, and .gitignore now carries .worktrees/ on main). e02 stays
+    in_progress with e02s03 todo — the capsule is NOT archived (archive only when
+    every e02 story is done).'

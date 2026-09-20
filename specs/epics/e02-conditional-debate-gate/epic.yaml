@@ -27,7 +27,7 @@ stories:
   - id: e02s03
     title: "Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary)"
     bcps: 3
-    status: todo
+    status: in_progress   # step 1-2 done 2026-09-20 (frozen-plan verification/refresh); mirrors execution-status.yaml
     delta: ADDED
     spec: e02s03-docs.md
     tasks: e02s03-tasks.yaml

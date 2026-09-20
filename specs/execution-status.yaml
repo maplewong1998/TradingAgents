@@ -82,7 +82,7 @@ stories:
       to origin 3bb54bd..71bf36b; worktree .worktrees/e02s02 removed, branches kept (CI unverified:
       gh absent — accepted by explicit user decision)'
   e02s03:
-    status: todo
+    status: in_progress
     title: Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack,
       glossary)
     bcps: 3
@@ -91,3 +91,4 @@ stories:
     tasks_passing: 0
     tasks_failing: 5
     risk_max: P2
+    started_at: '2026-09-20T08:41:06Z'   # survey-context step 1 (cycle opened by the orchestrator)
