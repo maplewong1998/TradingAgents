@@ -1,9 +1,11 @@
 story_id: e02s03
 title: "Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary)"
 spec: e02s03-docs.md
-status: failing
+status: passing
 bcps: 3
 # TDD ledger (e45s06). Docs story: verify commands are grep gates + Preflight.
+# Round 1: every task was baseline-RED on the kickoff tree, then flipped only on its
+# verify exiting 0. Task 5 was re-run as the final leg after the three quick-fixes.
 tasks:
   - id: 1
     description: >-
@@ -13,7 +15,8 @@ tasks:
       debate_gate=always as the exact-behavior restore (SC-e02s03-P2-01).
     verify: "grep -qi 'debate gate' CHANGELOG.md && grep -q 'TRADINGAGENTS_DEBATE_GATE' CHANGELOG.md"
     risk: P2
-    status: failing
+    status: passing
+    red_tests: "baseline RED (grep exit 1 — no such section); GREEN at 12f8911, verify exit 0"
     allure:
       severity: normal
       categories: ["docs"]
@@ -23,7 +26,8 @@ tasks:
       always|auto|never and the default.
     verify: "grep -q 'TRADINGAGENTS_DEBATE_GATE' .env.example"
     risk: P3
-    status: failing
+    status: passing
+    red_tests: "baseline RED (grep exit 1); GREEN at dd9d3d5, verify exit 0; re-checked that all 16 _ENV_OVERRIDES keys now appear in the file (missing: [])"
     allure:
       severity: minor
       categories: ["docs"]
@@ -34,7 +38,8 @@ tasks:
       and the fail-safe direction.
     verify: "grep -q 'debate_gate' README.md"
     risk: P3
-    status: failing
+    status: passing
+    red_tests: "baseline RED (grep exit 1); GREEN at 7b3d69c, verify exit 0"
     allure:
       severity: minor
       categories: ["docs"]
@@ -45,7 +50,8 @@ tasks:
       'Debate Gate', 'Alignment Marker', 'debate_gate policy' (SC-e02s03-P3-01).
     verify: "grep -q 'Debate Gate' specs/tech-architecture/tech-stack.md && grep -q 'debate_gate' specs/product/GLOSSARY_LATEST.yaml"
     risk: P3
-    status: failing
+    status: passing
+    red_tests: "baseline RED (grep exit 1 on both legs); GREEN at d92afc4, verify exit 0; glossary re-parsed as YAML (23 terms)"
     allure:
       severity: minor
       categories: ["docs", "specs"]
@@ -53,7 +59,8 @@ tasks:
     description: "Full Preflight + specs validation green."
     verify: ".venv/bin/python -m pytest -q && ruff check . && bash scripts/validate-specs-yaml.sh"
     risk: P2
-    status: failing
+    status: passing
+    red_tests: "not RED by construction (Preflight was green at kickoff and this story adds no Python until the quick-fixes); ran four times, each behind the ps-based pytest concurrency pre-check — see state.yaml handoff for the recorded numbers"
     allure:
       severity: normal
       categories: ["preflight"]
