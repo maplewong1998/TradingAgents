@@ -5,8 +5,8 @@ active_bug_id: null
 test_plan: required
 vcs:
   kind: git
-  branch: main
-  head: d7557e4
+  branch: feat/e02s02
+  head: 5c7a9ac
 pr:
   mode: team-pr
   url: https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02-conditional-debate-gate
@@ -18,8 +18,8 @@ pr:
   merge_ref: d7557e4
   merged_locally: true
 git:
-  branch: main
-  worktree: null
+  branch: feat/e02s02
+  worktree: /home/maplewong1998/Repository/TradingAgents/.worktrees/e02s02
 release:
   last_tag: null
   last_publish: null
@@ -54,7 +54,7 @@ epic_cycle:
   metrics:
     story_start: '2026-09-20T07:37:31Z'   # orchestrator seeded at dispatch; confirmed by step 1 (survey 07:42Z)
 handoff:
-  next_skill: kickoff-branch
+  next_skill: develop-tdd
   note: >-
     e02s02 steps 1-2 PASS (2026-09-20 07:42-07:5xZ, main @ 90d16be). Step 1 survey-context:
     active_flow=build_epic, epic e02 in_progress, story e02s02 opened (execution-status
@@ -107,8 +107,23 @@ handoff:
     clean — BUG-2026-09-20-no-data-handling-nonhermetic-cache follow-up), the one-shot
     TestLoadOhlcvNoPoison flake (capture --tb=long if it recurs), and e02s01 cosmetics
     (debate_gate_node state[...] KeyError hardening, _judge_prompt extraction, public aliases
-    for _coerce_max_*). ENVIRONMENT: another `python -m pytest` process was live twice during
-    steps 1-2 (pids 152360 then 152573) — step 3's baseline MUST re-run the pgrep pre-check and
-    treat any raced run as invalid. Cockpit edits (state.yaml, progress.md, fleet-agents.yaml,
-    agent-locks.yaml) remain uncommitted on main: steps 1-2 must not commit on main (HARD GATE),
-    so story_ops left them for the step-7/8 hygiene pass.
+    for _coerce_max_*). ENVIRONMENT CORRECTION (step 3): the two "foreign pytest" sightings at steps
+    1-2 were FALSE ALARMS — `pgrep -f "python -m pytest"` matches the wrapping `bash -c` process
+    whose own command line carries the pattern (reproduced: pgrep printed the pid of its own
+    wrapper). No foreign pytest has been observed in this repo. Use
+    `ps -eo pid,args | grep -E "[p]ython -m pytest" | grep -v "bash -c"` for the pre-check.
+    Cockpit edits (state.yaml, progress.md, fleet-agents.yaml, agent-locks.yaml) were committed by
+    the orchestrator as 5c7a9ac; step 3's own artifacts are committed on feat/e02s02, never on main.
+    STEP 3 (kickoff-branch) — PASS 2026-09-20 ~07:55Z: Preflight on the default branch passed FIRST
+    (main @ 5c7a9ac at the repo root, tree clean apart from the orchestrator's own progress.md:
+    1002 passed / 2 skipped / 88 subtests in 3.53s; ruff clean), then worktree
+    .worktrees/e02s02 was created as a new branch feat/e02s02 off 5c7a9ac with its OWN venv
+    (uv venv --python 3.12 .venv + uv pip install -e ".[dev]" — Python 3.12.11, pytest 9.1.1; the
+    root .venv is neither shared nor symlinked). Worktree baseline at the clean tip, run immediately
+    after a clean concurrency pre-check: 1002 passed / 2 skipped / 88 subtests in 5.87s, ruff
+    "All checks passed!", pytest exit 0 — TestLoadOhlcvNoPoison green, so no --tb=long capture was
+    needed. `.worktrees/` was added to .gitignore (branch commit) and to .git/info/exclude (local,
+    keeping the root tree clean); the e02s02 lock is held with its agent field updated to story_ops
+    and locked_at kept. NEXT: step 4 develop-tdd inside .worktrees/e02s02, carrying the
+    orchestrator's rulings on the six drift findings (D1 skip-vs-held discrimination by
+    investment_debate_state.history, never by debate_gate_verdict presence/text).

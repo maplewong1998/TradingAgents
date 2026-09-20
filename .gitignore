@@ -230,3 +230,6 @@ specs/state.yaml.lock
 
 # codegraph — machine-generated symbol index (multi-MB binary)
 /.codegraph/
+
+# e02s02: linked worktrees live here (root-level dir; ignored so `git status` stays clean)
+.worktrees/
