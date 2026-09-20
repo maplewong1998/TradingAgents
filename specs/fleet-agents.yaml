@@ -1,19 +1,16 @@
-# specs/fleet-agents.yaml — resident specialist roster for the active story.
+# specs/fleet-agents.yaml — resident specialist roster for the active story/phase.
 # Managed by orchestrator. NOTE: .dsh/fleet/scripts/fleet-state.sh is absent in
 # this repo (no .dsh/ tree), so this file is edited directly with the file tools;
-# every command/entry is story-scoped by the `story` field below.
-# ARCHIVE — e02s01 (LANDED main d7557e4): story_ops=cd1ea0ca-8167-4a8f-840f-0be9d13d8a02,
-#   develop=2be0d4e9-e1e9-4edb-9650-3b1a38b71494, verify=a4c5424f-558b-4077-a6ce-447714a61b90,
-#   gate=819cb80f-4f31-40ec-97bf-72bfbac92137.
-# ARCHIVE — e02s02 (LANDED main merge-commit 71bf36b, bookkeeping 667ea00):
-#   story_ops=ceb173da-4e9e-4909-a686-db431cc5cdad, develop=143f1446-0771-4331-b357-6fbe7b0ca67b,
-#   verify=b0a6a107-02af-48f1-bec5-3ebd5723c7ae (r1 FAIL → r2 PASS), gate=bbf65d1c-e6ab-449f-b0dd-132060eb14a4 (100/100).
-# Archived residents are NOT valid reuse sources for e02s03.
-story: e02s03
+# entries are scoped by the `story`/`phase` fields below.
+# ARCHIVE — epic e02 COMPLETE (all stories landed on main 2026-09-20):
+#   e02s01 (squash d7557e4): story_ops=cd1ea0ca-…, develop=2be0d4e9-…, verify=a4c5424f-…, gate=819cb80f-…
+#   e02s02 (merge 71bf36b): story_ops=ceb173da-…, develop=143f1446-…, verify=b0a6a107-…, gate=bbf65d1c-…
+#   e02s03 (merge 26f3916): story_ops=608064ee-…, develop=b4848a06-…, verify=e1f1740c-…, gate=8a6c1d36-… (r2 adjudicated post-failure)
+# Archived residents are NOT valid reuse sources for new work.
+phase: 5-verify
+story: null
 epic: e02
 roles:
-  story_ops: 608064ee-205f-46a0-b5dd-3b2014c710dd # steps 1-3 PASS (worktree .worktrees/e02s03, branch feat/e02s03, tip 787a829); steps 7-8 pending
-  develop: b4848a06-764f-4ef2-be0b-dc472d90c918   # step 4 — develop-tdd (sole writer on the worktree); r1 PASS 5/5 + QF-A/B/C; r2 docs fix-forward PASS (tip bc376b6)
-  verify: e1f1740c-7795-437d-b65d-f3b13eec9102    # step 5 — verify-work (read-only judge); r1 PASS 9/9 phases @ e53ee9d
-  gate: 8a6c1d36-67cb-46e6-a0d0-086c0ee54e95      # step 6 — gatekeeper; r1 PASS 100/100; r2 report COMPLETE (PASS 100, all sections) but child failed twice before emitting its closing JSON — verdict ADJUDICATED by orchestrator from the written report + independent spot-verification (figures 72/1276/652/392/75; zero code/test delta)
-updated_at: '2026-09-20T08:41:06Z'
+  verify_work: 9c525c54-d6bd-418a-aee9-e4ff705a057a  # project-level UAT off-main: worktree .worktrees/verify-phase5 (branch verify/phase5), read-only judge
+  run_evals: 2ab74b7c-9bfa-4140-985a-359b1e2c6ae3    # eval set definition + targeted grader runs at root, read-only; artifact /tmp/phase5-evals-e02.md
+updated_at: '2026-09-20T10:1xZ'

@@ -10,35 +10,36 @@ vcs:
 pr:
   mode: team-pr
   url: https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s03
-  title: 'docs(specs): refresh the CHANGELOG, .env.example, README and specs knowledge
-    for the conditional debate gate'
+  title: 'docs(specs): refresh the CHANGELOG, .env.example, README and specs knowledge for the conditional
+    debate gate'
   bump: minor
   pushed: true
-  pushed_range: 'origin/feat/e02s03 @ 8d930cc; main pushed after the pre-merge Preflight (ordinary pushes, never force, no tag)'
+  pushed_range: origin/feat/e02s03 @ 8d930cc; main pushed after the pre-merge Preflight (ordinary pushes,
+    never force, no tag)
   merged: true
   merge_ref: 26f3916
-  merged_locally: true        # local MERGE COMMIT on the user's Safety-gate choice (gh absent)
-  merge_style: merge-commit   # keeps the per-commit history that git-hours attribution reads
+  merged_locally: true
+  merge_style: merge-commit
   compare_url: https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s03
-  decision: 'MERGED (team-pr decision mode, gh absent): the user''s Safety gate chose a local
-    merge commit over the team-pr squash default, then Phase 5 VERIFY automatically'
+  decision: 'MERGED (team-pr decision mode, gh absent): the user''s Safety gate chose a local merge commit
+    over the team-pr squash default, then Phase 5 VERIFY automatically'
 git:
   branch: main
-  worktree: null              # .worktrees/e02s03 removed after the landing (ancestry + clean-tree checks passed)
+  worktree: null
 release:
   last_tag: null
   last_publish: null
   target_version: null
   ci_verified: false
-  ci_verified_reason: gh absent — CI cannot be watched from this workstation (accepted
-    by explicit user decision); worktree Preflight green immediately before the push
-    (1027 passed / 2 skipped / 88 subtests, ruff clean)
+  ci_verified_reason: gh absent — CI cannot be watched from this workstation (accepted by explicit user
+    decision); worktree Preflight green immediately before the push (1027 passed / 2 skipped / 88 subtests,
+    ruff clean)
 metrics:
   story_start: '2026-09-20T08:41:06Z'
   story_end: '2026-09-20T09:56:34Z'
   cycle_minutes: 75.5
   bcp_per_hour: 2.39
-  effort_hours: 1.77             # git-hours via the `Story: e02s03` trailers (record-cycle-time.sh, additivity PASS)
+  effort_hours: 1.77
   lead_time_minutes: 106
   attributed_by_trailer: true
   cycle_time_source: wall-clock + git-hours
@@ -67,13 +68,12 @@ epic_cycle:
   ship_epic_step: null
   story_bcps: 3
   step: 8
-  completed_steps: 1,2 (frozen-plan verification/refresh pass — 5/5 tasks intact,
-    0 rewrites); 3 (kickoff-branch — worktree + branch, root and worktree Preflight
-    green); 4 (develop-tdd — 5/5 docs tasks GREEN, 3 ruled quick-fixes landed, ledger
-    flipped); 5 (verify-work — PASS 9/9 phases); 6 (audit-code gate by the gatekeeper
-    — PASS 100/100, round 2 delta re-check PASS 100/100); 7 (commit-message — docs(specs)
-    subject + PR body persisted to specs/verifications/e02s03-pr-body.md); 8 (release-branch
-    — branch pushed, PR decision, bookkeeping)
+  completed_steps: 1,2 (frozen-plan verification/refresh pass — 5/5 tasks intact, 0 rewrites); 3 (kickoff-branch
+    — worktree + branch, root and worktree Preflight green); 4 (develop-tdd — 5/5 docs tasks GREEN, 3
+    ruled quick-fixes landed, ledger flipped); 5 (verify-work — PASS 9/9 phases); 6 (audit-code gate by
+    the gatekeeper — PASS 100/100, round 2 delta re-check PASS 100/100); 7 (commit-message — docs(specs)
+    subject + PR body persisted to specs/verifications/e02s03-pr-body.md); 8 (release-branch — branch
+    pushed, PR decision, bookkeeping)
   audit_result: pass
   verify_result: pass
   story_status: done
@@ -82,194 +82,159 @@ epic_cycle:
     story_start: '2026-09-20T08:41:06Z'
 handoff:
   next_skill: verify-work
-  e02s03_landed: >-
-    LANDED 2026-09-20T10:0xZ: the user's Safety gate chose "Merge commit locally" (preserving git-effort
-    attribution) and "run Phase 5 VERIFY automatically". `git merge --no-ff feat/e02s03` produced the
-    MERGE COMMIT 26f3916 on main (parents 37dbc93 + 8d930cc) with the persisted landing subject and a
-    Story: e02s03 trailer, keeping the individual story commits intact. The only conflict was
-    specs/state.yaml — resolved with the BRANCH copy authoritative, then re-stamped on top (vcs/git
-    branch main, vcs.head 26f3916, git.worktree null, pr.merged true + merge_ref + merged_locally true +
-    merge_style merge-commit; release.ci_verified false with its gh-absent reason). progress.md and
-    specs/fleet-agents.yaml were root-only changes and merged cleanly. Preflight on main BEFORE the push:
-    1027 passed / 2 skipped / 88 subtests, ruff clean, validate-specs-yaml OK, serial behind a clean ps
-    pre-check. Pushed main 37dbc93..26f3916 (ordinary push, no force, no tag). Git-effort is real:
-    `record-cycle-time.sh report --range 37dbc93..HEAD` -> e02s03 1.77 h / 24 commits / 106 min coding
-    span, ADDITIVITY PASS against the whole-range oracle — the merge-commit landing did what e02s01's
-    squash could not (0.0 h). Worktree .worktrees/e02s03 removed after `git merge-base --is-ancestor
-    feat/e02s03 main` and a clean TRACKED tree; local and remote branches feat/e02s03 kept (e02s01/e02s02
-    precedent, no deletion without a user request); the root .git/info/exclude mirror was left in place.
-    e02s03 is the LAST story of epic e02: epic e02 is done (development_status, epics.e02 and the capsule
-    epic.yaml) and the capsule is NOT archived — the epic-close ceremony stays with the orchestrator.
-    NEXT: the PROJECT-level Phase 5 VERIFY (run-evals + project verify-work, off-main), dispatched by the
-    orchestrator.
+  e02s03_landed: 'LANDED 2026-09-20T10:0xZ: the user''s Safety gate chose "Merge commit locally" (preserving
+    git-effort attribution) and "run Phase 5 VERIFY automatically". `git merge --no-ff feat/e02s03` produced
+    the MERGE COMMIT 26f3916 on main (parents 37dbc93 + 8d930cc) with the persisted landing subject and
+    a Story: e02s03 trailer, keeping the individual story commits intact. The only conflict was specs/state.yaml
+    — resolved with the BRANCH copy authoritative, then re-stamped on top (vcs/git branch main, vcs.head
+    26f3916, git.worktree null, pr.merged true + merge_ref + merged_locally true + merge_style merge-commit;
+    release.ci_verified false with its gh-absent reason). progress.md and specs/fleet-agents.yaml were
+    root-only changes and merged cleanly. Preflight on main BEFORE the push: 1027 passed / 2 skipped /
+    88 subtests, ruff clean, validate-specs-yaml OK, serial behind a clean ps pre-check. Pushed main 37dbc93..26f3916
+    (ordinary push, no force, no tag). Git-effort is real: `record-cycle-time.sh report --range 37dbc93..HEAD`
+    -> e02s03 1.77 h / 24 commits / 106 min coding span, ADDITIVITY PASS against the whole-range oracle
+    — the merge-commit landing did what e02s01''s squash could not (0.0 h). Worktree .worktrees/e02s03
+    removed after `git merge-base --is-ancestor feat/e02s03 main` and a clean TRACKED tree; local and
+    remote branches feat/e02s03 kept (e02s01/e02s02 precedent, no deletion without a user request); the
+    root .git/info/exclude mirror was left in place. e02s03 is the LAST story of epic e02: epic e02 is
+    done (development_status, epics.e02 and the capsule epic.yaml) and the capsule is NOT archived — the
+    epic-close ceremony stays with the orchestrator. NEXT: the PROJECT-level Phase 5 VERIFY (run-evals
+    + project verify-work, off-main), dispatched by the orchestrator.'
   e02s03_step8_landing_notes: 'STEP 8 (release-branch, team-pr decision mode) — 2026-09-20T09:56:34Z:
-    final Preflight at the reviewed tip 85d7ddd = 1027 passed / 2 skipped / 88 subtests,
-    ruff clean, validate-specs-yaml OK, serial behind a clean ps-based pytest concurrency
-    pre-check; 15/15 branch commits Conventional Commits, every one carrying a Story:
-    e02s03 trailer, zero co-authored-by footers. `gh` is absent, so there is no PR
-    object and no merge: branch feat/e02s03 was pushed to origin as an ordinary (never
+    final Preflight at the reviewed tip 85d7ddd = 1027 passed / 2 skipped / 88 subtests, ruff clean, validate-specs-yaml
+    OK, serial behind a clean ps-based pytest concurrency pre-check; 15/15 branch commits Conventional
+    Commits, every one carrying a Story: e02s03 trailer, zero co-authored-by footers. `gh` is absent,
+    so there is no PR object and no merge: branch feat/e02s03 was pushed to origin as an ordinary (never
     force) push at 85d7ddd — compare URL https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s03
-    — landed=false, merge_ref=null, no tag, release.ci_verified=false with its reason.
-    Nothing lands on main here; the user''s Safety gate owns the merge/keep decision,
-    so the worktree and the branch stay in place. Bookkeeping committed on the BRANCH
-    in the same pass (G-12): execution-status e02s03 done + completed_at + 75.5 min
-    / 2.39 bcp_per_hour, epic e02 -> done in BOTH execution-status.yaml and epic.yaml
-    (the capsule directory is NOT archived — epic-close ceremony stays with the orchestrator);
-    the story spec header flipped failing -> done; state.yaml metrics/step-8 record;
-    cycle-times.yaml row on the wall-clock basis (effort_hours null: nothing has landed,
-    so there is no merge commit to attribute, and a merge-commit landing would enable
-    git-hours via the Story: e02s03 trailers as it did at e02s02); traceability matrix
-    + OKF wiki regenerated after the status flip; the e02s03 story lock RELEASED.
-    NEXT PHASE (NOT a build-epic step): the PROJECT-level Phase 5 VERIFY — run-evals
-    + project verify-work, run off-main by the orchestrator after the landing; that
-    is why next_skill is verify-work. LANDING DISPATCHER NOTES (origin/main is b43eb5e+
-    while this branch''s base is 276cfc4): specs/state.yaml + specs/agent-locks.yaml
-    take the BRANCH copy (then re-stamp post-landing vcs/pr facts); progress.md is
-    UNIONED chronologically with root-latest last (root carries this branch''s orchestration
-    logs incl. the gate-child-failure adjudication); specs/fleet-agents.yaml keeps
-    root''s newer copy plus a landing note; specs/verifications/* is the UNION of
-    root (e02s03-verify-r1.yaml, earlier evidence) and branch (AUDIT-e02-e02s03.md
-    both rounds, e02s03-pr-body.md, e02s03-kickoff-baseline.yaml). STANDING ROUTED
-    QUEUE carried forward (post-e02, all non-blocking): injectable reachability check
-    as a fix-bug item (BUG-2026-09-20-no-data-handling-live-vendor-probe follow-up);
-    the check-import-boundaries tooling gap (specs/import-boundaries.json absent —
-    the script exits 0 but prints FAIL); e01s01/e01s02 trace-stale items; the CHANGELOG
-    "Gate decisions log at INFO" wording nit for the judged-hold branch that emits
-    no gate log line.'
+    — landed=false, merge_ref=null, no tag, release.ci_verified=false with its reason. Nothing lands on
+    main here; the user''s Safety gate owns the merge/keep decision, so the worktree and the branch stay
+    in place. Bookkeeping committed on the BRANCH in the same pass (G-12): execution-status e02s03 done
+    + completed_at + 75.5 min / 2.39 bcp_per_hour, epic e02 -> done in BOTH execution-status.yaml and
+    epic.yaml (the capsule directory is NOT archived — epic-close ceremony stays with the orchestrator);
+    the story spec header flipped failing -> done; state.yaml metrics/step-8 record; cycle-times.yaml
+    row on the wall-clock basis (effort_hours null: nothing has landed, so there is no merge commit to
+    attribute, and a merge-commit landing would enable git-hours via the Story: e02s03 trailers as it
+    did at e02s02); traceability matrix + OKF wiki regenerated after the status flip; the e02s03 story
+    lock RELEASED. NEXT PHASE (NOT a build-epic step): the PROJECT-level Phase 5 VERIFY — run-evals +
+    project verify-work, run off-main by the orchestrator after the landing; that is why next_skill is
+    verify-work. LANDING DISPATCHER NOTES (origin/main is b43eb5e+ while this branch''s base is 276cfc4):
+    specs/state.yaml + specs/agent-locks.yaml take the BRANCH copy (then re-stamp post-landing vcs/pr
+    facts); progress.md is UNIONED chronologically with root-latest last (root carries this branch''s
+    orchestration logs incl. the gate-child-failure adjudication); specs/fleet-agents.yaml keeps root''s
+    newer copy plus a landing note; specs/verifications/* is the UNION of root (e02s03-verify-r1.yaml,
+    earlier evidence) and branch (AUDIT-e02-e02s03.md both rounds, e02s03-pr-body.md, e02s03-kickoff-baseline.yaml).
+    STANDING ROUTED QUEUE carried forward (post-e02, all non-blocking): injectable reachability check
+    as a fix-bug item (BUG-2026-09-20-no-data-handling-live-vendor-probe follow-up); the check-import-boundaries
+    tooling gap (specs/import-boundaries.json absent — the script exits 0 but prints FAIL); e01s01/e01s02
+    trace-stale items; the CHANGELOG "Gate decisions log at INFO" wording nit for the judged-hold branch
+    that emits no gate log line.'
   e02s03_develop_tdd_round2:
     result: PASS
     round: 2
     tip: 1d33a59
     story: e02s03
-    trigger: 'six non-blocking A10 routing notes from the gate round 1 (AUDIT-e02-e02s03.md,
-      score 100, record-integrity section) landed as ONE docs-only fix-forward commit
-      before steps 7-8: R1 console.print 73 -> 72, R2 test files/unit tests/source
-      lines -> 75/428/12612 at the same method, R4 README walkthrough position (Step
-      5b, not the end), R5 Signal 1 ratio 2x -> ~1.8x, R6 CHANGELOG thin-report logging
-      claim, and O2 (AGENTS.md cli/** 1460 -> 1276 lines; tech-stack Signal 2 gains
-      gate=<debate_gate mode>). R3 needed no edit — the doc states only the primary
-      31 markers plus its breakdown, and the audit''s own note says nothing depends
-      on the disowned 39.'
-    commit: '1d33a59 docs(specs): restate the six routed record-integrity notes at
-      tip'
-    scope: AGENTS.md, CHANGELOG.md, README.md, specs/tech-architecture/tech-stack.md,
-      the ledger note, specs/state.yaml (folds the orchestrator's uncommitted next_skill=audit-code
-      edit and reflow untouched; epic_cycle.step stays 4), and the round's audit report
-      committed onto the branch so landing cannot lose it. No code, no test, no ledger-semantics
-      change — statuses stay 5/5 passing.
-    verifies: T1 0, T2 0, T3 0, T4 0 (all four grep gates re-run on the edited tree,
-      since tasks 1/3/4 grep CHANGELOG/README/tech-stack, the three edited files the
-      orchestrator named)
-    preflight: 1027 passed / 2 skipped / 88 subtests, ruff clean, validate-specs-yaml
-      OK — serial, exit 0, behind the ps-based pytest concurrency pre-check. TestLoadOhlcvNoPoison
-      never failed.
-    note_on_next_skill: left as the orchestrator set it (audit-code). Cycle-wise step
-      6 already passed this round, so the next forward step is 7 commit-message —
-      reported, not silently changed.
+    trigger: 'six non-blocking A10 routing notes from the gate round 1 (AUDIT-e02-e02s03.md, score 100,
+      record-integrity section) landed as ONE docs-only fix-forward commit before steps 7-8: R1 console.print
+      73 -> 72, R2 test files/unit tests/source lines -> 75/428/12612 at the same method, R4 README walkthrough
+      position (Step 5b, not the end), R5 Signal 1 ratio 2x -> ~1.8x, R6 CHANGELOG thin-report logging
+      claim, and O2 (AGENTS.md cli/** 1460 -> 1276 lines; tech-stack Signal 2 gains gate=<debate_gate
+      mode>). R3 needed no edit — the doc states only the primary 31 markers plus its breakdown, and the
+      audit''s own note says nothing depends on the disowned 39.'
+    commit: '1d33a59 docs(specs): restate the six routed record-integrity notes at tip'
+    scope: AGENTS.md, CHANGELOG.md, README.md, specs/tech-architecture/tech-stack.md, the ledger note,
+      specs/state.yaml (folds the orchestrator's uncommitted next_skill=audit-code edit and reflow untouched;
+      epic_cycle.step stays 4), and the round's audit report committed onto the branch so landing cannot
+      lose it. No code, no test, no ledger-semantics change — statuses stay 5/5 passing.
+    verifies: T1 0, T2 0, T3 0, T4 0 (all four grep gates re-run on the edited tree, since tasks 1/3/4
+      grep CHANGELOG/README/tech-stack, the three edited files the orchestrator named)
+    preflight: 1027 passed / 2 skipped / 88 subtests, ruff clean, validate-specs-yaml OK — serial, exit
+      0, behind the ps-based pytest concurrency pre-check. TestLoadOhlcvNoPoison never failed.
+    note_on_next_skill: left as the orchestrator set it (audit-code). Cycle-wise step 6 already passed
+      this round, so the next forward step is 7 commit-message — reported, not silently changed.
   e02s03_develop_tdd_round1:
     result: PASS
     round: 1
     tip: 6eb1d3e
     story: e02s03
-    tasks: 5/5 passing — every verify exits 0 (tasks 1-4 are grep gates flipped by
-      their own commit; task 5 is the full Preflight, run four times, each behind
-      a clean ps-based pytest concurrency pre-check)
-    preflight_final: 1027 passed / 2 skipped / 88 subtests, ruff clean, validate-specs-yaml
-      OK, serial, exit 0, on the tree at 6eb1d3e (+3 tests over the 1024/2 kickoff
-      baseline, the 3 new gate-policy tests in this leg)
-    preflight_runs: kickoff 1024/2 (baseline), leg 1 1024/2 (baseline re-measured),
-      leg 2 1024/2 (after the four docs tasks), final 1027/2 (after the quick-fixes),
-      close-out 1027/2 (after the step-4 bookkeeping). TestLoadOhlcvNoPoison never
-      failed in this leg — no flake sighting to capture.
+    tasks: 5/5 passing — every verify exits 0 (tasks 1-4 are grep gates flipped by their own commit; task
+      5 is the full Preflight, run four times, each behind a clean ps-based pytest concurrency pre-check)
+    preflight_final: 1027 passed / 2 skipped / 88 subtests, ruff clean, validate-specs-yaml OK, serial,
+      exit 0, on the tree at 6eb1d3e (+3 tests over the 1024/2 kickoff baseline, the 3 new gate-policy
+      tests in this leg)
+    preflight_runs: kickoff 1024/2 (baseline), leg 1 1024/2 (baseline re-measured), leg 2 1024/2 (after
+      the four docs tasks), final 1027/2 (after the quick-fixes), close-out 1027/2 (after the step-4 bookkeeping).
+      TestLoadOhlcvNoPoison never failed in this leg — no flake sighting to capture.
     tasks_passing: 5
     tasks_failing: 0
-    commits: 12f8911 docs CHANGELOG, dd9d3d5 docs .env.example, 7b3d69c docs README,
-      d92afc4 docs tech-stack+glossary+CONVENTIONS, 1d83fd8 chore ledger+vcs.head
-      flip (folds the orchestrator's uncommitted epic_cycle.step=4 cockpit edit),
-      2e359da test RED, 33d5d11 fix(cli) env-notice dedupe, 772b088 chore .gitignore,
-      432a95c chore step-4 round record, 6eb1d3e chore vcs.head
+    commits: 12f8911 docs CHANGELOG, dd9d3d5 docs .env.example, 7b3d69c docs README, d92afc4 docs tech-stack+glossary+CONVENTIONS,
+      1d83fd8 chore ledger+vcs.head flip (folds the orchestrator's uncommitted epic_cycle.step=4 cockpit
+      edit), 2e359da test RED, 33d5d11 fix(cli) env-notice dedupe, 772b088 chore .gitignore, 432a95c chore
+      step-4 round record, 6eb1d3e chore vcs.head
     quick_fixes:
-      QF-A (queue item 2): 33d5d11 fix(cli) — the env notice printed twice on the
-        interactive env-set path (select_debate_gate + resolve_debate_gate). The step
-        now returns silently and resolve_debate_gate owns the one notice; values and
-        precedence unchanged. TDD — the behavior assertion changed, so the test was
-        written RED first and measured failing (2 != 1, both notices quoted in the
-        RED commit), then GREEN.
-      QF-B (queue items 5+7): 2e359da test(cli) — the SystemExit branch covered by
-        test_cancelling_the_gate_prompt_exits_instead_of_guessing (cli/gate_policy.py:58-62)
-        AND the env notice covered on the real wiring by two tests in tests/test_cli_env_skip.py.
-        Honest note — the SystemExit test PASSES on the branch as written, because
-        the branch already exists and is correct, so there was no RED state to record
-        (D3-style disclosure in the commit body). Non-vacuity proven by mutation instead
-        — replacing the raise with `return "auto"` makes it fail with "DID NOT RAISE
-        SystemExit". The env-notice test was genuinely RED.
-      QF-C (queue item 3): 772b088 chore — tests/_tmp_cache/ added to .gitignore,
-        citing BUG-2026-09-20-no-data-handling-nonhermetic-cache.
-      DEFERRED (queue item 4): the injectable reachability check was NOT touched —
-        post-e02 fix-bug backlog.
+      QF-A (queue item 2): 33d5d11 fix(cli) — the env notice printed twice on the interactive env-set
+        path (select_debate_gate + resolve_debate_gate). The step now returns silently and resolve_debate_gate
+        owns the one notice; values and precedence unchanged. TDD — the behavior assertion changed, so
+        the test was written RED first and measured failing (2 != 1, both notices quoted in the RED commit),
+        then GREEN.
+      QF-B (queue items 5+7): 2e359da test(cli) — the SystemExit branch covered by test_cancelling_the_gate_prompt_exits_instead_of_guessing
+        (cli/gate_policy.py:58-62) AND the env notice covered on the real wiring by two tests in tests/test_cli_env_skip.py.
+        Honest note — the SystemExit test PASSES on the branch as written, because the branch already
+        exists and is correct, so there was no RED state to record (D3-style disclosure in the commit
+        body). Non-vacuity proven by mutation instead — replacing the raise with `return "auto"` makes
+        it fail with "DID NOT RAISE SystemExit". The env-notice test was genuinely RED.
+      QF-C (queue item 3): 772b088 chore — tests/_tmp_cache/ added to .gitignore, citing BUG-2026-09-20-no-data-handling-nonhermetic-cache.
+      DEFERRED (queue item 4): the injectable reachability check was NOT touched — post-e02 fix-bug backlog.
     ledger: e02s03-tasks.yaml 5/5 passing, story status passing
-    scope_note: no product code changed outside the two quick-fix commits; the docs
-      tasks touched only CHANGELOG.md, .env.example, README.md, specs/tech-architecture/tech-stack.md,
-      specs/product/GLOSSARY_LATEST.yaml and CONVENTIONS.md § File-Size Exceptions,
-      per rulings R(b)/R(c).
-    finding_metric_reconciliation: 'TWO of the R(b) numbers were re-measured because
-      the given value did not reproduce. (1) The Any/type-ignore/noqa marker count
-      — the table said 19 -> 32. Measured on this tree with the combined grep ''(:
-      Any|Any\]|type: ignore|noqa)'' over tradingagents/ and cli/ — 31 markers (14
-      ''`: Any`'', 11 ''`Any]`'', 6 ''`noqa`'', 0 ''`type: ignore`''); with the two
-      other spellings the doc''s own "Any" scope implies (7 ''`-> Any`'', 1 ''`[Any`'')
-      the widest count is 39; at the kickoff tree the same combined grep gives 21,
-      so the old 19 is not reproducible from a stated scope either. The doc now states
-      31 with its breakdown rather than 32. (2) cli/ Rich usage — the line changed
-      67 console.print calls to 73 (verified) and "14 modules import Rich" to 5, because
-      grepping ''^from rich|^import rich'' over cli/ gives 5 modules and 14 was not
-      reproducible under any reading tried. Everything else in R(b) reproduced exactly
-      — 74 test files, 426 unit tests, 15 logging modules, 12609 source lines, cli/main.py
-      1276, trading_graph.py 652, agents/schemas.py 392. One extra correction inside
-      a touched line — the "(only 1 integration test exists)" note is now 6, all six
-      enumerated in the doc.'
-    story_record_findings: Record-integrity, fix-forward-adjacent, reported rather
-      than fixed. (a) The dispatch said "the only missing key of the 17 _ENV_OVERRIDES"
-      — len(default_config._ENV_OVERRIDES) is 16, and TRADINGAGENTS_DEBATE_GATE was
-      indeed the only key missing from .env.example (re-checked programmatically after
-      the edit — missing == []). (b) Task 5 is the only task whose verify is not a
-      grep gate and it was NOT RED at baseline by construction (Preflight was green
-      at kickoff), unlike the plan-time note that all five baseline-run RED — the
-      four grep gates were RED, Preflight was green. Recorded in the ledger per-task
-      red_tests field rather than papered over.
-  e02s03_orchestrator_rulings_step3: 'RULED 2026-09-20T09:1xZ by the orchestrator
-    (recorded at kickoff-branch; frozen artifacts still not rewritten). (a) QUEUE-ITEM
-    TREATMENTS: item 1 APPROVED — extend frozen docs task 4 to refresh CONVENTIONS.md
-    § File-Size Exceptions rows in the same commit (cli/main.py 1276, trading_graph.py
-    652, and schemas.py 379 -> 392 with a WHY note citing the e02s01 ruling-1 gate-schema
-    re-export mechanism, so the ratchet re-locks at the true number); item 2 APPROVED
-    — separate quick-fix commit at step 4 deduping the env notice (cli/gate_policy.py:76-81
-    vs :99-104) so it prints once, values unchanged, adjusting any test that pins
-    the double notice; item 3 APPROVED — quick-fix commit at step 4 adding a .gitignore
-    entry for tests/_tmp_cache/; item 4 DEFERRED past e02 — the injectable reachability
-    check becomes a fix-bug backlog item referenced from BUG-2026-09-20-no-data-handling-live-vendor-probe
-    and does NOT ride this 3-bcp docs story; item 5 APPROVED — quick-fix commit at
-    step 4 with one test for the cli/gate_policy.py:58-62 SystemExit branch, folding
-    queue item 7 (env-notice coverage in tests/test_cli_env_skip.py) into the same
-    quick-fix; item 6 stays task 1. (b) CONFIRMED — the doc-refresh additions beyond
-    the frozen task text (new modules tradingagents/agents/gate/, cli/gate_policy.py,
-    cli/stream_handler.py, cli/complete_report.py, graph/config_validation.py and
-    every stale metric: tech-stack lines 122/130/137/153/157/175, the flow diagram
-    at 45-46, README gate mentions, glossary terms Debate Gate / Alignment Marker
-    / debate_gate policy) ride INSIDE frozen tasks 3/4, not as new tasks. (c) agents/schemas.py
-    392 > 379 is RULED legitimate growth (the +13 lines are the e02s01 gate-schema
-    re-exports required by e02s01 ruling 1); task 4 updates the row rather than reverting
-    code. Task 1 is approved as a new "## [Unreleased]" CHANGELOG heading — no semantic-release
-    tooling exists in this repo and pyproject stays pinned 0.5.0; never hand-set a
-    version.'
-  note: 'e02s03 cycle opened by the orchestrator 2026-09-20T08:41Z (user decision:
-    proceed automatically after the e02s02 merge-commit landing 71bf36b). Story: Docs
-    + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary), 3
-    bcps, risk P2, delta ADDED, 5 frozen tasks in specs/epics/e02-conditional-debate-gate/e02s03-docs.md
-    + e02s03-tasks.yaml. The e02s03 ROUTED QUEUE lives in handoff.release_branch_step8
-    below (items 1-7 + standing A10 record items) — step 2 must map each queue item
-    to a frozen task or report it as a gap for orchestrator ruling; do NOT silently
-    expand scope. Steps 1-2 dispatched to a fresh story_ops resident.'
+    scope_note: no product code changed outside the two quick-fix commits; the docs tasks touched only
+      CHANGELOG.md, .env.example, README.md, specs/tech-architecture/tech-stack.md, specs/product/GLOSSARY_LATEST.yaml
+      and CONVENTIONS.md § File-Size Exceptions, per rulings R(b)/R(c).
+    finding_metric_reconciliation: 'TWO of the R(b) numbers were re-measured because the given value did
+      not reproduce. (1) The Any/type-ignore/noqa marker count — the table said 19 -> 32. Measured on
+      this tree with the combined grep ''(: Any|Any\]|type: ignore|noqa)'' over tradingagents/ and cli/
+      — 31 markers (14 ''`: Any`'', 11 ''`Any]`'', 6 ''`noqa`'', 0 ''`type: ignore`''); with the two other
+      spellings the doc''s own "Any" scope implies (7 ''`-> Any`'', 1 ''`[Any`'') the widest count is
+      39; at the kickoff tree the same combined grep gives 21, so the old 19 is not reproducible from
+      a stated scope either. The doc now states 31 with its breakdown rather than 32. (2) cli/ Rich usage
+      — the line changed 67 console.print calls to 73 (verified) and "14 modules import Rich" to 5, because
+      grepping ''^from rich|^import rich'' over cli/ gives 5 modules and 14 was not reproducible under
+      any reading tried. Everything else in R(b) reproduced exactly — 74 test files, 426 unit tests, 15
+      logging modules, 12609 source lines, cli/main.py 1276, trading_graph.py 652, agents/schemas.py 392.
+      One extra correction inside a touched line — the "(only 1 integration test exists)" note is now
+      6, all six enumerated in the doc.'
+    story_record_findings: Record-integrity, fix-forward-adjacent, reported rather than fixed. (a) The
+      dispatch said "the only missing key of the 17 _ENV_OVERRIDES" — len(default_config._ENV_OVERRIDES)
+      is 16, and TRADINGAGENTS_DEBATE_GATE was indeed the only key missing from .env.example (re-checked
+      programmatically after the edit — missing == []). (b) Task 5 is the only task whose verify is not
+      a grep gate and it was NOT RED at baseline by construction (Preflight was green at kickoff), unlike
+      the plan-time note that all five baseline-run RED — the four grep gates were RED, Preflight was
+      green. Recorded in the ledger per-task red_tests field rather than papered over.
+  e02s03_orchestrator_rulings_step3: 'RULED 2026-09-20T09:1xZ by the orchestrator (recorded at kickoff-branch;
+    frozen artifacts still not rewritten). (a) QUEUE-ITEM TREATMENTS: item 1 APPROVED — extend frozen
+    docs task 4 to refresh CONVENTIONS.md § File-Size Exceptions rows in the same commit (cli/main.py
+    1276, trading_graph.py 652, and schemas.py 379 -> 392 with a WHY note citing the e02s01 ruling-1 gate-schema
+    re-export mechanism, so the ratchet re-locks at the true number); item 2 APPROVED — separate quick-fix
+    commit at step 4 deduping the env notice (cli/gate_policy.py:76-81 vs :99-104) so it prints once,
+    values unchanged, adjusting any test that pins the double notice; item 3 APPROVED — quick-fix commit
+    at step 4 adding a .gitignore entry for tests/_tmp_cache/; item 4 DEFERRED past e02 — the injectable
+    reachability check becomes a fix-bug backlog item referenced from BUG-2026-09-20-no-data-handling-live-vendor-probe
+    and does NOT ride this 3-bcp docs story; item 5 APPROVED — quick-fix commit at step 4 with one test
+    for the cli/gate_policy.py:58-62 SystemExit branch, folding queue item 7 (env-notice coverage in tests/test_cli_env_skip.py)
+    into the same quick-fix; item 6 stays task 1. (b) CONFIRMED — the doc-refresh additions beyond the
+    frozen task text (new modules tradingagents/agents/gate/, cli/gate_policy.py, cli/stream_handler.py,
+    cli/complete_report.py, graph/config_validation.py and every stale metric: tech-stack lines 122/130/137/153/157/175,
+    the flow diagram at 45-46, README gate mentions, glossary terms Debate Gate / Alignment Marker / debate_gate
+    policy) ride INSIDE frozen tasks 3/4, not as new tasks. (c) agents/schemas.py 392 > 379 is RULED legitimate
+    growth (the +13 lines are the e02s01 gate-schema re-exports required by e02s01 ruling 1); task 4 updates
+    the row rather than reverting code. Task 1 is approved as a new "## [Unreleased]" CHANGELOG heading
+    — no semantic-release tooling exists in this repo and pyproject stays pinned 0.5.0; never hand-set
+    a version.'
+  note: 'e02s03 cycle opened by the orchestrator 2026-09-20T08:41Z (user decision: proceed automatically
+    after the e02s02 merge-commit landing 71bf36b). Story: Docs + knowledge refresh (CHANGELOG, .env.example,
+    README, tech-stack, glossary), 3 bcps, risk P2, delta ADDED, 5 frozen tasks in specs/epics/e02-conditional-debate-gate/e02s03-docs.md
+    + e02s03-tasks.yaml. The e02s03 ROUTED QUEUE lives in handoff.release_branch_step8 below (items 1-7
+    + standing A10 record items) — step 2 must map each queue item to a frozen task or report it as a
+    gap for orchestrator ruling; do NOT silently expand scope. Steps 1-2 dispatched to a fresh story_ops
+    resident.'
   develop_tdd_round1:
     result: PASS
     round: 1
@@ -278,106 +243,90 @@ handoff:
     result: PASS
     round: 2
     tip: 7aae193
-    trigger: 'verify round 1 failed acceptance_criteria: SC-e02s02-P3-01 INFO half
-      (no INFO assertion, no ticker context)'
-    fixes: 909a7b5 test RED -> 7526937 fix(agents) INFO ticker context; 7aae193 fix(tests)
-      quick-fix BUG-2026-09-20-no-data-handling-live-vendor-probe
-    preflight: 1024 passed / 2 skipped / 88 subtests, ruff clean, run twice behind
-      clean concurrency pre-checks (+22 tests over the 1002/2 baseline — 19 story
-      + 3 round-2 logging)
+    trigger: 'verify round 1 failed acceptance_criteria: SC-e02s02-P3-01 INFO half (no INFO assertion,
+      no ticker context)'
+    fixes: 909a7b5 test RED -> 7526937 fix(agents) INFO ticker context; 7aae193 fix(tests) quick-fix BUG-2026-09-20-no-data-handling-live-vendor-probe
+    preflight: 1024 passed / 2 skipped / 88 subtests, ruff clean, run twice behind clean concurrency pre-checks
+      (+22 tests over the 1002/2 baseline — 19 story + 3 round-2 logging)
     verifies: T1 15, T2 32, T3 21, T4 10, T5 2, tests/test_no_data_handling.py 3
     routed_open: tests/_tmp_cache gitignore entry (rides to e02s03/quick-fix)
     tip_note: vcs.head = 7aae193, the tree the round-2 preflight ran on
     ledger: 6/6 tasks passing, story status passing
-    commits: 6c4a702 test RED T1, bcf0352 feat T1, 790cea3 test RED T2, da4c0b9 feat
-      T2, 1950fc1 test RED T3, 3257359 feat T3, a772d4f test RED T4, 265d820 feat
-      T4, bfe3b9c test T5, ade51ad chore ledger flip
+    commits: 6c4a702 test RED T1, bcf0352 feat T1, 790cea3 test RED T2, da4c0b9 feat T2, 1950fc1 test
+      RED T3, 3257359 feat T3, a772d4f test RED T4, 265d820 feat T4, bfe3b9c test T5, ade51ad chore ledger
+      flip
     new_tests: 19
-    file_caps: cli/main.py 1460 -> 1276 (new cli/gate_policy.py + cli/stream_handler.py,
-      report surfaces moved to cli/complete_report.py); trading_graph.py 651 -> 652
-      (+1 line)
-    rulings: D1 transcript-based skip discrimination (spec line 55 ruled wrong), D2
-      no new AgentState field, D3 per-task red_tests evidence in the ledger, D4 new
-      modules for all new CLI code, D5 no fabricated RED for the P3-01 logging, D6
-      ledger verifies authoritative
-    routed: 'FLAKE SIGHTING #4 of the one-shot TestLoadOhlcvNoPoison class (first
-      full-suite run of this leg; isolated --tb=long attempt passed, so no traceback;
-      both later runs green)'
-  e02s03_routed_queue: "STEP 2 (plan-work, frozen-plan VERIFICATION/REFRESH pass)\
-    \ — 2026-09-20T09:0xZ: no frozen artifact rewritten.\n5/5 tasks carry a runnable\
-    \ verify:; every one of the five baseline-runs RED on the current tree, so the\n\
-    failing ledger is genuine and no verify is a no-op. plan-consistency-check.sh\
-    \ on the capsule:\nCRITICAL=0 HIGH=0 MED=0. Frozen snapshot == live e02s03 spec/tasks\
-    \ byte-for-byte (only story status differs).\nROUTED-QUEUE MAPPING (state.yaml\
-    \ handoff.release_branch_step8 items 1-7 + standing A10):\n1) CONVENTIONS.md cap-table\
-    \ row (cli/main.py 1460 vs actual 1276) -> GAP: docs task 4 additionally updates\n\
-    \   CONVENTIONS.md § File-Size Exceptions (cli/main.py 1276, trading_graph.py\
-    \ 672); same commit, no new task.\n2) double env notice (cli/gate_policy.py:76-81\
-    \ + :99-104) -> GAP: code+test change, outside the frozen docs\n   plan; proposed\
-    \ as a separate quick-fix commit in-story at step 4 (dedupe so the notice prints\
-    \ once).\n3) gitignore or ban tests/_tmp_cache -> GAP: data-only; quick-fix commit\
-    \ in-story at step 4\n   (`.gitignore` entry) or defer past e02.\n4) injectable\
-    \ reachability check (BUG-2026-09-20-no-data-handling-live-vendor-probe follow-up)\
-    \ -> GAP:\n   test-architecture change, exceeds 3 bcps; proposed defer past e02\
-    \ into a fix-bug story.\n5) ask_debate_gate SystemExit branch untested (cli/gate_policy.py:58-62)\
-    \ -> GAP: test addition; proposed\n   separate quick-fix commit in-story at step\
-    \ 4 (1 test) or defer past e02.\n6) CHANGELOG one-time checkpoint-signature churn\
-    \ + default-policy change + restore switch -> task 1.\n7) cover the ask_debate_gate\
-    \ env notice in env-skip tests -> task 5 (preflight) plus the step-4 quick-fix\n\
-    \   touching tests/test_cli_env_skip.py; no separate task.\nSTANDING A10 RECORD\
-    \ ITEMS (unscored, non-blocking): frozen e02s01 §17 P0-04 direction clause omitted\n\
-    (frozen text — record only, never rewrite); Zoom-Out omissions of trading_graph.py\
+    file_caps: cli/main.py 1460 -> 1276 (new cli/gate_policy.py + cli/stream_handler.py, report surfaces
+      moved to cli/complete_report.py); trading_graph.py 651 -> 652 (+1 line)
+    rulings: D1 transcript-based skip discrimination (spec line 55 ruled wrong), D2 no new AgentState
+      field, D3 per-task red_tests evidence in the ledger, D4 new modules for all new CLI code, D5 no
+      fabricated RED for the P3-01 logging, D6 ledger verifies authoritative
+    routed: 'FLAKE SIGHTING #4 of the one-shot TestLoadOhlcvNoPoison class (first full-suite run of this
+      leg; isolated --tb=long attempt passed, so no traceback; both later runs green)'
+  e02s03_routed_queue: "STEP 2 (plan-work, frozen-plan VERIFICATION/REFRESH pass) — 2026-09-20T09:0xZ:\
+    \ no frozen artifact rewritten.\n5/5 tasks carry a runnable verify:; every one of the five baseline-runs\
+    \ RED on the current tree, so the\nfailing ledger is genuine and no verify is a no-op. plan-consistency-check.sh\
+    \ on the capsule:\nCRITICAL=0 HIGH=0 MED=0. Frozen snapshot == live e02s03 spec/tasks byte-for-byte\
+    \ (only story status differs).\nROUTED-QUEUE MAPPING (state.yaml handoff.release_branch_step8 items\
+    \ 1-7 + standing A10):\n1) CONVENTIONS.md cap-table row (cli/main.py 1460 vs actual 1276) -> GAP:\
+    \ docs task 4 additionally updates\n   CONVENTIONS.md § File-Size Exceptions (cli/main.py 1276, trading_graph.py\
+    \ 672); same commit, no new task.\n2) double env notice (cli/gate_policy.py:76-81 + :99-104) -> GAP:\
+    \ code+test change, outside the frozen docs\n   plan; proposed as a separate quick-fix commit in-story\
+    \ at step 4 (dedupe so the notice prints once).\n3) gitignore or ban tests/_tmp_cache -> GAP: data-only;\
+    \ quick-fix commit in-story at step 4\n   (`.gitignore` entry) or defer past e02.\n4) injectable reachability\
+    \ check (BUG-2026-09-20-no-data-handling-live-vendor-probe follow-up) -> GAP:\n   test-architecture\
+    \ change, exceeds 3 bcps; proposed defer past e02 into a fix-bug story.\n5) ask_debate_gate SystemExit\
+    \ branch untested (cli/gate_policy.py:58-62) -> GAP: test addition; proposed\n   separate quick-fix\
+    \ commit in-story at step 4 (1 test) or defer past e02.\n6) CHANGELOG one-time checkpoint-signature\
+    \ churn + default-policy change + restore switch -> task 1.\n7) cover the ask_debate_gate env notice\
+    \ in env-skip tests -> task 5 (preflight) plus the step-4 quick-fix\n   touching tests/test_cli_env_skip.py;\
+    \ no separate task.\nSTANDING A10 RECORD ITEMS (unscored, non-blocking): frozen e02s01 §17 P0-04 direction\
+    \ clause omitted\n(frozen text — record only, never rewrite); Zoom-Out omissions of trading_graph.py\
     \ and agent_states.py;\nprogress.md at the project root. All recorded, none blocking."
-  release_branch_step8: 'STEP 8 (release-branch, team-pr decision mode) — 2026-09-20T08:33Z:
-    final Preflight at the reviewed tip 1024 passed / 2 skipped / 88 subtests, ruff
-    clean, serial behind a clean ps-based concurrency pre-check; all 17 story commits
-    conventional, zero co-authored-by trailers, no secret patterns. `gh` is absent,
-    so there is no PR object and no merge: branch feat/e02s02 is pushed to origin
+  release_branch_step8: 'STEP 8 (release-branch, team-pr decision mode) — 2026-09-20T08:33Z: final Preflight
+    at the reviewed tip 1024 passed / 2 skipped / 88 subtests, ruff clean, serial behind a clean ps-based
+    concurrency pre-check; all 17 story commits conventional, zero co-authored-by trailers, no secret
+    patterns. `gh` is absent, so there is no PR object and no merge: branch feat/e02s02 is pushed to origin
     as an ordinary (never force) push — compare URL https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s02
-    — landed=false, merge_ref=null, release.ci_verified=false with the reason recorded.
-    Bookkeeping committed on the branch: execution-status e02s02 done + completed_at
-    + 55.5 min / 5.41 bcp_per_hour; spec header and epic capsule mirrored in the SAME
-    pass (G-12); cycle-times.yaml row on the wall-clock basis (a squash landing degenerates
-    git-effort to 0.0h — choosing a merge-commit landing is the user decision); e02s02
-    story lock RELEASED; e02 stays in_progress with e02s03 todo. NEXT: e02s03 (Docs
-    + knowledge refresh, 3 bcps, risk P2) starting at step 1 survey-context on epic
-    e02. ROUTED QUEUE for e02s03: (1) CONVENTIONS.md cap-table row cli/main.py 1460
-    is stale — actual 1276 after the e02s02 extraction; refresh during the docs pass.
-    (2) double env notice on the interactive path (cli/gate_policy.py:76-81 and :99-104)
-    when TRADINGAGENTS_DEBATE_GATE is set — values accurate, wording redundant. (3)
-    gitignore or ban tests/_tmp_cache (BUG-2026-09-20-no-data- handling-nonhermetic-cache
-    and the -live-vendor-probe follow-up). (4) injectable reachability check (same
-    BUG follow-up). (5) the ask_debate_gate SystemExit branch is untested. (6) the
-    e02s03 CHANGELOG entry must state the one-time checkpoint-signature churn (`gate=<mode>`
-    invalidates pre-e02s02 threads once), the Debate Gate default-policy change and
-    the restore switch. (7) cover the ask_debate_gate env notice in the env-skip tests.
-    STANDING A10 RECORD ITEMS (unscored, non-blocking): the frozen story spec section
-    17 direction clause and the Zoom-Out omissions of trading_graph.py and agent_states.py;
-    the state.yaml divergence lists; progress.md at the project root. LANDING NOTE
-    (MAIN DRIFT): origin/main advanced past 5c7a9ac (cockpit commits carrying e02s02-verify-r1.yaml,
-    r2 and the flake capture) while this branch was cut from 5c7a9ac, and BOTH sides
-    edited specs/state.yaml — at the landing the BRANCH copy of specs/state.yaml is
-    authoritative (step-8 record, closed e02s02 metrics, e02s03 handoff), so reconcile
-    main deliberately instead of merging that file textually. LANDED (2026-09-20T08:4xZ):
-    the user Safety gate chose "Merge commit locally" (preserving git-effort attribution)
-    and "proceed to e02s03 automatically". `git merge --no-ff feat/e02s02` produced
-    the MERGE COMMIT 71bf36b on main (parents 3bb54bd + 2333a1b) with the drafted
-    subject and a Story: e02s02 trailer. Conflicts resolved by the landing rule: specs/state.yaml
-    and specs/agent-locks.yaml took the BRANCH copy (locks: [], re-stamped here with
-    the post-landing vcs/pr facts); progress.md was unioned chronologically (root
-    log through the step-7 dispatch, the two resident develop narratives interleaved
-    at their phases, the orchestrator''s root-latest landing section last); specs/verifications/*
-    unioned automatically (r1/r2 + flake capture from main, AUDIT + pr-body from the
-    branch); specs/fleet-agents.yaml kept root''s newer copy and gained the landing
-    note. Preflight on main BEFORE the push: 1024 passed / 2 skipped / 88 subtests,
-    ruff clean, exit 0, serial behind a clean ps concurrency pre-check; validate-specs-yaml
-    OK. Pushed main 3bb54bd..71bf36b (ordinary push, no force, no tag — semantic-release
-    owns versions). Git-effort is now real: `scripts/record-cycle-time.sh report --range
-    3bb54bd..HEAD` -> e02s02 0.77 h / 19 commits / 47 min coding span, additivity
-    PASS — the merge-commit landing did what e02s01''s squash could not (0.0 h). Worktree
-    .worktrees/e02s02 removed after `git merge-base --is-ancestor feat/e02s02 main`
-    and a clean TRACKED tree; local and remote branches feat/e02s02 kept (e02s01 precedent,
-    no deletion without a user request); the root .git/info/exclude mirror was left
-    in place (harmless, and .gitignore now carries .worktrees/ on main). e02 stays
-    in_progress with e02s03 todo — the capsule is NOT archived (archive only when
-    every e02 story is done).'
+    — landed=false, merge_ref=null, release.ci_verified=false with the reason recorded. Bookkeeping committed
+    on the branch: execution-status e02s02 done + completed_at + 55.5 min / 5.41 bcp_per_hour; spec header
+    and epic capsule mirrored in the SAME pass (G-12); cycle-times.yaml row on the wall-clock basis (a
+    squash landing degenerates git-effort to 0.0h — choosing a merge-commit landing is the user decision);
+    e02s02 story lock RELEASED; e02 stays in_progress with e02s03 todo. NEXT: e02s03 (Docs + knowledge
+    refresh, 3 bcps, risk P2) starting at step 1 survey-context on epic e02. ROUTED QUEUE for e02s03:
+    (1) CONVENTIONS.md cap-table row cli/main.py 1460 is stale — actual 1276 after the e02s02 extraction;
+    refresh during the docs pass. (2) double env notice on the interactive path (cli/gate_policy.py:76-81
+    and :99-104) when TRADINGAGENTS_DEBATE_GATE is set — values accurate, wording redundant. (3) gitignore
+    or ban tests/_tmp_cache (BUG-2026-09-20-no-data- handling-nonhermetic-cache and the -live-vendor-probe
+    follow-up). (4) injectable reachability check (same BUG follow-up). (5) the ask_debate_gate SystemExit
+    branch is untested. (6) the e02s03 CHANGELOG entry must state the one-time checkpoint-signature churn
+    (`gate=<mode>` invalidates pre-e02s02 threads once), the Debate Gate default-policy change and the
+    restore switch. (7) cover the ask_debate_gate env notice in the env-skip tests. STANDING A10 RECORD
+    ITEMS (unscored, non-blocking): the frozen story spec section 17 direction clause and the Zoom-Out
+    omissions of trading_graph.py and agent_states.py; the state.yaml divergence lists; progress.md at
+    the project root. LANDING NOTE (MAIN DRIFT): origin/main advanced past 5c7a9ac (cockpit commits carrying
+    e02s02-verify-r1.yaml, r2 and the flake capture) while this branch was cut from 5c7a9ac, and BOTH
+    sides edited specs/state.yaml — at the landing the BRANCH copy of specs/state.yaml is authoritative
+    (step-8 record, closed e02s02 metrics, e02s03 handoff), so reconcile main deliberately instead of
+    merging that file textually. LANDED (2026-09-20T08:4xZ): the user Safety gate chose "Merge commit
+    locally" (preserving git-effort attribution) and "proceed to e02s03 automatically". `git merge --no-ff
+    feat/e02s02` produced the MERGE COMMIT 71bf36b on main (parents 3bb54bd + 2333a1b) with the drafted
+    subject and a Story: e02s02 trailer. Conflicts resolved by the landing rule: specs/state.yaml and
+    specs/agent-locks.yaml took the BRANCH copy (locks: [], re-stamped here with the post-landing vcs/pr
+    facts); progress.md was unioned chronologically (root log through the step-7 dispatch, the two resident
+    develop narratives interleaved at their phases, the orchestrator''s root-latest landing section last);
+    specs/verifications/* unioned automatically (r1/r2 + flake capture from main, AUDIT + pr-body from
+    the branch); specs/fleet-agents.yaml kept root''s newer copy and gained the landing note. Preflight
+    on main BEFORE the push: 1024 passed / 2 skipped / 88 subtests, ruff clean, exit 0, serial behind
+    a clean ps concurrency pre-check; validate-specs-yaml OK. Pushed main 3bb54bd..71bf36b (ordinary push,
+    no force, no tag — semantic-release owns versions). Git-effort is now real: `scripts/record-cycle-time.sh
+    report --range 3bb54bd..HEAD` -> e02s02 0.77 h / 19 commits / 47 min coding span, additivity PASS
+    — the merge-commit landing did what e02s01''s squash could not (0.0 h). Worktree .worktrees/e02s02
+    removed after `git merge-base --is-ancestor feat/e02s02 main` and a clean TRACKED tree; local and
+    remote branches feat/e02s02 kept (e02s01 precedent, no deletion without a user request); the root
+    .git/info/exclude mirror was left in place (harmless, and .gitignore now carries .worktrees/ on main).
+    e02 stays in_progress with e02s03 todo — the capsule is NOT archived (archive only when every e02
+    story is done).'
+  phase5: 'in-progress: run-evals + project verify-work dispatched off-main (worktree .worktrees/verify-phase5,
+    branch verify/phase5); epic e02 COMPLETE — all three stories landed (e02s01 d7557e4 squash, e02s02
+    71bf36b merge, e02s03 26f3916 merge); Phase 6 RELEASE pending a green Phase 5'

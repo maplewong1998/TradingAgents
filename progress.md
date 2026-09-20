@@ -895,3 +895,33 @@ and the compare URL emitted for manual PR creation. `main` untouched
   tooling gap (specs/import-boundaries.json absent — the script exits 0 but prints
   FAIL); e01s01/e01s02 trace-stale items; the CHANGELOG "Gate decisions log at INFO"
   wording nit for the judged-hold branch that emits no gate log line.
+
+## 2026-09-20T10:1xZ — e02s03 LANDED (26f3916); PHASE 5 VERIFY opened
+
+- Landing: merge commit 26f3916 (parents 37dbc93 + 8d930cc) + bookkeeping 9d0a039/b883f43,
+  pushed; main == origin/main == b883f43; worktree removed; branch kept locally.
+  origin/feat/e02s03 vanished post-merge (push pruning or GitHub auto-delete; nobody
+  deleted it — recorded so it is not misattributed).
+- Cycle attribution: git-hours 1.77h / 24 commits / 106 min span, additivity PASS;
+  wall-clock 75.5 min / 2.39 bcp_per_hour alongside. An intermediate 0.98h measurement
+  was corrected in b883f43 with the delta explained (landing record + <120min session rule).
+- EPIC e02 COMPLETE: e02s01 d7557e4 (6.53 bcp/h wall) + e02s02 71bf36b (5.41 bcp/h,
+  0.77h git) + e02s03 26f3916 (2.39 bcp/h, 1.77h git). Capsule NOT archived (ceremony
+  deferred past Phase 5/6). All five stories in execution-status: done.
+- PHASE 5 VERIFY opened (user decision: automatic). Two parallel read-only children:
+  - verify_work 9c525c54-d6bd-418a-aee9-e4ff705a057a — project UAT OFF-MAIN in
+    .worktrees/verify-phase5 (branch verify/phase5 off b883f43, own venv): cold-start,
+    lint, FULL suite (expect 1027/2), per-story § Verification Script incl. offline
+    substitutions, project UAT narrative (bogus-env ValueError; auto E2E skip; always
+    sequence; checkpoint gate=<mode> re-key; README claims), docs spot-checks, gaps
+    collected (fixes NOTHING). Evidence: /tmp/phase5-verify-uat.yaml.
+  - run_evals 2ab74b7c-9bfa-4140-985a-359b1e2c6ae3 — eval set (capability/regression/
+    safety) mapped to e02 TEST_PLAN scenarios + existing pytest nodes; targeted graders
+    serially at ROOT venv (no full-suite runs — sibling owns those; mutual waiver
+    recorded); artifact /tmp/phase5-evals-e02.md; eval gaps listed, not written.
+- Sibling-concurrency rule issued to both: the OTHER fleet child's pytest is EXPECTED;
+  the ps-ritual guards only against UNKNOWN processes. State: handoff.phase5 marker set,
+  next_skill=verify-work.
+- After both verdicts: persist evidence onto main (specs/verifications/, specs/EVALS-e02.md),
+  then Phase 6 RELEASE — noting the repo has NO semantic-release tooling, so the v-tag
+  decision goes to the user (Safety gate).
