@@ -27,7 +27,7 @@ git:
   branch: main
   worktree: null
 release:
-  last_tag: null
+  last_tag: v0.6.0
   last_publish: null
   target_version: 0.6.0
   ci_verified: false
@@ -336,3 +336,12 @@ handoff:
     security sweep -> user decision pending; F3 gh/CI uncheckable -> accepted user decision (recorded);
     F4 evidence persisted by orchestrator. NEXT: Phase 6 RELEASE pending the user''s version decision
     (repo has NO semantic-release tooling)'
+  phase6: 'COMPLETE: annotated tag v0.6.0 created on the release commit 79ce208 and pushed to origin (tag
+    object a523753). CHANGELOG carries ## [0.6.0] - 2026-09-20 with an empty Unreserved-style cycle heading
+    for the future; pyproject version 0.6.0 is the sole canonical pin. Manual deliberate release by explicit
+    user decision (semantic-release tooling not wired). PROJECT CYCLE PHASES 1-6 COMPLETE. Routed for
+    later: local .venv dist-info still reads 0.5.0 (self-heals on next install; refresh = uv pip install
+    -e . --no-deps + re-run test_sec_edgar.py); optional epic-close ceremony (archive specs/epics/e02-*
+    to specs/epics/archive/); post-e02 routed queue in handoff.release_branch_step8 + cycle-times row
+    (injectable reachability fix-bug, check-import-boundaries tooling gap, six eval promotion candidates
+    in specs/EVALS-e02.md section 7)'

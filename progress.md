@@ -985,3 +985,22 @@ and the compare URL emitted for manual PR creation. `main` untouched
   push main, NO tag (final go comes from the user).
 - On its report: verify → final ask_user_question "push tag v0.6.0?" → tag + push +
   release bookkeeping (release.last_tag) → project cycle complete.
+
+## 2026-09-20 — RELEASE v0.6.0 TAGGED; SIX-PHASE PROJECT CYCLE COMPLETE
+
+- User final go received ("Tag v0.6.0 now"). Annotated tag v0.6.0 created on the
+  release commit 79ce208 (tag object a523753) and pushed to origin — tag message
+  carries the release highlights, the manual-release declaration, and the cycle
+  evidence (verify-work 7/7, run-evals 33/33, Preflight 1027/2, ruff clean).
+- state.yaml: release.last_tag v0.6.0; handoff.phase6 = COMPLETE marker. Roster:
+  release_edit child d9f3a633 recorded done.
+- Local hygiene routed (not blocking): .venv dist-info reads 0.5.0 until the next
+  editable install; refresh command + affected test noted in handoff.phase6.
+- PROJECT CYCLE COMPLETE: Phase 1 DISCOVER (VISION/SCOPE/TECH_STACK) → Phase 2
+  ELABORATE (grill + language + architecture, 94% gate) → Phase 3 PLAN (WSJF
+  release index, BCP baselines) → Phase 4 BUILD (e01 2 stories + e02 3 stories,
+  every story through develop→verify→gate with two substantive verify catches and
+  one root-caused flake fix) → Phase 5 VERIFY (verify-work 7/7 + run-evals 33/33,
+  project UAT 47/47) → Phase 6 RELEASE (v0.6.0 tagged + pushed).
+- Optional ceremony offered, not executed: archiving specs/epics/e02-* to
+  specs/epics/archive/; post-release eval promotion (specs/EVALS-e02.md §7).
