@@ -757,3 +757,27 @@ and the compare URL emitted for manual PR creation. `main` untouched
   SC-e02s03-* grep re-derivation, docs_accuracy phase (independent re-measurement incl.
   wc -l of the three capped files), QF audits (incl. mutation-proof re-derivation and
   item-4-untouched confirmation), regressions + house rules, flake capture-first rule.
+
+## 2026-09-20 — e02s03 verify r1 PASS (9/9); gate r1 dispatched
+
+- verify (e1f1740c) r1: PASS all 9 phases @ e53ee9d. Preflight reproduced 1027/2/88;
+  tasks 1-5 verifies exit 0; CONVENTIONS rows re-measured 8/8 vs wc -l; QF-A RED
+  genuine (2!=1 reproduced from a scratch worktree at 2e359da), QF-B disclosure HONEST
+  + mutation re-derived (DID NOT RAISE at tests/test_cli_prefs.py:138), QF-C
+  check-ignore .gitignore:240; deferred item 4 untouched; regressions 120+73;
+  docs_accuracy: both develop deviations upheld (31 Any/noqa breakdown 14/11/6/0;
+  5 Rich cli modules; 16 _ENV_OVERRIDES 0 missing; 15 logging modules; 6 integration).
+  No flake sighting. Evidence archived: specs/verifications/e02s03-verify-r1.yaml.
+- A10 routed (non-blocking, fix-forward candidates): tech-stack.md:140 73→72
+  console.print (QF-A removed one); :146/184 74/426/12609 vs same-method 75/428/12612;
+  "widest reading 39" defends only to 37 (docs state primary 31 — nothing depends on 39).
+- state: epic_cycle.step=6, next_skill=audit-code (root+worktree).
+- gate resident started (NEW for e02s03): 8a6c1d36-67cb-46e6-a0d0-086c0ee54e95 —
+  audit-code --gate + >=94% over git diff 276cfc4..e53ee9d (12 commits); docs-accuracy
+  spot-checks (≥5 claims vs code); QF-A hunk as code review; R(a)/R(b)/R(c) + QF-B
+  honesty + task-5 baseline-green declared adjudicated; A10 scoping; report to
+  specs/verifications/AUDIT-e02-e02s03.md IN THE WORKTREE.
+- Pending decision after gate PASS: whether to fold the three A10 count corrections
+  (73→72 etc.) into a tiny develop fix-forward commit before steps 7-8, or let them
+  ride as routed notes (they are inside files this story already rewrote — cheap to
+  fix now; A10 says never blocking either way).

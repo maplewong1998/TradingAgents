@@ -1,0 +1,229 @@
+story_id: e02s03
+epic_id: e02
+round: 1
+verified_at: "2026-09-20T17:1x:xx+08:00"
+verifier: verify-work (resident verify child, build-epic step 5, round 1)
+worktree: /home/maplewong1998/Repository/TradingAgents/.worktrees/e02s03
+branch: feat/e02s03
+tip: e53ee9d (branch tip, unchanged before and after this pass)
+base: 276cfc4 (main; root tree never judged or tested)
+risk: P2 (docs story + 3 ruled quick-fixes)
+mode: "read-only judge — no file in either tree modified (only the orchestrator-owned
+  uncommitted specs/state.yaml epic_cycle.step=5 cockpit edit is present; scratch in
+  /tmp only: /tmp/e02s03-base, /tmp/e02s03-mut, /tmp/e02s03-red — all removed)"
+overall_verdict: pass
+delta_files: ".env.example, .gitignore, CHANGELOG.md, CONVENTIONS.md, README.md,
+  cli/gate_policy.py, specs/agent-locks.yaml, specs/epics/e02-conditional-debate-gate/e02s03-tasks.yaml,
+  specs/execution-status.yaml, specs/product/GLOSSARY_LATEST.yaml, specs/state.yaml,
+  specs/tech-architecture/tech-stack.md, specs/verifications/e02s03-kickoff-baseline.yaml,
+  tests/test_cli_env_skip.py, tests/test_cli_prefs.py — git diff --name-status 276cfc4..e53ee9d
+  (no scripts/, no pyproject.toml, no stockstats_utils/vendor_reachable)"
+
+concurrency_ritual: "ps -eo pid,args | grep -E '[p]ython -m pytest' | grep -v 'bash -c' -> empty
+  before the full-suite leg AND before the regression leg (never bare pgrep -f)"
+
+phases:
+  cold_start:
+    verdict: pass
+    commands:
+      - "env -u VIRTUAL_ENV -u PYTHONPATH -u TRADINGAGENTS_DEBATE_GATE .venv/bin/python -c '<import 15 modules>' -> exit 0
+         (tradingagents, cli, cli.main, cli.gate_policy, cli.prefs, cli.config, cli.utils, cli.models,
+         cli.announcements, cli.complete_report, cli.stats_handler, cli.stream_handler,
+         tradingagents.graph.trading_graph, tradingagents.graph.setup, tradingagents.agents.schemas)"
+      - "package resolved to the worktree: tradingagents.__file__ = /home/.../.worktrees/e02s03/tradingagents/__init__.py"
+      - ".venv/bin/tradingagents --help -> exit 0 (console script present in .venv/bin)"
+    note: "first import attempt named 'cli.display', which does not exist in this repo (cli/ has
+      announcements, complete_report, config, gate_policy, main, models, prefs, stats_handler,
+      stream_handler, utils) — my stale assumption, not a finding; re-run against the real module set"
+  preflight:
+    verdict: pass
+    full_suite:
+      command: ".venv/bin/python -m pytest -q"
+      result: "1027 passed, 2 skipped, 22 warnings, 88 subtests passed in 3.34s"
+      exit_code: 0
+      capture: /tmp/e02s03-verify-r1-pytest.log
+      vs_develop_claim: "matches exactly (1027/2/88); +3 over the kickoff baseline 1024/2 = the 3 new tests"
+    lint:
+      command: ".venv/bin/ruff check ."
+      result: "All checks passed!"
+      exit_code: 0
+    specs_yaml:
+      command: "bash scripts/validate-specs-yaml.sh"
+      result: "validate-specs-yaml: OK"
+      exit_code: 0
+    flake: "TestLoadOhlcvNoPoison passed in the full-suite leg and in the regression legs — no flake sighting, no capture needed"
+  task_verifies:
+    verdict: pass
+    results:
+      - {task: 1, risk: P2, command: "grep -qi 'debate gate' CHANGELOG.md && grep -q 'TRADINGAGENTS_DEBATE_GATE' CHANGELOG.md", exit_code: 0}
+      - {task: 2, risk: P3, command: "grep -q 'TRADINGAGENTS_DEBATE_GATE' .env.example", exit_code: 0}
+      - {task: 3, risk: P3, command: "grep -q 'debate_gate' README.md", exit_code: 0}
+      - {task: 4, risk: P3, command: "grep -q 'Debate Gate' specs/tech-architecture/tech-stack.md && grep -q 'debate_gate' specs/product/GLOSSARY_LATEST.yaml", exit_code: 0}
+      - {task: 5, risk: P2, command: ".venv/bin/python -m pytest -q && ruff check . && bash scripts/validate-specs-yaml.sh", exit_code: 0}
+    pattern_check: "no grep-pattern mismatch (step 1a) — every pattern exists in the named file"
+  manual_uat:
+    verdict: pass
+    spec_verification_script:
+      item_1: "CHANGELOG '## [Unreleased]' entry (CHANGELOG.md:9, no version number, no 0.6.0 heading):
+        names the conditional default ('The default policy is `auto`'), the env var, the exact restore
+        switch (`debate_gate: \"always\"` / `TRADINGAGENTS_DEBATE_GATE=always` = pre-gate behavior),
+        and the one-time re-keying (`gate=<mode>`) — all four present"
+      item_2: "grep -n TRADINGAGENTS_DEBATE_GATE .env.example README.md -> .env.example:49
+        (#TRADINGAGENTS_DEBATE_GATE=auto, with the always/auto/never semantics in the comment above),
+        README.md:193, :272, :338 — consistent, no divergence"
+      item_3: "Debate Gate present in specs/tech-architecture/tech-stack.md (:50 flow node, :54 legend,
+        :166 Signals 3) and in GLOSSARY_LATEST.yaml; the YAML re-parses (yaml.safe_load) with 23 terms
+        and all three new terms resolve: Debate Gate, Alignment Marker, debate_gate policy"
+      item_4: "Preflight green (see preflight phase)"
+    extra_checks:
+      env_example_valid_modes: "the comment block above .env.example:49 states always / auto (default) / never"
+      changelog_churn_claims: "all confirmed against code — default 'auto' (default_config.py:143);
+        gate=<mode> is the last _run_signature term (trading_graph.py:413); a pre-gate thread has no
+        gate= key, so it cannot match; skipped debates show 'skipped' (cli/stream_handler.py:150-156);
+        the saved report tree carries '## Debate Gate' (tradingagents/reporting.py:92-96)"
+      readme_vs_actual_cli:
+        - "step position: README says the Debate Gate Policy step follows Research Depth — main.py:623
+          (Step 5 Research depth) then main.py:645-649 (Step 5b) then :653 (Step 6 provider) — accurate"
+        - "prompt is skippable via the env var: select_debate_gate returns before printing the box
+          (cli/gate_policy.py:80-81) — accurate"
+        - "cancel does not guess: ask_debate_gate raises SystemExit(1) on a None answer (:58-62) — accurate"
+        - "offline substitutions: no provider key, so the README's provider-dependent paths were exercised
+          with the real functions rather than a live run — a Console(file=StringIO) + patched questionary
+          log, and the full-suite CLI tests (TestDebateGateEnvNotice, test_cli_prefs); env vars
+          OPENAI_API_KEY=sk-placeholder-not-real were never used for a live call. The .venv/bin/tradingagents
+          entry point was exercised only as --help (exit 0) and an EOF/no-TTY abort, because reaching the
+          gate prompt requires completing the ticker/date/provider prompts first."
+      glossary_three_terms: "all three present with code sources, and the Alignment Marker note that the
+        marker is written on both paths (skip and held) matches render_debate_gate_marker's docstring and
+        its two call sites (debate_gate.py:160 held-path, :181 skip-path)"
+      conventions_rows_re_measured:
+        method: "wc -l on each file in the worktree"
+        rows: "cli/main.py 1276 = 1276; cli/utils.py 718 = 718; tradingagents/graph/trading_graph.py 652 = 652;
+          tradingagents/dataflows/y_finance.py 527 = 527; tradingagents/agents/schemas.py 392 = 392;
+          tradingagents/llm_clients/openai_client.py 338 = 338; tradingagents/agents/utils/memory.py 337 = 337;
+          tradingagents/dataflows/stockstats_utils.py 330 = 330 — every row matches"
+        ratchet: "no cap was raised: main.py 1276 (< the old 1460), trading_graph.py 652 (< the old 672),
+          agents/schemas.py 392 (true measured count, unchanged by this story — no Python added), and the
+          e02s01-ruling-1 WHY note is present on the schemas.py row"
+  acceptance_criteria:
+    verdict: pass
+    method: "the story's scenarios are grep-gate style; every gate re-run by hand (above), then the
+      claims behind them read against the code"
+    SC-e02s03-P2-01: "PASS — upgrading 0.5.x reader learns (a) the debate is conditional by default
+      (CHANGELOG 'The default policy is `auto`' + README table), (b) checkpoints re-key once
+      ('One-time checkpoint re-keying (gate=<mode>)', 'each affected ticker starts fresh once'),
+      (c) debate_gate=always restores prior behavior ('The restore switch is exact'). All three
+      claims verified against default_config.py:143, trading_graph.py:413 and the gate node."
+    SC-e02s03-P3-01: "PASS — survey-context can describe the Debate Gate without source reading:
+      tech-stack.md:50 flow node + :54 legend (module path + policy values) + :166 Signals 3
+      (registration mechanism) + the _run_signature term at :76; GLOSSARY_LATEST.yaml carries all
+      three terms with source paths. Spec declares exactly these two scenarios (e02s03-docs.md:45,:50);
+      no other SC-e02s03-* id exists."
+  quickfix_audit:
+    verdict: pass
+    QF_A:
+      commit_pair: "2e359da (test RED) -> 33d5d11 (fix)"
+      behavior_re_derived: "offline driver over the real functions: env set -> select_debate_gate returns
+        the config value, ask_debate_gate never called, resolve_debate_gate prints exactly 1 notice;
+        env unset -> menu answer ('always') is returned and applied. Values and precedence unchanged."
+      red_genuine: "scratch worktree /tmp/e02s03-red at 2e359da + the 33d5d11 test files (fix commit NOT
+        applied): 'assertEqual(len(notice), 1)' fails 'AssertionError: 2 != 1' quoting both notices
+        ('✓ Debate gate policy from environment: never ...' and '✓ debate_gate from environment: never ...').
+        The RED commit is genuinely red; 2 failed / 1 passed."
+    QF_B:
+      tests: "tests/test_cli_prefs.py::test_cancelling_the_gate_prompt_exits_instead_of_guessing (SystemExit
+        branch, cli/gate_policy.py:58-62) + tests/test_cli_env_skip.py::TestDebateGateEnvNotice (2 tests)"
+      disclosure_honesty: "HONEST AND VERIFIED. Develop disclosed that the SystemExit test passes on the
+        branch as written because the branch pre-exists. Confirmed: it passes on the untouched tree
+        (1 passed in 0.48s)."
+      non_vacuity_re_derived: "scratch copy /tmp/e02s03-mut with the branch mutated to 'return \"auto\"':
+        FAILED with 'Failed: DID NOT RAISE SystemExit' at tests/test_cli_prefs.py:138 — the mutation claim
+        reproduces exactly as disclosed."
+    QF_C:
+      check: "git check-ignore -v tests/_tmp_cache/ -> .gitignore:240:tests/_tmp_cache/ (exit 0)"
+      scope: "data-only, 5 added lines, cites BUG-2026-09-20-no-data-handling-nonhermetic-cache"
+    deferred_item_4:
+      check: "git diff --name-only 276cfc4..e53ee9d | grep -E 'stockstats_utils|vendor_reachable' -> empty"
+      verdict: "NOT touched, as ruled (deferred past e02; the BUG spec still references it as a follow-up)"
+  regressions:
+    verdict: pass
+    named_files:
+      command: ".venv/bin/python -m pytest tests/test_cli_env_skip.py tests/test_cli_prefs.py
+        tests/test_cli_config_precedence.py tests/test_cli_display.py tests/test_debate_gate.py -q"
+      result: "120 passed in 0.94s"
+      exit_code: 0
+    invariant_subsets:
+      command: ".venv/bin/python -m pytest tests/test_checkpoint_lifecycle.py tests/test_checkpoint_resume.py
+        tests/test_env_overrides.py tests/test_cli_commands.py tests/test_cli_no_console.py
+        tests/test_reporting.py tests/test_rating_integrity.py -q"
+      result: "73 passed in 1.39s"
+      exit_code: 0
+    no_test_weakened: "the two modified test files are additive only (56 and 22 added lines, no deletions
+      except the 33d5d11 assertion rewrite that pins the new one-notice contract); no skip/xfail added"
+  house_rules:
+    verdict: pass
+    version: "pyproject.toml version = 0.5.0 (untouched, not in the diff); CHANGELOG has no 0.6.0 heading"
+    scripts: "scripts/ is a symlink; no scripts change in the diff"
+    code_scope: "the only non-docs product-code hunk is cli/gate_policy.py (QF-A). No cli/main.py change,
+      no tradingagents/ change, no stockstats_utils/vendor_reachable change."
+    commits: "12 commits after 276cfc4 (the 11 develop round-1 commits + the kickoff commit 787a829);
+      all 12 carry 'Story: e02s03' and all 12 are Conventional Commits. Develop's '11 commits
+      12f8911..e53ee9d' is exactly right (the range excludes 787a829)."
+    caps: "cli/main.py 1276 and tradingagents/graph/trading_graph.py 652 unchanged and under their
+      previous caps; agents/schemas.py 392 matches the re-locked row"
+  docs_accuracy:
+    verdict: pass
+    method: "every develop-reported number re-measured on the worktree, and — where a number disagreed —
+      re-measured with the identical command on a git archive of the base tree 276cfc4 to separate
+      this story's drift from the pre-existing documentation"
+    reproduced_exactly:
+      any_noqa_markers: "grep -rnE '(: Any|Any\\]|type: ignore|noqa)' tradingagents/ cli/ -> 31
+        (14 ': Any', 11 'Any]', 6 'noqa', 0 'type: ignore') — the doc's stated method and breakdown
+        reproduce exactly; base tree 31 as well (so the refresh neither fixed nor changed it)"
+      rich_modules: "grep -rlE '^from rich|^import rich' cli/ -> 5 (announcements, complete_report,
+        gate_policy, main, utils) — develop's correction of the planning figure 14 is right"
+      env_overrides: "len(default_config._ENV_OVERRIDES) = 16; keys missing from .env.example = []
+        (TRADINGAGENTS_DEBATE_GATE was the last one)"
+      logging_modules: "grep -rl 'logging.getLogger(__name__)' tradingagents/ cli/ -> 15"
+      integration_tests: "grep -rn pytest.mark.integration tests/ -> 6, and the doc's enumeration is
+        exact: 4 in test_debate_gate.py, 1 in test_cli_display.py, 1 in test_deepseek_reasoning.py"
+      conventions_rows: "all 8 rows match wc -l exactly (see manual_uat)"
+      changelog_heading: "no invented 0.6.0; pyproject stays 0.5.0"
+    routed_notes_not_failures:
+      - "tech-stack.md:140 says '73 `console.print(...)` calls'. Measured on the tip tree: 72
+        (grep -rn 'console.print' cli/ | wc -l; also 72 by file-sum). The 73 came from the base tree
+        (276cfc4 = 73) and the QF-A commit 33d5d11 removed exactly one such call from cli/gate_policy.py,
+        so this one count should read 72 at the tip. Low-impact (a one-off count in a paragraph whose
+        point is the 5-module figure, which is correct) and not substantive — routed to the record-integrity
+        list, deliberately NOT a failure (A10)."
+      - "tech-stack.md:146/184 say '74 test files, 426 pytest.mark.unit tests' and '12609 source lines'.
+        Same method on the tip: 75 files (tests/*.py), 428 unit markers, 12612 lines (tradingagents/ + cli/);
+        on the base tree: 75 / 426 / 12609. So 75 and the two line counts are a stable pre-existing
+        off-by-one/off-by-three convention (the docs' 74 does not include conftest.py + __init__.py, and the
+        source-line figure evidently counts tracked files only) — inherited, not introduced here. The
+        426 -> 428 movement is real (this leg added 2 new unit tests in the same commit range): a small
+        staleness in a freshness pass, routed as a note."
+      - "the 'widest reading 39' for the Any/noqa family did not reproduce: ': Any|Any]|-> Any|[Any
+        |type: ignore|noqa' gives 37 on the tip. The doc states the defensible primary reading (31 with
+        its breakdown), so this only narrows a develop-reported spread, and nothing in the docs depends on 39."
+    disclosed_deviations_upheld: "the two headline corrections develop reported — 31 not 32 for the
+      Any/noqa family, and 5 not 14 for Rich-importing cli/ modules — both re-measure to develop's numbers,
+      so the documented values are the defensible ones"
+
+terminal_verdict:
+  command: ".venv/bin/python -m pytest -q"
+  exit_code: 0
+  captured_at: "2026-09-20T17:12+08:00"
+  result: "1027 passed, 2 skipped, 22 warnings, 88 subtests passed in 3.34s"
+  capture: /tmp/e02s03-verify-r1-pytest.log
+  note: "single contiguous run in the worktree, behind an empty ps-based pytest pre-check;
+    develop's 1027/2/88 reproduced; TestLoadOhlcvNoPoison passed"
+
+flake:
+  status: "no flake observed — TestLoadOhlcvNoPoison passed in every leg run this round; no capture needed"
+  capture: null
+
+gaps:
+  closed: true
+  blocking_failures: 0
+  routed_notes: 3   # the three docs-number notes under docs_accuracy.routed_notes_not_failures
