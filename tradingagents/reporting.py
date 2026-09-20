@@ -10,6 +10,35 @@ from datetime import datetime
 from pathlib import Path
 
 
+def render_debate_gate_section(final_state: dict) -> str | None:
+    """The Debate Gate's outcome as one markdown section, or None when unrecorded.
+
+    Skip vs held is read from the debate transcript, never from the
+    ``debate_gate_verdict`` marker: the held path writes that key too
+    (``agents/gate/debate_gate.py``), with the same sentence, so neither its
+    presence nor its text can discriminate (story e02s02, ruling D1). A skip
+    leaves the Bull/Bear histories empty, plays no rounds, and leaves its marker
+    in ``investment_debate_state.history`` — which states the judge's finding, or
+    that configuration disabled the debate.
+
+    Nothing recorded means no section: inventing "held (0 turns)" for a state
+    that predates the gate would be a claim the run never made.
+    """
+    debate = final_state.get("investment_debate_state") or {}
+    turns = int(debate.get("count") or 0)
+    transcript = bool(
+        str(debate.get("bull_history") or "").strip()
+        or str(debate.get("bear_history") or "").strip()
+    )
+    if transcript or turns > 0:
+        return (
+            f"**Debate held ({turns} turns).** The Bull/Bear debate ran; its "
+            "transcript is in II above."
+        )
+    marker = str(debate.get("history") or "").strip()
+    return marker or None
+
+
 def write_report_tree(final_state: dict, ticker: str, save_path) -> Path:
     """Save a completed run's reports to ``save_path``; return the complete-report path."""
     save_path = Path(save_path)
@@ -59,6 +88,12 @@ def write_report_tree(final_state: dict, ticker: str, save_path) -> Path:
         if research_parts:
             content = "\n\n".join(f"### {name}\n{text}" for name, text in research_parts)
             sections.append(f"## II. Research Team Decision\n\n{content}")
+
+    # 2b. Debate Gate (e02s02): why the Bull/Bear debate ran, or did not. Sits
+    # with the research decision, the phase it governs.
+    gate_section = render_debate_gate_section(final_state)
+    if gate_section:
+        sections.append(f"## Debate Gate\n\n{gate_section}")
 
     # 3. Trading
     if final_state.get("trader_investment_plan"):

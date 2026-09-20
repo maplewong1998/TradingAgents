@@ -75,7 +75,18 @@ tasks:
       (SC-e02s02-P3-01).
     verify: ".venv/bin/python -m pytest -q tests/test_debate_gate.py -k 'report or logging'"
     risk: P2
-    status: failing
+    status: passing
+    # D3 evidence: RED commit a772d4f (4 new tests failing).
+    # D2: the section renders the PERSISTED marker string under a Debate Gate
+    # heading — no new AgentState field (out of frozen scope).
+    # D5: SC-e02s02-P3-01 logging already landed in e02s01; no RED fabricated.
+    red_tests:
+      - tests/test_debate_gate.py::test_report_tree_states_a_skipped_debate_with_its_rationale
+      - tests/test_debate_gate.py::test_report_tree_counts_a_held_debate_in_turns
+      - tests/test_debate_gate.py::test_report_tree_names_a_configuration_skip
+      - tests/test_debate_gate.py::test_the_complete_report_display_carries_the_gate_section
+      - tests/test_debate_gate.py::test_report_tree_omits_the_gate_section_when_nothing_was_recorded
+    green_commit: "feat(reporting): render the Debate Gate section in the report tree and on screen"
     allure:
       severity: normal
       categories: ["unit", "reporting", "observability"]

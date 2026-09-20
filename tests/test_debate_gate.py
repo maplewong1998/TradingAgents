@@ -1014,7 +1014,7 @@ def test_report_tree_counts_a_held_debate_in_turns(tmp_path):
 def test_report_tree_names_a_configuration_skip(tmp_path):
     # scenario: SC-e02s02-P2-02 — debate_gate=never: no judge ran, and the report
     # says the configuration disabled the debate instead of inventing a finding.
-    from tradingagents.agents.schemas import render_policy_skip_marker
+    from tradingagents.agents.gate.schemas import render_policy_skip_marker
 
     marker = render_policy_skip_marker("debate_gate=never")
     state = _report_state(history=marker, current_response=marker, debate_gate_verdict=marker)

@@ -17,7 +17,7 @@ from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.rule import Rule
 
-from tradingagents.reporting import write_report_tree
+from tradingagents.reporting import render_debate_gate_section, write_report_tree
 
 console = Console()
 
@@ -61,6 +61,15 @@ def display_complete_report(final_state):
             console.print(Panel("[bold]II. Research Team Decision[/bold]", border_style="magenta"))
             for title, content in research:
                 console.print(Panel(Markdown(content), title=title, border_style="blue", padding=(1, 2)))
+
+    # IIb. Debate Gate (e02s02): the gate's outcome, from the same renderer the
+    # saved report tree uses, so screen and disk cannot drift apart.
+    gate_section = render_debate_gate_section(final_state)
+    if gate_section:
+        console.print(Panel("[bold]Debate Gate[/bold]", border_style="magenta"))
+        console.print(
+            Panel(Markdown(gate_section), title="Debate Gate", border_style="blue", padding=(1, 2))
+        )
 
     # III. Trading Team
     if final_state.get("trader_investment_plan"):
