@@ -1,0 +1,106 @@
+story_id: e02s01
+title: "Tracer bullet: gate node routes aligned runs past the debate (library end-to-end)"
+spec: e02s01-gate-core-routing.md
+status: failing
+bcps: 8
+# TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
+# its verify command exits 0. Scenario IDs from e02-TEST_PLAN_LATEST.md.
+tasks:
+  - id: 1
+    description: >-
+      RED: create tests/test_debate_gate.py (# story: e02s01) covering the gate
+      routing matrix, schema, marker, initial-state field, RM prompt variants,
+      config validation, non-English reports — scenarios SC-e02s01-P0-01/03/04/05,
+      P1-01/02/03/04/05, P2-01. Tests fail until tasks 2-8 land; collect-only
+      proves the RED suite exists and parses.
+    verify: ".venv/bin/python -m pytest -q tests/test_debate_gate.py --collect-only"
+    risk: P0
+    status: failing
+    allure:
+      severity: critical
+      categories: ["unit", "debate-gate", "RED"]
+  - id: 2
+    description: >-
+      Add DebateGateVerdict (evidence_aligned, confidence, aligned_direction,
+      rationale) + render_debate_gate_marker to tradingagents/agents/schemas.py
+      following the SentimentReport pattern.
+    verify: ".venv/bin/python -m pytest -q tests/test_debate_gate.py -k 'schema or marker'"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "debate-gate", "schemas"]
+  - id: 3
+    description: >-
+      Add create_debate_gate(llm) in new tradingagents/agents/gate/ package
+      (house closure pattern): four reports via report_or_absent, bind_structured
+      judge, Command[Literal['Bull Researcher','Research Manager']] routing,
+      policy short-circuit (always/never = zero LLM calls), fail-safe to Bull +
+      logger.warning on any failure (no free-text retry). Export from agents/__init__.
+    verify: ".venv/bin/python -m pytest -q tests/test_debate_gate.py -k gate"
+    risk: P0
+    status: failing
+    allure:
+      severity: critical
+      categories: ["unit", "debate-gate", "fail-safe"]
+  - id: 4
+    description: >-
+      Initialize AgentState.debate_gate_verdict in Propagator.create_initial_state
+      (house rule: every field pre-initialized).
+    verify: ".venv/bin/python -m pytest -q tests/test_debate_gate.py -k initial_state"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "state"]
+  - id: 5
+    description: >-
+      Wire the graph: register 'Debate Gate' node in GraphSetup.setup_graph;
+      last-analyst-clear edge now targets 'Debate Gate'; DEBATE_PATH_MAP untouched
+      (#1088 invariant).
+    verify: ".venv/bin/python -m pytest -q tests/test_debate_gate.py -k graph && .venv/bin/python -m pytest -q tests/test_risk_router_path_map.py"
+    risk: P0
+    status: failing
+    allure:
+      severity: critical
+      categories: ["integration", "graph", "debate-gate"]
+  - id: 6
+    description: >-
+      Research Manager skipped-debate handling: conditional uncontested-evidence
+      paragraph keyed on state['debate_gate_verdict']; held-debate prompt text
+      unchanged; skip path still yields a parseable 5-tier rating (SC-e02s01-P0-05).
+    verify: ".venv/bin/python -m pytest -q tests/test_structured_agent_prompts.py tests/test_debate_gate.py -k research_manager"
+    risk: P0
+    status: failing
+    allure:
+      severity: critical
+      categories: ["unit", "prompts", "rating-integrity"]
+  - id: 7
+    description: >-
+      Config surface: default_config debate_gate='auto' + TRADINGAGENTS_DEBATE_GATE
+      env override + ValueError naming valid modes at TradingAgentsGraph init.
+    verify: ".venv/bin/python -m pytest -q tests/test_env_overrides.py tests/test_debate_gate.py -k config"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "config"]
+  - id: 8
+    description: >-
+      Graph-level E2E with stubbed agents: SC-e02s01-P0-02 (always ⇒ node sequence
+      identical to current main, zero judge calls), SC-e02s01-P0-04 (skip ⇒ marker
+      reaches RM, Bull/Bear never invoked), SC-e02s01-P0-05 (process_signal ≠ REVIEW).
+    verify: ".venv/bin/python -m pytest -q tests/test_debate_gate.py -k 'node_sequence or end_to_end'"
+    risk: P0
+    status: failing
+    allure:
+      severity: critical
+      categories: ["integration", "graph", "regression-guard"]
+  - id: 9
+    description: "Full Preflight green (whole suite + lint)."
+    verify: ".venv/bin/python -m pytest -q && ruff check ."
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["preflight"]

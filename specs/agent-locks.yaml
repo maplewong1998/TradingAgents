@@ -1,7 +1,5 @@
 # specs/agent-locks.yaml — story locks (e39s02).
 # Acquire before running tests for a story; release when the story lands.
-locks:
-  - story_id: e02s01
-    locked_by: "agent: kickoff-branch (dsh)"
-    locked_at: "2026-09-20T04:13:28Z"
-    files_touched: []
+# 2026-09-20: e02s01 lock released — plan frozen by user before develop-tdd
+# (see specs/product/snapshots/release-0.6.0/FROZEN.md). Re-acquire on unfreeze.
+locks: []

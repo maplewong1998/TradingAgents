@@ -1,21 +1,21 @@
 workflow_mode: team-pr
 active_flow: null
-active_epic_id: null
+active_epic_id: e02
 active_bug_id: null
 test_plan: required
 vcs:
   kind: git
-  branch: main
+  branch: feat/e02-conditional-debate-gate
   head: 2d17df8
 git:
-  branch: main
+  branch: feat/e02-conditional-debate-gate
   worktree: null
 release:
   last_tag: null
   last_publish: null
   target_version: null
 metrics:
-  story_start: '2026-09-20T11:12:26+08:00'
+  story_start: null
   story_end: null
   cycle_minutes: null
   bcp_per_hour: null
@@ -26,14 +26,14 @@ metrics:
       avg_seconds: 526.0
 epic_cycle:
   ship_epic_step: null
-  story_bcps: null
+  story_bcps: 8
 handoff:
-  next_skill: kickoff-branch
-  note: 'plan-work done for e02 Conditional Bull/Bear Debate Gate (2026-09-20):
-    three story specs + failing-ledger tasks.yaml in
-    specs/epics/e02-conditional-debate-gate/ (e02s01 tracer bullet 8 BCP P0,
-    e02s02 checkpoint+CLI 5 BCP P1, e02s03 docs 3 BCP P2);
-    e02-TEST_PLAN_LATEST.md carries 16 scenarios; plan-consistency-check PASS
-    (CRITICAL=0 HIGH=0 MED=0); impact assessment recorded in
-    tech-architecture/IMPACT_LATEST.md. Awaiting user review of the plan, then
-    kickoff-branch → develop-tdd on e02s01. No implementation code written yet.'
+  next_skill: develop-tdd
+  note: 'PLAN FROZEN by user on 2026-09-20 before develop-tdd: planning baseline snapshotted
+    to specs/product/snapshots/release-0.6.0/ (release trio + e02 capsule + e02 test
+    plan, see FROZEN.md). kickoff-branch already done: branch feat/e02-conditional-debate-gate
+    with 3 prep commits (tz test fix, conventions, specs artifacts); Preflight green
+    (946 passed, 2 skipped; ruff clean). Story lock e02s01 RELEASED for the pause.
+    DO NOT write implementation code until the user unfreezes; on unfreeze: re-acquire
+    the e02s01 lock, set metrics.story_start + active_flow=execute, then develop-tdd
+    e02s01 tasks 1-9 (specs/epics/e02-conditional-debate-gate/e02s01-tasks.yaml).'
