@@ -11,7 +11,9 @@
 # pushed for a PR decision and this cycle holds no writer. Re-acquire if e02s02 reopens (e.g. a
 # landing-time reconcile of specs/state.yaml against the advanced origin/main).
 # 2026-09-20T08:41Z: e02s03 cycle opened by orchestrator — lock acquired.
+# 2026-09-20T09:1xZ step 3 (kickoff-branch): confirmed held and delegated to the resident
+# story_ops child — `agent` updated to story_ops, `locked_at` kept (orchestrator's acquire time).
 locks:
   - story: e02s03
-    agent: orchestrator
+    agent: story_ops
     locked_at: '2026-09-20T08:41:06Z'
