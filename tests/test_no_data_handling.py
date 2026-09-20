@@ -32,6 +32,18 @@ class TestLoadOhlcvNoPoison(unittest.TestCase):
         # (BUG-2026-09-20-no-data-handling-nonhermetic-cache).
         self._tmp = tempfile.mkdtemp(prefix="ta-no-data-handling-")
         set_config({"data_cache_dir": self._tmp})
+        # raise_for_empty tells an absence from an outage with a LIVE probe
+        # (utils.vendor_reachable -> requests.head, stockstats_utils.py:38). A
+        # transient probe failure raises its sibling VendorRateLimitError instead
+        # of the NoMarketDataError asserted below, so this test inherited the
+        # network as a dependency (BUG-2026-09-20-no-data-handling-live-vendor-probe).
+        # Stub the probe as reachable: the vendor answered and the download was
+        # empty, which is exactly the absence this test is about.
+        self._reachable = mock.patch.object(
+            stockstats_utils, "vendor_reachable", return_value=True
+        )
+        self._reachable.start()
+        self.addCleanup(self._reachable.stop)
 
     def tearDown(self):
         shutil.rmtree(self._tmp, ignore_errors=True)

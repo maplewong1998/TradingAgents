@@ -36,3 +36,25 @@ bugs:
       tests/_tmp_cache should be gitignored or banned outright: a test that writes
       into the worktree is readable by every other test and process. Consider a
       conftest guard that points data_cache_dir at tmp_path suite-wide.
+  - id: BUG-2026-09-20-no-data-handling-live-vendor-probe
+    title: TestLoadOhlcvNoPoison probes the live network for a vendor outage
+    severity: P2
+    status: fixed
+    route: quick-fix
+    file: BUG-2026-09-20-no-data-handling-live-vendor-probe.md
+    discovered: "2026-09-20"
+    fixed: "2026-09-20"
+    summary: >-
+      Sighting #4 of the intermittent failure, after the shared-cache bug was fixed.
+      raise_for_empty (stockstats_utils.py:38) calls utils.vendor_reachable — a live
+      requests.head with a 5s timeout — so a transient probe failure raised
+      VendorRateLimitError, a SIBLING of NoMarketDataError (not a subclass), instead
+      of the exception the test asserts. Root-caused by the e02s02 verify resident
+      from a full-suite --tb=long capture on the untouched baseline tree (main
+      5c7a9ac). Test-only fix: stub stockstats_utils.vendor_reachable in setUp; the
+      assertion and production behavior are unchanged. Not a test race.
+    follow_up: >-
+      tests/_tmp_cache should still be gitignored or banned (carried over from
+      BUG-2026-09-20-no-data-handling-nonhermetic-cache; rides to e02s03/quick-fix).
+      Consider letting callers inject the reachability check so tests around
+      raise_for_empty are hermetic without stubbing a private seam.
