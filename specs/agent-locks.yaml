@@ -10,4 +10,8 @@
 # 2026-09-20T08:33Z step 8 (release-branch): e02s02 lock RELEASED at story close — the branch is
 # pushed for a PR decision and this cycle holds no writer. Re-acquire if e02s02 reopens (e.g. a
 # landing-time reconcile of specs/state.yaml against the advanced origin/main).
-locks: []
+# 2026-09-20T08:41Z: e02s03 cycle opened by orchestrator — lock acquired.
+locks:
+  - story: e02s03
+    agent: orchestrator
+    locked_at: '2026-09-20T08:41:06Z'

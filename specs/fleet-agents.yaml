@@ -2,21 +2,18 @@
 # Managed by orchestrator. NOTE: .dsh/fleet/scripts/fleet-state.sh is absent in
 # this repo (no .dsh/ tree), so this file is edited directly with the file tools;
 # every command/entry is story-scoped by the `story` field below.
-# Previous story e02s01 (LANDED on main d7557e4, 2026-09-20): story_ops=cd1ea0ca-8167-4a8f-840f-0be9d13d8a02,
-# develop=2be0d4e9-e1e9-4edb-9650-3b1a38b71494, verify=a4c5424f-558b-4077-a6ce-447714a61b90,
-# gate=819cb80f-4f31-40ec-97bf-72bfbac92137 — NOT valid reuse sources for e02s02.
-story: e02s02
+# ARCHIVE — e02s01 (LANDED main d7557e4): story_ops=cd1ea0ca-8167-4a8f-840f-0be9d13d8a02,
+#   develop=2be0d4e9-e1e9-4edb-9650-3b1a38b71494, verify=a4c5424f-558b-4077-a6ce-447714a61b90,
+#   gate=819cb80f-4f31-40ec-97bf-72bfbac92137.
+# ARCHIVE — e02s02 (LANDED main merge-commit 71bf36b, bookkeeping 667ea00):
+#   story_ops=ceb173da-4e9e-4909-a686-db431cc5cdad, develop=143f1446-0771-4331-b357-6fbe7b0ca67b,
+#   verify=b0a6a107-02af-48f1-bec5-3ebd5723c7ae (r1 FAIL → r2 PASS), gate=bbf65d1c-e6ab-449f-b0dd-132060eb14a4 (100/100).
+# Archived residents are NOT valid reuse sources for e02s03.
+story: e02s03
 epic: e02
 roles:
-  story_ops: ceb173da-4e9e-4909-a686-db431cc5cdad # steps 1-3 + 7-8 PASS; e02s02 LANDED on main 71bf36b (merge commit, user Safety gate)
-  develop: 143f1446-0771-4331-b357-6fbe7b0ca67b   # step 4 — develop-tdd (sole writer on the worktree); r1 PASS 6/6; r2 PASS (tip efb7517, P3-01 INFO fix + flake quick-fix)
-  verify: b0a6a107-02af-48f1-bec5-3ebd5723c7ae    # step 5 — verify-work (read-only judge); r1 FAIL (acceptance_criteria); r2 PASS all 9 phases @ efb7517
-  gate: bbf65d1c-e6ab-449f-b0dd-132060eb14a4      # step 6 — gatekeeper; r1 PASS 100/100 (report AUDIT-e02-e02s02.md in worktree)
-updated_at: '2026-09-20T08:3xZ'
-# e02s02 LANDING (2026-09-20T08:3xZ): feat/e02s02 (2333a1b) merged into main as a MERGE COMMIT
-# 71bf36b on the user's explicit choice (preserve git-effort attribution: 0.77 h via the
-# `Story: e02s02` trailers, additivity PASS — a squash would have degenerated it to 0.0 h).
-# Main preflight at the merge: 1024 passed / 2 skipped / 88 subtests, ruff clean, pushed
-# 3bb54bd..71bf36b. Worktree .worktrees/e02s02 removed after the ancestry check; the local and
-# remote branches feat/e02s02 are kept (e02s01 precedent). These four residents are e02s02-scoped
-# and are NOT reuse sources for e02s03.
+  story_ops: null   # steps 1-3, 7-8
+  develop: null     # step 4 — develop-tdd (sole writer on the worktree)
+  verify: null      # step 5 — verify-work (read-only judge)
+  gate: null        # step 6 — gatekeeper audit
+updated_at: '2026-09-20T08:41:06Z'
