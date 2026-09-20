@@ -34,3 +34,37 @@
   story. The concurrent-pytest race warning in the dispatch does not apply here; suites were still
   run serially and the pgrep pre-check was run before the full-suite leg.
 - Next: step 5 verify-work (cold-start smoke, UAT gate, manual verification), resident `verify`.
+
+## 2026-09-20 — orchestrator ruling on round 1 divergences; correction dispatched
+
+- Ruling: divergence 1 (gate schemas module + re-export) ACCEPTED; divergence 3
+  (byte-identical held-debate RM text) ACCEPTED; divergence 2 (skip only on
+  confidence=="high") REJECTED — frozen SC-e02s01-P0-04 says evidence_aligned=true with
+  confidence!="low" routes to Research Manager. Required predicate: skip iff
+  evidence_aligned AND confidence != "low" AND aligned_direction in {bullish, bearish}.
+- First correction send landed exactly as develop settled (its closing message was the
+  ORIGINAL report; head still 95f5c40, predicate unchanged). Re-sent the same correction
+  to the SAME develop id 2be0d4e9-e1e9-4edb-9650-3b1a38b71494 to start a fresh turn
+  (reuse rule — never respawn for a retry).
+- state.yaml stepped back to epic_cycle.step=4, handoff.next_skill=develop-tdd until the
+  correction lands. On correction PASS: dispatch resident verify (step 5, round 1).
+- SHA mismatch note: develop's progress entry cites 737a3b4/c76a862 but git log shows
+  114f769/2fb2bcb (likely rewritten during its run); git log is authoritative.
+
+## 2026-09-20 — e02s01 step 4 CORRECTION round (orchestrator ruling on divergence 2)
+
+- Ruling: the frozen SC-e02s01-P0-04 rule wins over my stricter predicate. Skip iff
+  `evidence_aligned is True AND confidence != "low" AND aligned_direction in {bullish, bearish}`.
+- TDD round: `23f69fa` test(agents) is test-only and fails in isolation (2 failed: medium+bullish,
+  medium+bearish) -> `45c7799` fix(agents) flips the predicate to `confidence == "low"` in the hold
+  condition. Judge-prompt line "low confidence keeps the debate" and the schema field descriptions
+  already matched the corrected rule, so no prompt change was needed.
+- Tests updated: new parametrized SC-e02s01-P0-04 case (medium|high x bullish|bearish -> RM) plus a
+  high + mixed-direction HOLD case; conflicted / low-confidence / medium-mixed / unclear / no-direction
+  HOLD cases all retained.
+- Re-ran all nine task verifies: all exit 0 (collect-only 54 collected; preflight 1000 passed, 2 skipped;
+  ruff clean). Ledger stays 9 passing / 0 failing; execution-status counters unchanged.
+- epic_cycle.step left at 4 per the ruling (the orchestrator advances it when verify passes);
+  specs/state.yaml vcs.head -> 45c7799.
+- Accepted divergences kept: gate schemas module + re-export (file-size cap), byte-identical held-debate
+  RM paragraph (#1321 pin) and "aligned" wording in the gate-failure marker.

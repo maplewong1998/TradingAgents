@@ -6,7 +6,7 @@ test_plan: required
 vcs:
   kind: git
   branch: feat/e02-conditional-debate-gate
-  head: f429cfa
+  head: 45c7799
 git:
   branch: feat/e02-conditional-debate-gate
   worktree: null
@@ -27,21 +27,22 @@ metrics:
 epic_cycle:
   ship_epic_step: null
   story_bcps: 8
-  step: 5
+  step: 4
 handoff:
-  next_skill: verify-work
-  note: 'develop-tdd complete 2026-09-20: tasks 1-9 of e02s01 all flipped to passing
-    (verify commands exit 0), Preflight green (995 passed, 2 skipped; ruff clean).
-    RED commit 114f769 (tests only) fails in isolation per scripts/verify-tdd-red-commit.sh;
-    the GREEN commit that implements tradingagents/ follows it.
-    Branch feat/e02-conditional-debate-gate at repo root; no merge, no push. Step 5
-    (verify-work) is next: cold-start smoke, full UAT gate, manual verification for
-    specs/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md. Known
-    divergences for the plan record: (a) DebateGateVerdict/render_debate_gate_marker
-    live in tradingagents/agents/gate/schemas.py and are re-exported from
-    agents/schemas.py because that module is at the CONVENTIONS file-size cap and
-    must not grow; (b) the skip predicate requires confidence == "high" (not merely
-    != "low") and a bullish/bearish direction, so mixed/unclear/medium verdicts hold
-    the debate -- the conservative reading of P0-03; (c) the >100-char
-    conflicting-arguments paragraph stays in test_structured_agents #1321 wording
-    (E501 is ignored repo-wide, so it is byte-identical, not a noqa).'
+  next_skill: develop-tdd
+  note: 'develop-tdd complete 2026-09-20 (round 1 + orchestrator correction): tasks 1-9 of e02s01 all
+    flipped to passing (verify commands exit 0), Preflight green (1000 passed, 2 skipped; ruff clean).
+    RED commit 114f769 (tests only) fails in isolation per scripts/verify-tdd-red-commit.sh; the GREEN
+    commit that implements tradingagents/ follows it. Branch feat/e02-conditional-debate-gate at repo
+    root; no merge, no push. Step 5 (verify-work) is next: cold-start smoke, full UAT gate, manual
+    verification for specs/epics/e02-conditional-debate-gate/e02s01-gate-core-routing.md. Correction
+    round 2026-09-20 (orchestrator ruling): the skip predicate no longer requires confidence == "high";
+    it now matches the frozen SC-e02s01-P0-04 rule exactly -- skip iff evidence_aligned and confidence
+    != "low" and aligned_direction in {bullish, bearish}; mixed / unclear / no-direction / low-confidence
+    / judge failure all hold the debate. Test-only commit 23f69fa pins the medium-confidence skip cases
+    (fails in isolation) and fix commit 45c7799 changes the predicate; all nine verifies re-run green
+    afterwards. Remaining accepted divergences: (a) DebateGateVerdict/render_debate_gate_marker live in
+    tradingagents/agents/gate/schemas.py and are re-exported from agents/schemas.py because that module
+    is at the CONVENTIONS file-size cap and must not grow; (c) the >100-char conflicting-arguments
+    paragraph stays in test_structured_agents #1321 wording (E501 is ignored repo-wide, so it is
+    byte-identical, not a noqa).'
