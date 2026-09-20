@@ -6,14 +6,15 @@ test_plan: required
 vcs:
   kind: git
   branch: feat/e02s03
-  head: 85d7ddd          # reviewed tip at step 8 (step-7 hygiene commit); base=276cfc4
+  head: 56536c7          # final pushed tip (step-7 hygiene 85d7ddd + step-8 bookkeeping); base=276cfc4
+  reviewed_tip: 85d7ddd  # the tree the step-8 Preflight measured; the only delta after it is specs/ records
 pr:
   mode: team-pr
   url: https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s03
   title: 'docs(specs): refresh the CHANGELOG, .env.example, README and specs knowledge for the conditional debate gate'
   bump: minor           # the branch's user-visible outcome is docs; the epic's feat(graph) owns the minor
   pushed: true
-  pushed_range: 'feat/e02s03 -> origin/feat/e02s03 @ 85d7ddd (ordinary push, no force, no tag); main NOT pushed to'
+  pushed_range: 'feat/e02s03 -> origin/feat/e02s03 @ 56536c7 (ordinary pushes, never force, no tag); main NOT pushed to'
   merged: false
   merge_ref: null
   merged_locally: false
