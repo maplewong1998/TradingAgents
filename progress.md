@@ -672,3 +672,26 @@ and the compare URL emitted for manual PR creation. `main` untouched
   (`cli/gate_policy.py:76-81`, `:99-104`); `tests/_tmp_cache` gitignore/ban; injectable
   reachability check; untested `ask_debate_gate` SystemExit branch; CHANGELOG wording for
   the one-time `gate=<mode>` signature churn; plus the standing A10 record items.
+
+## 2026-09-20T08:41Z — e02s02 LANDED (merge commit 71bf36b); e02s03 cycle opened
+
+- story_ops landing: pass, landed=true, merge-commit style on the user's Safety-gate
+  choice. 71bf36b (parents 3bb54bd + 2333a1b) + bookkeeping 667ea00, pushed; conflicts
+  resolved per rule (state/locks branch-authoritative, progress.md unioned with my
+  root-latest section last, roster root-newer + landing note); Preflight on main green
+  before push (1024/2, ruff clean) and re-run at 667ea00; worktree removed WITHOUT
+  --force after ancestry + clean-tree checks; branches kept.
+- MERGE-COMMIT LESSON PROVEN: git-effort attribution now real — 0.77 effort_hours /
+  19 commits / 47 min span, additivity PASS (vs e02s01 squash 0.0h). Both sources
+  labelled everywhere (wall-clock 55.5 min / 5.41 BCP-per-hour kept alongside).
+  record-cycle-time.sh `report` only — never `append` (ledger-corrupting).
+- e02s03 cycle opened (user: proceed automatically): roster reset (story=e02s03, e02s01+
+  e02s02 residents archived as NOT reuse sources), e02s03 lock acquired, state.yaml
+  cockpit reset (step 1, story_bcps 3, metrics story_start 08:41:06Z, next_skill
+  survey-context; e02s02 history blocks preserved; repaired an orphaned-note YAML break
+  I introduced mid-edit — validated OK). Committed+pushed: e87dcd7.
+- New story_ops started: 608064ee-205f-46a0-b5dd-3b2014c710dd — STEP 1 (survey-context)
+  + STEP 2 (plan-work VERIFICATION of the frozen e02s03 docs tasks) with a MANDATORY
+  mapping of the 7-item routed queue + A10 standing items to frozen tasks or reported
+  gaps (proposed treatments; orchestrator rules — no silent scope expansion), and a
+  check that the docs tasks reflect BOTH landed stories' surfaces.
