@@ -114,7 +114,7 @@ tasks:
     verify: ".venv/bin/python -m pytest -q && ruff check ."
     risk: P1
     status: passing
-    # 2026-09-20 worktree .worktrees/e02s02 @ bfe3b9c verified: 1021 passed / 2 skipped
+    # 2026-09-20 worktree .worktrees/e02s02 @ ed6d53e verified (final tip run): 1021 passed / 2 skipped
     # / 88 subtests (baseline 1002/2 -> +19 new tests this story), ruff "All checks
     # passed!", pytest exit 0. Two consecutive green runs, each behind a clean
     # concurrency pre-check (ps -eo pid,args | grep -E "[p]ython -m pytest").
