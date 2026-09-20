@@ -137,10 +137,10 @@ def _answer_every_prompt(monkeypatch):
     monkeypatch.setattr(m, "select_llm_provider", lambda default=None: ("openai", None))
     monkeypatch.setattr(m, "select_shallow_thinking_agent", lambda p, default=None: "gpt-5.6-mini")
     monkeypatch.setattr(m, "select_deep_thinking_agent", lambda p, default=None: "gpt-5.6")
-    # raising=False: this module drives the flow before/independently of the real
-    # gate-policy prompt, so the stub must also work if the name is not importable.
+    # raising=False: the gate-policy step (e02s02) is stubbed here so this module
+    # keeps driving the flow even when the step is absent or renamed.
     monkeypatch.setattr(
-        m, "ask_debate_gate", mock.Mock(return_value="always"), raising=False
+        m, "select_debate_gate", mock.Mock(return_value="always"), raising=False
     )
     monkeypatch.setattr(m, "ask_openai_reasoning_effort", lambda: "medium")
     return m
@@ -171,7 +171,7 @@ def test_a_gate_policy_is_asked_for_and_remembered_after_a_run(monkeypatch):
 
     m.get_user_selections()
 
-    assert m.ask_debate_gate.call_args.kwargs["default"] == "never"  # offered back
+    assert m.select_debate_gate.call_args.args[0]["debate_gate"] == "never"
     assert load_last_run()["debate_gate"] == "always"  # this run's answer
 
 
@@ -208,7 +208,7 @@ def test_a_remembered_endpoint_is_offered_back(monkeypatch):
     monkeypatch.setattr(m, "select_research_depth", lambda default=None: 1)
     monkeypatch.setattr(m, "select_shallow_thinking_agent", lambda p, default=None: "local-model")
     monkeypatch.setattr(m, "select_deep_thinking_agent", lambda p, default=None: "local-model")
-    monkeypatch.setattr(m, "ask_debate_gate", lambda default=None: "auto", raising=False)
+    monkeypatch.setattr(m, "select_debate_gate", lambda *a: "auto", raising=False)
 
     m.get_user_selections()
 

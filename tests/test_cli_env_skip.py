@@ -63,7 +63,8 @@ class TestCliSkipsPromptsFromEnv(unittest.TestCase):
              mock.patch.object(m, "select_llm_provider") as prompt_provider, \
              mock.patch.object(m, "ask_output_language") as prompt_lang, \
              mock.patch.object(m, "select_shallow_thinking_agent") as prompt_quick, \
-             mock.patch.object(m, "select_deep_thinking_agent") as prompt_deep:
+             mock.patch.object(m, "select_deep_thinking_agent") as prompt_deep, \
+             mock.patch.object(m, "select_debate_gate", return_value="auto", create=True):
             sel = m.get_user_selections()
 
         # None of the LLM selection prompts should have been shown.
@@ -107,7 +108,8 @@ class TestResearchDepthSkippedFromEnv(unittest.TestCase):
              mock.patch.object(m, "ask_output_language", return_value="English"), \
              mock.patch.object(m, "select_shallow_thinking_agent", return_value="gpt-5.4-mini"), \
              mock.patch.object(m, "select_deep_thinking_agent", return_value="gpt-5.5"), \
-             mock.patch.object(m, "ask_openai_reasoning_effort", return_value=None):
+             mock.patch.object(m, "ask_openai_reasoning_effort", return_value=None), \
+             mock.patch.object(m, "select_debate_gate", return_value="auto", create=True):
             sel = m.get_user_selections()
 
         # The research-depth prompt is skipped; the value comes from the env config.
@@ -137,7 +139,8 @@ class TestReasoningEffortSkippedFromEnv(unittest.TestCase):
              mock.patch.object(m, "ask_output_language", return_value="English"), \
              mock.patch.object(m, "select_shallow_thinking_agent", return_value="gpt-5.4-mini"), \
              mock.patch.object(m, "select_deep_thinking_agent", return_value="gpt-5.5"), \
-             mock.patch.object(m, "ask_openai_reasoning_effort") as prompt_effort:
+             mock.patch.object(m, "ask_openai_reasoning_effort") as prompt_effort, \
+             mock.patch.object(m, "select_debate_gate", return_value="auto", create=True):
             sel = m.get_user_selections()
 
         # The reasoning-effort prompt is skipped; the value comes from env config.
@@ -170,7 +173,7 @@ class TestDebateGateSkippedFromEnv(unittest.TestCase):
              mock.patch.object(m, "select_shallow_thinking_agent", return_value="gpt-5.4-mini"), \
              mock.patch.object(m, "select_deep_thinking_agent", return_value="gpt-5.5"), \
              mock.patch.object(m, "ask_openai_reasoning_effort", return_value=None), \
-             mock.patch.object(m, "ask_debate_gate", create=True) as prompt_gate:
+             mock.patch("cli.gate_policy.ask_debate_gate") as prompt_gate:
             sel = m.get_user_selections()
 
         # The policy prompt is skipped; the value comes from the env config.
