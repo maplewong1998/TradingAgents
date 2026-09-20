@@ -190,6 +190,8 @@ python -m cli.main     # alternative: run directly from source
 ```
 You will see a screen where you can select your desired tickers, analysis date, LLM provider, research depth, and more. Your previous run's answers come back as the defaults, so pressing Enter accepts them. The `TRADINGAGENTS_*` variables in `.env` still skip their step entirely.
 
+The walkthrough ends with the **Debate Gate Policy** step, right after Research Depth: Auto (the default and the recommended answer), Always, or Never — see [The debate gate](#the-debate-gate). Answering it is optional in effect: cancelling the prompt exits the run rather than guessing a policy, because a run whose policy nobody chose must not silently buy or skip a debate. Set `TRADINGAGENTS_DEBATE_GATE` in `.env` instead and the step is skipped, like the provider and model steps.
+
 ### Markets and tickers
 
 TradingAgents works with any market Yahoo Finance covers, using the exchange-suffixed ticker. Company identity and the alpha benchmark resolve automatically per market.
@@ -246,6 +248,7 @@ config["llm_provider"] = "openai"        # e.g. openai, google, anthropic, deeps
 config["deep_think_llm"] = "gpt-5.6"      # Model for complex reasoning
 config["quick_think_llm"] = "gpt-5.6-luna" # Model for quick tasks
 config["max_debate_rounds"] = 2
+config["debate_gate"] = "auto"            # Bull/Bear debate policy: always | auto | never
 
 ta = TradingAgentsGraph(debug=True, config=config)
 _, decision = ta.propagate("NVDA", "2026-09-01")
@@ -253,6 +256,24 @@ print(decision)
 ```
 
 See `tradingagents/default_config.py` for all configuration options.
+
+### The debate gate
+
+The Bull/Bear investment debate is held only when the analyst reports actually disagree. Before the debate, a gate asks a quick model to judge the four reports as one structured verdict: `evidence_aligned` (true only when they point the same way on shared evidence), a `confidence` of `low` / `medium` / `high`, the shared `aligned_direction`, and a short `rationale`. The gate routes into the debate, or past it straight to the Research Manager, where the rationale is handed over as the record of why no debate was held.
+
+`debate_gate` selects the policy:
+
+| Value | Behavior |
+|-------|----------|
+| `auto` (default) | Judge each run; skip the debate when the analysts already agree |
+| `always` | Always hold the debate, no judge call — the pre-gate behavior |
+| `never` | Never hold the debate; the judge is disabled |
+
+Set it in your config, in `.env` (`TRADINGAGENTS_DEBATE_GATE=always`), or from the CLI's Debate Gate Policy step. The environment variable wins over the menu answer, like every other `TRADINGAGENTS_*` setting, and setting it skips that prompt entirely.
+
+The gate skips only on an explicit *aligned* verdict with confidence above `low`, because a skip hands the Research Manager a run with no opposing arguments to weigh. Two things follow, and both are the fail-safe direction: a missing or thin analyst report is judged `low` and never skips, and a judge that fails (`None`, an exception, an unparseable payload) logs a warning and holds the debate. A run that would rather debate than guess is the whole design.
+
+Every run states which path it took. Skipped debates show Bull Researcher and Bear Researcher as `skipped` in the run view, and the live view and the saved report tree carry a **Debate Gate** section: the verdict, direction and confidence when the debate was skipped, the rounds played when it was held, or `never` when configuration disabled it.
 
 ### Fundamentals as filed
 
@@ -305,6 +326,8 @@ Override the path with `TRADINGAGENTS_MEMORY_LOG_PATH`.
 
 Checkpoint resume is opt-in via `--checkpoint`. When enabled, LangGraph saves state after each node so a crashed or interrupted run resumes from the last successful step instead of starting over. The run view says whether it resumed a saved run or started fresh. Checkpoints are cleared automatically on successful completion.
 
+A resume is only valid when the saved run was the same shape as the run resuming it. The thread ID therefore carries a **run signature** — the selected analysts, the debate and risk round counts, the asset type, a portfolio book's fingerprint, and the debate policy (`gate=always` / `gate=auto` / `gate=never`). Change any of them and the run starts fresh, because continuing under a different shape would mean silently continuing a graph that is no longer the graph you asked for. The policy term is new: a thread written before the gate existed has no `gate=` key, so it does not match, and a `--checkpoint` run that previously resumed reports "Starting fresh" and re-analyzes once before saving a thread under the new signature. Nothing needs clearing by hand — successful runs clear their own checkpoints, so the stale threads disappear as they are replaced.
+
 Per-ticker SQLite databases live at `~/.tradingagents/cache/checkpoints/<TICKER>.db` (override the base with `TRADINGAGENTS_CACHE_DIR`). Use `--clear-checkpoints` to reset all of them before a run.
 
 ```bash
@@ -312,9 +335,12 @@ tradingagents --checkpoint           # enable for this run
 tradingagents --clear-checkpoints    # reset before running
 ```
 
+The policy is part of the identity of the run, at the CLI too: `TRADINGAGENTS_DEBATE_GATE=never tradingagents --checkpoint` will not resume a thread written under `auto`.
+
 ```python
 config = DEFAULT_CONFIG.copy()
 config["checkpoint_enabled"] = True
+config["debate_gate"] = "always"   # part of the run signature: a resume must match it
 ta = TradingAgentsGraph(config=config)
 _, decision = ta.propagate("NVDA", "2026-09-01")
 ```
