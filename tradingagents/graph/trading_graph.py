@@ -12,7 +12,7 @@ import yfinance as yf
 from langgraph.prebuilt import ToolNode
 
 # Import the abstract tool methods from agent_utils
-from tradingagents.agents.gate.debate_gate import DEBATE_GATE_MODES
+from tradingagents.agents.gate.debate_gate import coerce_debate_gate_mode
 from tradingagents.agents.utils.agent_utils import (
     build_instrument_context,
     get_balance_sheet,
@@ -38,6 +38,7 @@ from tradingagents.reporting import write_report_tree
 
 from .checkpointer import checkpoint_step, clear_checkpoint, get_checkpointer, thread_id
 from .conditional_logic import ConditionalLogic
+from .config_validation import _coerce_max_retries, _coerce_max_tokens
 from .propagation import Propagator
 from .reflection import Reflector
 from .setup import GraphSetup
@@ -58,53 +59,6 @@ def _validate_trade_date(trade_date) -> str:
     if value > get_current_date():
         raise ValueError(f"trade_date cannot be in the future: {value}")
     return value
-
-
-def _coerce_max_retries(value):
-    """Validate an ``llm_max_retries`` value to a non-negative int.
-
-    Accepts an int or a numeric string (env vars arrive as strings). Rejects
-    booleans and negatives loudly so a misconfiguration fails at startup rather
-    than silently disabling retries.
-    """
-    if isinstance(value, bool):
-        raise ValueError(f"llm_max_retries must be an integer, not a boolean: {value!r}")
-    try:
-        n = int(value)
-    except (TypeError, ValueError) as exc:
-        raise ValueError(f"llm_max_retries must be an integer, got {value!r}") from exc
-    if n < 0:
-        raise ValueError(f"llm_max_retries must be >= 0, got {n}")
-    return n
-
-
-def _coerce_max_tokens(value):
-    """Validate a ``max_tokens`` value to a positive int (env vars are strings)."""
-    if isinstance(value, bool):
-        raise ValueError(f"max_tokens must be an integer, not a boolean: {value!r}")
-    try:
-        n = int(value)
-    except (TypeError, ValueError) as exc:
-        raise ValueError(f"max_tokens must be an integer, got {value!r}") from exc
-    if n <= 0:
-        raise ValueError(f"max_tokens must be > 0, got {n}")
-    return n
-
-
-def _coerce_debate_gate(value) -> str:
-    """Validate the ``debate_gate`` mode, naming the valid set in the error.
-
-    A mode the graph cannot honour (a typo'd env var, a stale saved config) must
-    stop the run before the analyst phase spends anything, rather than silently
-    debating or silently skipping every run.
-    """
-    mode = str(value).strip().lower()
-    if mode not in DEBATE_GATE_MODES:
-        raise ValueError(
-            f"Invalid debate_gate mode {value!r}. Valid modes: "
-            f"{', '.join(DEBATE_GATE_MODES)}."
-        )
-    return mode
 
 
 class TradingAgentsGraph:
@@ -131,8 +85,9 @@ class TradingAgentsGraph:
 
         # Validate the debate policy before anything is spent: a bad mode must
         # fail here, not mid-run after the analyst phase has paid for reports
-        # (e02s01, scenario SC-e02s01-P1-02).
-        self.config["debate_gate"] = _coerce_debate_gate(
+        # (e02s01, scenario SC-e02s01-P1-02). The validator lives beside
+        # DEBATE_GATE_MODES; this file is at its file-size cap and must not grow.
+        self.config["debate_gate"] = coerce_debate_gate_mode(
             self.config.get("debate_gate", "auto")
         )
 

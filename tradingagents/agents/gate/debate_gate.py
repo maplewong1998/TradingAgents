@@ -38,6 +38,24 @@ logger = logging.getLogger(__name__)
 
 DEBATE_GATE_MODES = ("always", "auto", "never")
 
+
+def coerce_debate_gate_mode(value) -> str:
+    """Validate a ``debate_gate`` value, naming the valid set in the error.
+
+    A mode the graph cannot honour (a typo'd env var, a stale saved config) must
+    stop the run before the analyst phase spends anything, rather than silently
+    debating or silently skipping every run. Lives beside ``DEBATE_GATE_MODES``
+    instead of in ``graph/trading_graph.py``: that facade is listed in
+    CONVENTIONS § File-Size Exceptions and must not grow.
+    """
+    mode = str(value).strip().lower()
+    if mode not in DEBATE_GATE_MODES:
+        raise ValueError(
+            f"Invalid debate_gate mode {value!r}. Valid modes: "
+            f"{', '.join(DEBATE_GATE_MODES)}."
+        )
+    return mode
+
 # The verdict recorded when the gate could not judge: the run took the debate
 # path, and downstream surfaces (e02s02) need to say why rather than infer it.
 _GATE_FAILURE_VERDICT = "gate-failure: judge unavailable, debate held"
