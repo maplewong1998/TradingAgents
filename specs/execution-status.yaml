@@ -88,7 +88,10 @@ stories:
     bcps: 3
     epic: e02
     tasks_total: 5
-    tasks_passing: 0
-    tasks_failing: 5
+    tasks_passing: 5
+    tasks_failing: 0
     risk_max: P2
     started_at: '2026-09-20T08:41:06Z'   # survey-context step 1 (cycle opened by the orchestrator)
+    # step 4 (develop-tdd round 1): 5/5 frozen tasks flipped only on their verify exiting 0,
+    # then three approved quick-fixes. Not done — step 5 verify-work and the audit gate are
+    # still ahead, so completed_at stays unwritten until step 8.

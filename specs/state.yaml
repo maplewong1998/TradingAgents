@@ -6,7 +6,7 @@ test_plan: required
 vcs:
   kind: git
   branch: feat/e02s03
-  head: d92afc4
+  head: 772b088
 pr:
   mode: team-pr
   url: https://github.com/maplewong1998/TradingAgents/compare/main...feat/e02s02
@@ -70,7 +70,70 @@ epic_cycle:
   metrics:
     story_start: '2026-09-20T08:41:06Z'
 handoff:
-  next_skill: develop-tdd
+  next_skill: verify-work
+  # Named with the story: the plain `develop_tdd_round1` key below is e02s02's
+  # record and a second definition of it would silently shadow that one.
+  e02s03_develop_tdd_round1:
+    result: PASS
+    round: 1
+    tip: 772b088
+    story: e02s03
+    tasks: 5/5 passing — every verify exits 0 (tasks 1-4 are grep gates flipped by their own commit;
+      task 5 is the full Preflight, run four times, each behind a clean ps-based pytest concurrency
+      pre-check)
+    preflight_final: 1027 passed / 2 skipped / 88 subtests, ruff clean, validate-specs-yaml OK, serial,
+      exit 0, on the tree at 772b088 (+3 tests over the 1024/2 kickoff baseline, the 3 new gate-policy
+      tests in this leg)
+    preflight_runs: kickoff 1024/2 (baseline), leg 1 1024/2 (baseline re-measured), leg 2 1024/2 (after
+      the four docs tasks), final 1027/2 (after the quick-fixes). TestLoadOhlcvNoPoison never failed in
+      this leg — no flake sighting to capture.
+    tasks_passing: 5
+    tasks_failing: 0
+    commits: 12f8911 docs CHANGELOG, dd9d3d5 docs .env.example, 7b3d69c docs README, d92afc4 docs
+      tech-stack+glossary+CONVENTIONS, 1d83fd8 chore ledger+vcs.head flip (folds the orchestrator's
+      uncommitted epic_cycle.step=4 cockpit edit), 2e359da test RED, 33d5d11 fix(cli) env-notice dedupe,
+      772b088 chore .gitignore
+    quick_fixes:
+      "QF-A (queue item 2)": "33d5d11 fix(cli) — the env notice printed twice on the interactive env-set
+        path (select_debate_gate + resolve_debate_gate). The step now returns silently and
+        resolve_debate_gate owns the one notice; values and precedence unchanged. TDD — the behavior
+        assertion changed, so the test was written RED first and measured failing (2 != 1, both notices
+        quoted in the RED commit), then GREEN."
+      "QF-B (queue items 5+7)": "2e359da test(cli) — the SystemExit branch covered by
+        test_cancelling_the_gate_prompt_exits_instead_of_guessing (cli/gate_policy.py:58-62) AND the env
+        notice covered on the real wiring by two tests in tests/test_cli_env_skip.py. Honest note — the
+        SystemExit test PASSES on the branch as written, because the branch already exists and is
+        correct, so there was no RED state to record (D3-style disclosure in the commit body).
+        Non-vacuity proven by mutation instead — replacing the raise with `return \"auto\"` makes it fail
+        with \"DID NOT RAISE SystemExit\". The env-notice test was genuinely RED."
+      "QF-C (queue item 3)": "772b088 chore — tests/_tmp_cache/ added to .gitignore, citing
+        BUG-2026-09-20-no-data-handling-nonhermetic-cache."
+      "DEFERRED (queue item 4)": "the injectable reachability check was NOT touched — post-e02 fix-bug
+        backlog."
+    ledger: e02s03-tasks.yaml 5/5 passing, story status passing
+    scope_note: "no product code changed outside the two quick-fix commits; the docs tasks touched only
+      CHANGELOG.md, .env.example, README.md, specs/tech-architecture/tech-stack.md,
+      specs/product/GLOSSARY_LATEST.yaml and CONVENTIONS.md § File-Size Exceptions, per rulings R(b)/R(c)."
+    finding_metric_reconciliation: 'TWO of the R(b) numbers were re-measured because the given value did
+      not reproduce. (1) The Any/type-ignore/noqa marker count — the table said 19 -> 32. Measured on this
+      tree with the combined grep ''(: Any|Any\]|type: ignore|noqa)'' over tradingagents/ and cli/ — 31
+      markers (14 ''`: Any`'', 11 ''`Any]`'', 6 ''`noqa`'', 0 ''`type: ignore`''); with the two other
+      spellings the doc''s own "Any" scope implies (7 ''`-> Any`'', 1 ''`[Any`'') the widest count is 39;
+      at the kickoff tree the same combined grep gives 21, so the old 19 is not reproducible from a stated
+      scope either. The doc now states 31 with its breakdown rather than 32. (2) cli/ Rich usage — the line
+      changed 67 console.print calls to 73 (verified) and "14 modules import Rich" to 5, because grepping
+      ''^from rich|^import rich'' over cli/ gives 5 modules and 14 was not reproducible under any reading
+      tried. Everything else in R(b) reproduced exactly — 74 test files, 426 unit tests, 15 logging
+      modules, 12609 source lines, cli/main.py 1276, trading_graph.py 652, agents/schemas.py 392. One extra
+      correction inside a touched line — the "(only 1 integration test exists)" note is now 6, all six
+      enumerated in the doc.'
+    story_record_findings: 'Record-integrity, fix-forward-adjacent, reported rather than fixed. (a) The
+      dispatch said "the only missing key of the 17 _ENV_OVERRIDES" — len(default_config._ENV_OVERRIDES)
+      is 16, and TRADINGAGENTS_DEBATE_GATE was indeed the only key missing from .env.example (re-checked
+      programmatically after the edit — missing == []). (b) Task 5 is the only task whose verify is not a
+      grep gate and it was NOT RED at baseline by construction (Preflight was green at kickoff), unlike the
+      plan-time note that all five baseline-run RED — the four grep gates were RED, Preflight was green.
+      Recorded in the ledger per-task red_tests field rather than papered over.'
   e02s03_orchestrator_rulings_step3: 'RULED 2026-09-20T09:1xZ by the orchestrator (recorded at kickoff-branch;
     frozen artifacts still not rewritten). (a) QUEUE-ITEM TREATMENTS: item 1 APPROVED — extend frozen
     docs task 4 to refresh CONVENTIONS.md § File-Size Exceptions rows in the same commit (cli/main.py
