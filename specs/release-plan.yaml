@@ -7,7 +7,7 @@
 release:
   version: "0.7.0"              # mirror of next expected tag, NOT authoritative — gh release view wins
   codename: "Augury Data Lake Integration"
-  status: in_progress              # e03 code complete on feat/e03 (unlanded); landing via release-branch
+  status: released              # e03 landed 2026-09-24: merge commit 9934395 on main, pushed 10cfdf9..c05d049
   semantic_release: true
   bump_hint: minor              # feat(dataflows) — CI decides at merge
 
@@ -15,15 +15,14 @@ epics:
   - id: e03
     title: Augury Data Lake Integration
     wsjf: 3.4
-    capsule_dir: epics/e03-augury-data-lake
+    capsule_dir: epics/archive/e03-augury-data-lake
     note: >-
       Opt-in augury vendor behind the existing seam (six mapped methods) plus
       four augury-only tool categories (ai_forecast, valuation, signal_states,
       cross_sectional) bound conditionally to the existing market/fundamentals
       analysts. Defaults unchanged; AUGURY_BASE_URL config surface; zero graph
-      change; zero new dependencies. WSJF = (BV 7 + TC 5 + RR 5) / JS 5.
-      Scope + Prior Art: product/SCOPE_LATEST.yaml;
-      research + decisions D1–D5: product/RESEARCH-2026-09-24-augury-data-source.md.
+      change; zero new dependencies. Closed 2026-09-24 (merged 9934395);
+      research + decisions D1–D5: product/RESEARCH-2026-09-24-augury-data-source.md;
   - id: e02
     title: Conditional Bull/Bear Debate Gate
     wsjf: 4.8
