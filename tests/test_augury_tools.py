@@ -344,3 +344,146 @@ def test_graph_default_tool_nodes_have_no_augury_tools():
     nodes = graph.TradingAgentsGraph._create_tool_nodes(None)
     assert "get_ai_forecast" not in nodes["market"].tools_by_name
     assert "get_valuation" not in nodes["fundamentals"].tools_by_name
+
+
+# story: e03s06
+# scenario: SC-e03s06-P1-01
+
+def test_signal_states_vendor_renders_trigger_detail_date_and_version(monkeypatch):
+    payload = {
+        "data": [
+            {
+                "ticker": "AAPL",
+                "family": "rsi_cross",
+                "signal_date": "2026-01-14",
+                "value": 29.4,
+                "direction": "bull",
+                "triggered": True,
+                "definition_id": 7,
+                "formula_version": 2,
+            }
+        ],
+        "pagination": {"page": 1, "total_pages": 1},
+    }
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return FakeResponse(payload)
+
+    monkeypatch.setattr(_augury().requests, "get", fake_get)
+
+    report = _augury().get_augury_signal_states("aapl", "rsi_cross", "2026-01-15")
+
+    assert calls == [
+        (
+            "http://localhost:8765/api/v1/signals/AAPL",
+            {"params": {"family": "rsi_cross", "as_of": "2026-01-15"}, "timeout": 30},
+        )
+    ]
+    assert "rsi_cross" in report
+    assert "True" in report
+    assert "bull" in report and "29.4" in report
+    assert "2026-01-14" in report
+    assert "2" in report
+
+
+# scenario: SC-e03s06-P1-02
+
+def test_signal_states_unknown_family_returns_valid_set_without_abort(monkeypatch):
+    monkeypatch.setattr(
+        _augury().requests,
+        "get",
+        lambda *a, **k: FakeResponse(
+            {"detail": "unknown family 'momentum_magic'", "code": "validation_error"},
+            422,
+        ),
+    )
+
+    report = _augury().get_augury_signal_states("AAPL", "momentum_magic", "2026-01-15")
+
+    assert "momentum_magic" in report
+    for family in (
+        "sma_streak", "sma_cross", "rsi_cross", "macd_cross", "bb_cross",
+        "adx_breakout", "psar_flip", "hurst", "regime", "sentiment", "insider",
+        "earnings_surprise", "quality",
+    ):
+        assert family in report
+    assert "Traceback" not in report
+
+
+def test_signal_states_tool_clamps_requested_date_to_trade_date(monkeypatch):
+    tools = importlib.import_module("tradingagents.agents.utils.signal_states_tools")
+    calls = []
+    monkeypatch.setattr(
+        tools,
+        "route_to_vendor",
+        lambda method, *args: calls.append((method, args)) or "report",
+    )
+
+    tools.get_signal_states.func("AAPL", "rsi_cross", "2026-09-20", "2026-01-15")
+
+    assert calls == [("get_signal_states", ("AAPL", "rsi_cross", "2026-01-15"))]
+    assert "get_signal_states" in importlib.import_module(
+        "tradingagents.agents.utils.agent_utils"
+    ).__all__
+
+
+def test_signal_states_registration_and_optional_routing(monkeypatch):
+    interface = importlib.import_module("tradingagents.dataflows.interface")
+    assert interface.TOOLS_CATEGORIES["signal_states"]["tools"] == ["get_signal_states"]
+    assert "signal_states" in interface.OPTIONAL_CATEGORIES
+    assert interface.VENDOR_METHODS["get_signal_states"]["augury"] is (
+        _augury().get_augury_signal_states
+    )
+
+    monkeypatch.setattr(
+        _augury().requests,
+        "get",
+        lambda *a, **k: FakeResponse({"detail": "bad family"}, 422),
+    )
+    set_config({"data_vendors": {"signal_states": "augury"}})
+    result = route_to_vendor("get_signal_states", "AAPL", "rsi_cross", "2026-01-15")
+    assert "valid families" in result.lower()
+
+
+def test_signal_states_binding_gate_binds_both_analyst_nodes_only_when_opted_in():
+    graph = importlib.import_module("tradingagents.graph.trading_graph")
+
+    set_config({"data_vendors": {"signal_states": "yfinance"}})
+    nodes = graph.TradingAgentsGraph._create_tool_nodes(None)
+    assert "get_signal_states" not in nodes["market"].tools_by_name
+    assert "get_signal_states" not in nodes["fundamentals"].tools_by_name
+
+    set_config({"data_vendors": {"signal_states": "augury"}})
+    nodes = graph.TradingAgentsGraph._create_tool_nodes(None)
+    assert "get_signal_states" in nodes["market"].tools_by_name
+    assert "get_signal_states" in nodes["fundamentals"].tools_by_name
+
+
+def test_signal_states_prompt_paragraphs_are_conditional_and_family_specific():
+    default_market, default_market_text = _run_analyst(
+        "tradingagents.agents.analysts.market_analyst:create_market_analyst",
+        {"data_vendors": {"signal_states": "yfinance"}},
+    )
+    default_fundamentals, default_fundamentals_text = _run_analyst(
+        "tradingagents.agents.analysts.fundamentals_analyst:create_fundamentals_analyst",
+        {"data_vendors": {"signal_states": "yfinance"}},
+    )
+    assert "get_signal_states" not in {tool.name for tool in default_market.bound_tools}
+    assert "get_signal_states" not in {tool.name for tool in default_fundamentals.bound_tools}
+    assert "sma_streak" not in default_market_text
+    assert "earnings_surprise" not in default_fundamentals_text
+
+    market, market_text = _run_analyst(
+        "tradingagents.agents.analysts.market_analyst:create_market_analyst",
+        {"data_vendors": {"signal_states": "augury"}},
+    )
+    fundamentals, fundamentals_text = _run_analyst(
+        "tradingagents.agents.analysts.fundamentals_analyst:create_fundamentals_analyst",
+        {"data_vendors": {"signal_states": "augury"}},
+    )
+    assert "get_signal_states" in {tool.name for tool in market.bound_tools}
+    assert "get_signal_states" in {tool.name for tool in fundamentals.bound_tools}
+    assert "sma_streak" in market_text and "psar_flip" in market_text
+    assert "hurst" in fundamentals_text and "quality" in fundamentals_text
