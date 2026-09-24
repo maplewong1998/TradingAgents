@@ -21,6 +21,7 @@ from .augury import (
     get_augury_macro_data,
     get_augury_news,
     get_augury_prediction_markets,
+    get_augury_signal_states,
     get_augury_stock,
     get_augury_valuation,
 )
@@ -104,6 +105,12 @@ TOOLS_CATEGORIES = {
         "tools": [
             "get_valuation",
         ]
+    },
+    "signal_states": {
+        "description": "Versioned signal-family trigger states",
+        "tools": [
+            "get_signal_states",
+        ]
     }
 }
 
@@ -122,7 +129,13 @@ VENDOR_LIST = [
 # key, or a network blip should not crash an analysis over flavour data). Core
 # categories (prices, fundamentals, news) still raise so a broken primary is loud.
 # Forecasts and valuations are optional enrichment; a cache miss must not abort a run.
-OPTIONAL_CATEGORIES = {"macro_data", "prediction_markets", "ai_forecast", "valuation"}
+OPTIONAL_CATEGORIES = {
+    "macro_data",
+    "prediction_markets",
+    "ai_forecast",
+    "valuation",
+    "signal_states",
+}
 
 # Mapping of methods to their vendor-specific implementations
 VENDOR_METHODS = {
@@ -192,6 +205,9 @@ VENDOR_METHODS = {
     },
     "get_valuation": {
         "augury": get_augury_valuation,
+    },
+    "get_signal_states": {
+        "augury": get_augury_signal_states,
     },
 }
 

@@ -810,8 +810,14 @@ def test_augury_is_registered_for_optional_methods():
     interface = importlib.import_module("tradingagents.dataflows.interface")
 
     # e03s04 pinned {macro_data, prediction_markets}; e03s05 extends the set with
-    # ai_forecast + valuation (new augury-only categories are fail-open enrichment).
-    assert {"macro_data", "prediction_markets", "ai_forecast", "valuation"} == interface.OPTIONAL_CATEGORIES
+    # ai_forecast + valuation; e03s06 adds versioned signal states as fail-open enrichment.
+    assert {
+        "macro_data",
+        "prediction_markets",
+        "ai_forecast",
+        "valuation",
+        "signal_states",
+    } == interface.OPTIONAL_CATEGORIES
     assert interface.VENDOR_METHODS["get_macro_indicators"]["augury"] is _augury().get_augury_macro_data
     assert (
         interface.VENDOR_METHODS["get_prediction_markets"]["augury"]
