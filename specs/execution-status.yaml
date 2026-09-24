@@ -6,7 +6,7 @@ development_status:
   e02s01: done
   e02s02: done
   e02s03: done
-  e03: done
+  e03: planned
   e03s01: done
   e03s02: planned
   e03s03: done
@@ -27,7 +27,7 @@ epics:
     wsjf: 4.8
     total_bcps: 16
   e03:
-    status: done
+    status: planned
     title: Augury Data Lake Integration
     wsjf: 3.4
     total_bcps: 28
