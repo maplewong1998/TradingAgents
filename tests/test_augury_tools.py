@@ -487,3 +487,264 @@ def test_signal_states_prompt_paragraphs_are_conditional_and_family_specific():
     assert "get_signal_states" in {tool.name for tool in fundamentals.bound_tools}
     assert "sma_streak" in market_text and "psar_flip" in market_text
     assert "hurst" in fundamentals_text and "quality" in fundamentals_text
+
+
+# story: e03s07
+# scenario: SC-e03s07-P1-03
+
+def test_liquidity_vendor_pins_live_only_contract_and_withholds_historical_reads(monkeypatch):
+    """The OpenAPI contract has no as_of/vintage, so past liquidity is withheld."""
+    augury = _augury()
+    monkeypatch.setattr(augury, "get_current_date", lambda: "2026-09-24")
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return FakeResponse({"ticker": "AAPL", "latest_price": 200.0, "adv_dollar_vol": 1_000_000})
+
+    monkeypatch.setattr(augury.requests, "get", fake_get)
+
+    historical = augury.get_augury_liquidity("aapl", "2026-01-15")
+    assert "withheld" in historical.lower()
+    assert "2026-01-15" in historical
+    assert calls == []
+
+    current = augury.get_augury_liquidity("aapl", "2026-09-24")
+    assert calls[0] == (
+        "http://localhost:8765/liquidity/AAPL",
+        {"params": {"window_days": 90}, "timeout": 30},
+    )
+    assert "adv_dollar_vol: 1000000" in current
+
+
+# scenario: SC-e03s07-P1-01
+
+def test_feature_vector_vendor_sends_one_ticker_and_renders_failed_slot(monkeypatch):
+    augury = _augury()
+    calls = []
+
+    def fake_post(url, **kwargs):
+        calls.append((url, kwargs))
+        return FakeResponse(
+            {
+                "as_of": "2026-01-15",
+                "data_vintage": "v20260115",
+                "items": [],
+                "failed": ["AAPL: daily features are not cached"],
+            }
+        )
+
+    monkeypatch.setattr(augury.requests, "post", fake_post)
+
+    report = augury.get_augury_feature_vector("aapl", "2026-01-15")
+
+    assert calls == [
+        (
+            "http://localhost:8765/api/v1/batch/feature-vector",
+            {
+                "json": {
+                    "tickers": ["AAPL"],
+                    "as_of": "2026-01-15",
+                    "vintage": "current",
+                },
+                "timeout": 30,
+            },
+        )
+    ]
+    assert "not available: daily features are not cached" in report
+
+
+def test_feature_vector_vendor_renders_success_item_and_missing_item_explicitly(monkeypatch):
+    augury = _augury()
+    monkeypatch.setattr(
+        augury.requests,
+        "post",
+        lambda *args, **kwargs: FakeResponse(
+            {
+                "as_of": "2026-01-15",
+                "data_vintage": "v20260115",
+                "items": [
+                    {
+                        "ticker": "AAPL",
+                        "features": {"rsi_14": 55.5},
+                        "fundamentals": {"market_cap": 1_000_000},
+                        "ground_truth": {},
+                        "watermark": {"bars_healthy": True},
+                    }
+                ],
+                "failed": [],
+            }
+        ),
+    )
+
+    report = augury.get_augury_feature_vector("AAPL", "2026-01-15")
+
+    assert "rsi_14" in report and "55.5" in report
+    assert "market_cap" in report and "1000000" in report
+    assert "data_vintage: v20260115" in report
+
+
+# scenario: SC-e03s07-P1-02
+
+@pytest.mark.parametrize(
+    ("payload", "expected"),
+    [
+        (
+            {"data": [{"ticker": "AAPL", "source": "futu", "valid_from": "2025-01-01"}]},
+            "member of the Augury tradeable universe",
+        ),
+        (
+            {
+                "data": [
+                    {
+                        "ticker": "AAPL",
+                        "source": "futu",
+                        "valid_from": "2025-01-01",
+                        "delisted": True,
+                    }
+                ]
+            },
+            "present but delisted",
+        ),
+        ({"data": []}, ""),
+    ],
+)
+def test_universe_membership_vendor_renders_member_delisted_and_absent(payload, expected, monkeypatch):
+    augury = _augury()
+    monkeypatch.setattr(
+        augury.requests,
+        "get",
+        lambda url, **kwargs: FakeResponse(payload),
+    )
+
+    report = augury.get_augury_universe_membership("aapl", "2026-01-15")
+
+    if expected:
+        assert expected in report
+    else:
+        assert "absent from the Augury tradeable universe" in report
+    assert "2026-01-15" in report
+
+
+def test_universe_membership_vendor_forwards_pit_query(monkeypatch):
+    augury = _augury()
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return FakeResponse(
+            {
+                "data": [
+                    {
+                        "ticker": "AAPL",
+                        "source": "futu",
+                        "valid_from": "2025-01-01",
+                    }
+                ]
+            }
+        )
+
+    monkeypatch.setattr(augury.requests, "get", fake_get)
+    augury.get_augury_universe_membership("aapl", "2026-01-15")
+
+    assert calls == [
+        (
+            "http://localhost:8765/api/v1/universe",
+            {"params": {"as_of": "2026-01-15", "q": "AAPL"}, "timeout": 30},
+        )
+    ]
+
+
+def test_cross_sectional_registration_and_optional_routing():
+    interface = importlib.import_module("tradingagents.dataflows.interface")
+    assert interface.TOOLS_CATEGORIES["cross_sectional"]["tools"] == [
+        "get_liquidity",
+        "get_feature_vector",
+        "get_universe_membership",
+    ]
+    assert "cross_sectional" in interface.OPTIONAL_CATEGORIES
+    assert interface.VENDOR_METHODS["get_liquidity"]["augury"] is (
+        _augury().get_augury_liquidity
+    )
+    assert interface.VENDOR_METHODS["get_feature_vector"]["augury"] is (
+        _augury().get_augury_feature_vector
+    )
+    assert interface.VENDOR_METHODS["get_universe_membership"]["augury"] is (
+        _augury().get_augury_universe_membership
+    )
+
+
+def test_cross_sectional_tool_wrappers_clamp_requested_dates_to_trade_date(monkeypatch):
+    tools = importlib.import_module("tradingagents.agents.utils.cross_sectional_tools")
+    calls = []
+    monkeypatch.setattr(
+        tools,
+        "route_to_vendor",
+        lambda method, *args: calls.append((method, args)) or "report",
+    )
+
+    tools.get_liquidity.func("AAPL", "2026-09-20", "2026-01-15")
+    tools.get_feature_vector.func("AAPL", "2026-09-20", "2026-01-15")
+    tools.get_universe_membership.func("AAPL", "2026-09-20", "2026-01-15")
+
+    assert calls == [
+        ("get_liquidity", ("AAPL", "2026-01-15")),
+        ("get_feature_vector", ("AAPL", "2026-01-15")),
+        ("get_universe_membership", ("AAPL", "2026-01-15")),
+    ]
+    agent_utils = importlib.import_module("tradingagents.agents.utils.agent_utils")
+    assert {"get_liquidity", "get_feature_vector", "get_universe_membership"} <= set(
+        agent_utils.__all__
+    )
+
+
+def test_cross_sectional_binding_gate_and_portfolio_manager_graph_integrity():
+    graph = importlib.import_module("tradingagents.graph.trading_graph")
+
+    set_config({"data_vendors": {"cross_sectional": "yfinance"}})
+    default_nodes = graph.TradingAgentsGraph._create_tool_nodes(None)
+    assert set(default_nodes) == {"market", "social", "news", "fundamentals"}
+    assert "get_liquidity" not in default_nodes["market"].tools_by_name
+    assert "get_feature_vector" not in default_nodes["market"].tools_by_name
+    assert "get_universe_membership" not in default_nodes["fundamentals"].tools_by_name
+
+    set_config({"data_vendors": {"cross_sectional": "augury"}})
+    configured_nodes = graph.TradingAgentsGraph._create_tool_nodes(None)
+    assert {"get_liquidity", "get_feature_vector"} <= set(
+        configured_nodes["market"].tools_by_name
+    )
+    assert "get_universe_membership" in configured_nodes["fundamentals"].tools_by_name
+    assert "portfolio_manager" not in configured_nodes
+
+
+def test_cross_sectional_prompt_paragraphs_are_conditional_and_analyst_bound():
+    default_market, default_market_text = _run_analyst(
+        "tradingagents.agents.analysts.market_analyst:create_market_analyst",
+        {"data_vendors": {"cross_sectional": "yfinance"}},
+    )
+    default_fundamentals, default_fundamentals_text = _run_analyst(
+        "tradingagents.agents.analysts.fundamentals_analyst:create_fundamentals_analyst",
+        {"data_vendors": {"cross_sectional": "yfinance"}},
+    )
+    assert "get_liquidity" not in {tool.name for tool in default_market.bound_tools}
+    assert "get_feature_vector" not in {tool.name for tool in default_market.bound_tools}
+    assert "get_universe_membership" not in {
+        tool.name for tool in default_fundamentals.bound_tools
+    }
+    assert "cross-sectional" not in default_market_text
+    assert "tradeable universe" not in default_fundamentals_text
+
+    market, market_text = _run_analyst(
+        "tradingagents.agents.analysts.market_analyst:create_market_analyst",
+        {"data_vendors": {"cross_sectional": "augury"}},
+    )
+    fundamentals, fundamentals_text = _run_analyst(
+        "tradingagents.agents.analysts.fundamentals_analyst:create_fundamentals_analyst",
+        {"data_vendors": {"cross_sectional": "augury"}},
+    )
+    assert {"get_liquidity", "get_feature_vector"} <= {
+        tool.name for tool in market.bound_tools
+    }
+    assert "get_universe_membership" in {tool.name for tool in fundamentals.bound_tools}
+    assert "cross-sectional" in market_text
+    assert "tradeable universe" in fundamentals_text
