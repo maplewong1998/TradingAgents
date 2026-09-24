@@ -82,6 +82,7 @@ environmental skips remained unchanged.
 ## Story commits
 
 ```text
+a5aebec fix(dataflows): annotate augury symbol preservation
 510445b fix(dataflows): preserve augury requested symbols
 bc23311 docs(specs): record e03s01 verification
 39399a1 feat(dataflows): add augury stock vendor seam
