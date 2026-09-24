@@ -361,6 +361,7 @@ def test_augury_indicator_map_pins_only_the_served_intersection():
         "macd": "macd_line",
         "macdh": "macd_histogram",
         "macds": "macd_signal",
+        "mfi": "mfi_14",
         "rsi": "rsi_14",
         "atr": "atr_14",
     }
