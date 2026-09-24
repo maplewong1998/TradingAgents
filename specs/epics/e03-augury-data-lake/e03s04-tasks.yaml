@@ -1,0 +1,68 @@
+story_id: e03s04
+title: "Macro + prediction markets via augury (optional categories)"
+spec: e03s04-macro-prediction-markets.md
+status: failing
+bcps: 2
+# TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
+# its verify command exits 0.
+tasks:
+  - id: 1
+    description: >-
+      RED: extend tests/test_augury_vendor.py (# story: e03s04) — macro
+      calendar markdown (actual/forecast/previous; pit_approximate flag
+      rendered; no fabricated series metadata), prediction-markets keyword
+      filter over question/slug, past-date withholding message, lake-down →
+      DATA_UNAVAILABLE optional sentinel via the router.
+      Scenarios SC-e03s04-P1-01/02, P2-01.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'macro or prediction' --collect-only"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "RED"]
+  - id: 2
+    description: >-
+      GREEN: get_augury_macro_data(indicator, curr_date, look_back_days=None)
+      → GET /macro?indicator=&days= rendered as an honest calendar table with
+      the "calendar-style observations" caveat header; signature matches the
+      fred impl.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k macro"
+    risk: P2
+    status: failing
+    allure:
+      severity: normal
+      categories: ["unit", "augury", "macro"]
+  - id: 3
+    description: >-
+      GREEN: get_augury_prediction_markets(topic, limit=None, curr_date=None)
+      → GET /prediction-markets (category when mappable, limit) + client-side
+      keyword filter over question/slug; curr_date < today → explicit
+      withholding message (polymarket-vendor precedent); signature matches the
+      polymarket impl.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k prediction"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "prediction-markets", "PIT"]
+  - id: 4
+    description: >-
+      Register get_macro_indicators + get_prediction_markets under "augury" in
+      VENDOR_METHODS; macro_data and prediction_markets stay in
+      OPTIONAL_CATEGORIES (list unchanged); router test: configured-but-
+      unreachable augury returns the DATA_UNAVAILABLE optional sentinel and the
+      run continues.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'registration or routing'"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "routing", "fail-open"]
+  - id: 5
+    description: "Full Preflight."
+    verify: ".venv/bin/python -m pytest -q && ruff check ."
+    risk: P2
+    status: failing
+    allure:
+      severity: normal
+      categories: ["preflight"]

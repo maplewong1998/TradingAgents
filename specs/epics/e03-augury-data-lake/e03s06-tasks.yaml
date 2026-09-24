@@ -1,0 +1,65 @@
+story_id: e03s06
+title: "Signal-family trigger states tool (get_signal_states) for market + fundamentals analysts"
+spec: e03s06-signal-states-tool.md
+status: failing
+bcps: 3
+# TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
+# its verify command exits 0.
+tasks:
+  - id: 1
+    description: >-
+      RED: extend tests/test_augury_tools.py (# story: e03s06) — trigger-state
+      markdown (triggered + detail + signal date + version), unknown family →
+      helpful valid-set message with no abort, as_of forwarded as the clamped
+      trade date, binding-gate on/off for both analysts.
+      Scenarios SC-e03s06-P1-01/02/03.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k signal --collect-only"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "tools", "RED"]
+  - id: 2
+    description: >-
+      GREEN vendor: get_augury_signal_states(ticker, family, curr_date) → GET
+      /api/v1/signals/{ticker}?family=&as_of= (both required upstream);
+      valid-family vocabulary constant with a comment citing the lake's
+      signals/registry.py; 422/unknown family → helpful message, not a crash.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'signal and vendor'"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "signals"]
+  - id: 3
+    description: >-
+      Seam: signal_states category added to TOOLS_CATEGORIES + VENDOR_METHODS
+      + OPTIONAL_CATEGORIES (fail-open enrichment; interface.py pattern).
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'registration or routing'"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "routing", "fail-open"]
+  - id: 4
+    description: >-
+      GREEN tool + bindings: new agents/utils/signal_states_tools.py (@tool
+      get_signal_states with InjectedState("trade_date") + as_of clamp; family
+      argument description enumerates the valid families); agent_utils.__all__
+      export; _create_tool_nodes appends to market + fundamentals nodes under
+      the binding gate; conditional prompt paragraphs name the relevant
+      families per analyst.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'signal and (tool or binding or prompt)'"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "binding-gate", "prompts"]
+  - id: 5
+    description: "Full Preflight."
+    verify: ".venv/bin/python -m pytest -q && ruff check ."
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["preflight"]

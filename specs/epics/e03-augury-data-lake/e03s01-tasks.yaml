@@ -1,0 +1,84 @@
+story_id: e03s01
+title: "Tracer bullet: augury vendor core + OHLCV through the seam (opt-in)"
+spec: e03s01-augury-vendor-core.md
+status: failing
+bcps: 5
+# TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
+# its verify command exits 0.
+tasks:
+  - id: 1
+    description: >-
+      RED: create tests/test_augury_vendor.py (# story: e03s01) — base-url
+      matrix (env unset → default http://localhost:8765; env set → honored;
+      empty → VendorNotConfiguredError), error mapping (404 ErrorResponse →
+      NoMarketDataError with POST /data/* job-hint detail; 429 →
+      VendorRateLimitError; ConnectionError propagates), stock markdown
+      (newest-first pages reversed chrono; multi-page window), registration
+      invariants. requests mocked at the augury module boundary.
+      Scenarios SC-e03s01-P0-01/02/03, P1-01/02.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py --collect-only"
+    risk: P0
+    status: failing
+    allure:
+      severity: critical
+      categories: ["unit", "augury", "RED"]
+  - id: 2
+    description: >-
+      GREEN core: new tradingagents/dataflows/augury.py — module docstring
+      (boundary + cache-first caveat), get_base_url() (config augury_base_url,
+      AUGURY_BASE_URL env, empty → VendorNotConfiguredError; fred.get_api_key
+      pattern), _request() with REQUEST_TIMEOUT=30 (polymarket precedent) and
+      the e51s01 ErrorResponse{detail,code,request_id,errors[]} → VendorError
+      taxonomy mapping; loud logging, no URL/payload in logs (#989).
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'base_url or error'"
+    risk: P0
+    status: failing
+    allure:
+      severity: critical
+      categories: ["unit", "augury", "vendor-core"]
+  - id: 3
+    description: >-
+      GREEN stock: get_augury_stock(symbol, start_date, end_date) matching the
+      yfinance impl signature — normalize_symbol first, GET
+      /api/v1/bars/{ticker} with start/end + page_size=200 pagination,
+      newest-first pages rendered oldest-first markdown; empty coverage →
+      NoMarketDataError(symbol, canonical, detail).
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k stock"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "ohlcv"]
+  - id: 4
+    description: >-
+      Registration + config: "augury" in VENDOR_LIST;
+      VENDOR_METHODS["get_stock_data"]["augury"]; default_config gains
+      augury_base_url (default http://localhost:8765) + AUGURY_BASE_URL env
+      override (TRADINGAGENTS_DEBATE_GATE map pattern) and the data_vendors
+      comments list augury as an option. Existing chains untouched (D3).
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'registration or config' && .venv/bin/python -m pytest -q tests/test_env_overrides.py"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "config", "augury"]
+  - id: 5
+    description: >-
+      Routing integration: chain "augury,yfinance" falls through to a mocked
+      yfinance on augury 404; augury ConnectionError logs a warning and skips;
+      chain "augury" alone + 404 → NO_DATA sentinel naming symbol + detail;
+      default config performs zero lake HTTP calls.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k routing"
+    risk: P0
+    status: failing
+    allure:
+      severity: critical
+      categories: ["unit", "augury", "routing", "fallback"]
+  - id: 6
+    description: "Full Preflight."
+    verify: ".venv/bin/python -m pytest -q && ruff check ."
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["preflight"]

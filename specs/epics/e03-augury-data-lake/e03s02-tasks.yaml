@@ -1,0 +1,67 @@
+story_id: e03s02
+title: "PIT fundamentals pack: fundamentals + balance sheet + cashflow + income statement"
+spec: e03s02-pit-fundamentals-pack.md
+status: failing
+bcps: 3
+# TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
+# its verify command exits 0.
+tasks:
+  - id: 1
+    description: >-
+      RED: extend tests/test_augury_vendor.py (# story: e03s02) — fundamentals
+      markdown from a mocked PIT snapshot (as_of forwarded verbatim), statement
+      filtering per method (mixed-statement fixture → three disjoint reports),
+      freq annual/quarterly selection by period spacing, 404 →
+      NoMarketDataError with POST /data/* job-hint detail.
+      Scenarios SC-e03s02-P1-01/02/03.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'fundamentals or balance_sheet or cashflow or income_statement' --collect-only"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "RED"]
+  - id: 2
+    description: >-
+      GREEN: get_augury_fundamentals(ticker, curr_date=None) → GET
+      /api/v1/fundamentals/{ticker} with as_of=curr_date (required upstream);
+      markdown overview in the shape agents already consume.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k fundamentals"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "fundamentals"]
+  - id: 3
+    description: >-
+      GREEN: get_augury_balance_sheet / get_augury_cashflow /
+      get_augury_income_statement(ticker, freq="quarterly", curr_date=None) →
+      GET /api/v1/financials/{ticker} with as_of + fields whitelist; rows
+      filtered by the served `statement` field, rendered newest-period-first
+      (server order: period_end desc, statement asc, newest restatement per
+      metric — pit.py:128-156); empty filter result → NoMarketDataError naming
+      the statement.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'balance_sheet or cashflow or income_statement'"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "financials", "PIT"]
+  - id: 4
+    description: >-
+      Register all four methods under "augury" in VENDOR_METHODS; chain test:
+      "augury,yfinance" on a 404 falls through per method, log line shows the
+      handoff.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'registration or routing'"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "routing", "fallback"]
+  - id: 5
+    description: "Full Preflight."
+    verify: ".venv/bin/python -m pytest -q && ruff check ."
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["preflight"]

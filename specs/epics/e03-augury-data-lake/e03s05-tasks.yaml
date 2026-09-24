@@ -1,0 +1,82 @@
+story_id: e03s05
+title: "AI forecast pack: get_ai_forecast + get_valuation tools for market/fundamentals analysts"
+spec: e03s05-ai-forecast-pack.md
+status: failing
+bcps: 5
+# TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
+# its verify command exits 0.
+tasks:
+  - id: 1
+    description: >-
+      RED: create tests/test_augury_tools.py (# story: e03s05) — forecast
+      markdown renders all KronosResponse flags verbatim; withholding when
+      data_asof > trade_date (SC-e03s05-P0-01); data_available=false →
+      unavailable path; valuation table + 404 optional sentinel; binding-gate
+      matrix (default config: tools unbound + prompts byte-identical;
+      configured: bound + paragraph present). requests mocked at the augury
+      module boundary.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py --collect-only"
+    risk: P0
+    status: failing
+    allure:
+      severity: critical
+      categories: ["unit", "augury", "tools", "RED"]
+  - id: 2
+    description: >-
+      GREEN vendor: get_augury_ai_forecast(ticker, curr_date) — GET
+      /signals/{ticker}/kronos, honesty block (data_available, degraded,
+      stale_days, data_asof) verbatim, look-ahead withholding rule;
+      get_augury_valuation(ticker, curr_date) — GET /valuation/{ticker},
+      ValuationSummary table, 404 → unavailable path, live-vintage caveat on
+      past analysis dates.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k vendor"
+    risk: P0
+    status: failing
+    allure:
+      severity: critical
+      categories: ["unit", "augury", "kronos", "valuation", "PIT"]
+  - id: 3
+    description: >-
+      Seam: TOOLS_CATEGORIES gains ai_forecast + valuation; VENDOR_METHODS
+      entries under "augury"; both categories added to OPTIONAL_CATEGORIES
+      with a comment (enrichment, fail-open — interface.py pattern).
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'registration or routing'"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "routing", "fail-open"]
+  - id: 4
+    description: >-
+      GREEN tools: new agents/utils/ai_forecast_tools.py — @tool
+      get_ai_forecast + @tool get_valuation with InjectedState("trade_date") +
+      as_of(curr_date, trade_date) clamp (macro_data_tools.py precedent);
+      export both via agents/utils/agent_utils.py __all__.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k tool"
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "tools"]
+  - id: 5
+    description: >-
+      Binding gate + prompts: TradingAgentsGraph._create_tool_nodes appends
+      get_ai_forecast to the market node and get_valuation to the fundamentals
+      node only when "augury" is in the category's configured chain
+      (tool_vendors override honored); market_analyst / fundamentals_analyst
+      factories append the augury paragraph under the same predicate;
+      default-config prompts byte-identical.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'binding or prompt' && .venv/bin/python -m pytest -q tests/test_structured_agent_prompts.py"
+    risk: P0
+    status: failing
+    allure:
+      severity: critical
+      categories: ["unit", "augury", "binding-gate", "prompts"]
+  - id: 6
+    description: "Full Preflight."
+    verify: ".venv/bin/python -m pytest -q && ruff check ."
+    risk: P1
+    status: failing
+    allure:
+      severity: high
+      categories: ["preflight"]
