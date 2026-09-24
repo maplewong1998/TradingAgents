@@ -6,7 +6,7 @@
 **risk:** P0 (look-ahead-bias guard on a forward-looking signal is decision-path integrity)
 **context:** domain
 **bcps:** 5
-**status:** planned (e45s06 ledger — tasks start `failing`, flip only on green verify)
+**status:** passing (e45s06 ledger — all 6 tasks green)
 
 **Context:** The first augury-only capability (D1): the lake's Kronos AI price
 forecasts and multi-method valuations have no TradingAgents counterpart, so

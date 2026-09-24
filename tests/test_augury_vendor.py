@@ -809,7 +809,9 @@ def test_augury_optional_categories_fail_open_when_lake_is_unreachable(monkeypat
 def test_augury_is_registered_for_optional_methods():
     interface = importlib.import_module("tradingagents.dataflows.interface")
 
-    assert {"macro_data", "prediction_markets"} == interface.OPTIONAL_CATEGORIES
+    # e03s04 pinned {macro_data, prediction_markets}; e03s05 extends the set with
+    # ai_forecast + valuation (new augury-only categories are fail-open enrichment).
+    assert {"macro_data", "prediction_markets", "ai_forecast", "valuation"} == interface.OPTIONAL_CATEGORIES
     assert interface.VENDOR_METHODS["get_macro_indicators"]["augury"] is _augury().get_augury_macro_data
     assert (
         interface.VENDOR_METHODS["get_prediction_markets"]["augury"]

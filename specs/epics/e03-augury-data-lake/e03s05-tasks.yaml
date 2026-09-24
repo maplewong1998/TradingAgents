@@ -1,7 +1,7 @@
 story_id: e03s05
 title: "AI forecast pack: get_ai_forecast + get_valuation tools for market/fundamentals analysts"
 spec: e03s05-ai-forecast-pack.md
-status: failing
+status: passing
 bcps: 5
 # TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
 # its verify command exits 0.
@@ -17,7 +17,7 @@ tasks:
       module boundary.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py --collect-only"
     risk: P0
-    status: failing
+    status: passing
     allure:
       severity: critical
       categories: ["unit", "augury", "tools", "RED"]
@@ -31,7 +31,7 @@ tasks:
       past analysis dates.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k vendor"
     risk: P0
-    status: failing
+    status: passing
     allure:
       severity: critical
       categories: ["unit", "augury", "kronos", "valuation", "PIT"]
@@ -42,7 +42,7 @@ tasks:
       with a comment (enrichment, fail-open — interface.py pattern).
     verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'registration or routing'"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "routing", "fail-open"]
@@ -54,7 +54,7 @@ tasks:
       export both via agents/utils/agent_utils.py __all__.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k tool"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "tools"]
@@ -68,7 +68,7 @@ tasks:
       default-config prompts byte-identical.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'binding or prompt' && .venv/bin/python -m pytest -q tests/test_structured_agent_prompts.py"
     risk: P0
-    status: failing
+    status: passing
     allure:
       severity: critical
       categories: ["unit", "augury", "binding-gate", "prompts"]
@@ -76,7 +76,7 @@ tasks:
     description: "Full Preflight."
     verify: ".venv/bin/python -m pytest -q && ruff check ."
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["preflight"]

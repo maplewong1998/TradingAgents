@@ -11,7 +11,7 @@ development_status:
   e03s02: planned
   e03s03: done
   e03s04: done
-  e03s05: planned
+  e03s05: done
   e03s06: planned
   e03s07: planned
   e03s08: planned
@@ -168,14 +168,14 @@ stories:
     tasks_failing: 0
     risk_max: P1
   e03s05:
-    status: planned
+    status: done
     title: 'AI forecast pack: get_ai_forecast + get_valuation tools for market/fundamentals
       analysts'
     bcps: 5
     epic: e03
     tasks_total: 6
-    tasks_passing: 0
-    tasks_failing: 6
+    tasks_passing: 6
+    tasks_failing: 0
     risk_max: P0
   e03s06:
     status: planned
