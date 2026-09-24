@@ -327,6 +327,195 @@ def test_augury_is_registered_for_stock_data():
     assert interface.VENDOR_METHODS["get_stock_data"]["augury"] is _augury().get_augury_stock
 
 
+# story: e03s03
+# scenario: SC-e03s03-P1-01
+
+
+def _features(*rows: dict) -> dict:
+    return {
+        "data": list(rows),
+        "pagination": {
+            "page": 1,
+            "page_size": 200,
+            "total_items": len(rows),
+            "total_pages": 1,
+        },
+    }
+
+
+def _news(*rows: dict) -> dict:
+    return {
+        "data": list(rows),
+        "pagination": {
+            "page": 1,
+            "page_size": 200,
+            "total_items": len(rows),
+            "total_pages": 1,
+        },
+    }
+
+
+def test_augury_indicator_map_pins_only_the_served_intersection():
+    assert _augury()._INDICATOR_MAP == {
+        "close_200_sma": "sma_200",
+        "macd": "macd_line",
+        "macdh": "macd_histogram",
+        "macds": "macd_signal",
+        "mfi": "mfi_14",
+        "rsi": "rsi_14",
+        "atr": "atr_14",
+    }
+
+
+def test_augury_indicators_requests_mapped_field_and_renders_rows(monkeypatch):
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return FakeResponse(
+            _features(
+                {"ticker": "AAPL", "trade_date": "2025-01-15", "rsi_14": 61.2},
+                {"ticker": "AAPL", "trade_date": "2025-01-14", "rsi_14": 59.8},
+            )
+        )
+
+    monkeypatch.setattr(_augury().requests, "get", fake_get)
+
+    report = _augury().get_augury_indicators("aapl", "rsi", "2025-01-15", 30)
+
+    assert "rsi_14" in report
+    assert "61.2" in report
+    assert calls == [
+        (
+            "http://localhost:8765/api/v1/features/AAPL",
+            {
+                "params": {
+                    "start": "2024-12-16",
+                    "end": "2025-01-15",
+                    "fields": "rsi_14",
+                    "page": 1,
+                    "page_size": 200,
+                },
+                "timeout": 30,
+            },
+        )
+    ]
+
+
+@pytest.mark.parametrize("indicator", ["close_50_sma", "close_10_ema", "boll", "boll_ub"])
+def test_augury_indicators_decline_unserved_advertised_names(indicator):
+    with pytest.raises(NoMarketDataError) as exc_info:
+        _augury().get_augury_indicators("AAPL", indicator, "2025-01-15", 30)
+
+    assert indicator in exc_info.value.detail
+    assert "rsi_14" in exc_info.value.detail
+    assert "sma_200" in exc_info.value.detail
+
+
+# scenario: SC-e03s03-P0-01
+
+def test_augury_news_filters_to_inclusive_analysis_window_and_keeps_sentiment_label(monkeypatch):
+    response = FakeResponse(
+        _news(
+            {
+                "url": "https://example.invalid/in-window",
+                "tickers": ["AAPL"],
+                "title": "In window",
+                "source": "Wire",
+                "summary": "Summary",
+                "sentiment_score": 0.8,
+                "sentiment_label": "VERY_BULLISH",
+                "topics": ["earnings"],
+                "published_at": "2025-01-15T16:30:00Z",
+            },
+            {
+                "url": "https://example.invalid/too-early",
+                "tickers": ["AAPL"],
+                "title": "Too early",
+                "source": "Wire",
+                "summary": "Old",
+                "sentiment_score": -0.2,
+                "sentiment_label": "BEARISH",
+                "topics": [],
+                "published_at": "2025-01-09T12:00:00Z",
+            },
+            {
+                "url": "https://example.invalid/future",
+                "tickers": ["AAPL"],
+                "title": "Future",
+                "source": "Wire",
+                "summary": "Future",
+                "sentiment_score": 0.1,
+                "sentiment_label": "NEUTRAL",
+                "topics": [],
+                "published_at": "2025-01-16T12:00:00Z",
+            },
+        )
+    )
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return response
+
+    monkeypatch.setattr(_augury().requests, "get", fake_get)
+
+    report = _augury().get_augury_news("aapl", "2025-01-10", "2025-01-15")
+
+    assert "In window" in report
+    assert "VERY_BULLISH" in report
+    assert "Too early" not in report
+    assert "Future" not in report
+    assert calls[0][0] == "http://localhost:8765/news/AAPL"
+    assert calls[0][1]["params"]["days"] >= 6
+
+
+def test_augury_news_all_filtered_rows_raise_no_data(monkeypatch):
+    monkeypatch.setattr(
+        _augury().requests,
+        "get",
+        lambda *args, **kwargs: FakeResponse(
+            _news(
+                {
+                    "title": "Future",
+                    "published_at": "2025-01-16T12:00:00Z",
+                    "sentiment_label": "NEUTRAL",
+                }
+            )
+        ),
+    )
+
+    with pytest.raises(NoMarketDataError) as exc_info:
+        _augury().get_augury_news("AAPL", "2025-01-10", "2025-01-15")
+
+    assert "between 2025-01-10 and 2025-01-15" in exc_info.value.detail
+
+
+def test_augury_is_registered_for_indicator_and_news_methods():
+    interface = importlib.import_module("tradingagents.dataflows.interface")
+
+    assert interface.VENDOR_METHODS["get_indicators"]["augury"] is _augury().get_augury_indicators
+    assert interface.VENDOR_METHODS["get_news"]["augury"] is _augury().get_augury_news
+
+
+def test_routing_augury_indicator_fallback_and_mapped_hit(monkeypatch):
+    interface = importlib.import_module("tradingagents.dataflows.interface")
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append(url)
+        return FakeResponse(_features({"trade_date": "2025-01-15", "rsi_14": 61.2}))
+
+    monkeypatch.setattr(_augury().requests, "get", fake_get)
+    fallback = lambda *args, **kwargs: "yfinance indicator"
+    monkeypatch.setitem(interface.VENDOR_METHODS["get_indicators"], "yfinance", fallback)
+    set_config({"data_vendors": {"technical_indicators": "augury,yfinance"}})
+
+    assert "rsi_14" in route_to_vendor("get_indicators", "AAPL", "rsi", "2025-01-15", 30)
+    assert calls == ["http://localhost:8765/api/v1/features/AAPL"]
+    assert route_to_vendor("get_indicators", "AAPL", "close_50_sma", "2025-01-15", 30) == "yfinance indicator"
+
+
 # story: e03s02
 
 def test_augury_is_registered_for_all_fundamental_methods():
