@@ -26,6 +26,7 @@ from tradingagents.agents.utils.agent_utils import (
     get_macro_indicators,
     get_news,
     get_prediction_markets,
+    get_signal_states,
     get_stock_data,
     get_valuation,
     get_verified_market_snapshot,
@@ -229,6 +230,9 @@ class TradingAgentsGraph:
             market_tools.append(get_ai_forecast)
         if is_augury_enabled("valuation", "get_valuation"):
             fundamentals_tools.append(get_valuation)
+        if is_augury_enabled("signal_states", "get_signal_states"):
+            market_tools.append(get_signal_states)
+            fundamentals_tools.append(get_signal_states)
 
         return {
             "market": ToolNode(market_tools),

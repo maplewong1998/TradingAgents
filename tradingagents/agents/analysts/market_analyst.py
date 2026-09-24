@@ -5,6 +5,7 @@ from tradingagents.agents.utils.agent_utils import (
     get_indicators,
     get_instrument_context_from_state,
     get_language_instruction,
+    get_signal_states,
     get_stock_data,
     get_verified_market_snapshot,
 )
@@ -56,6 +57,15 @@ Write a very detailed and nuanced report of the trends you observe. Provide spec
             + """ Make sure to append a Markdown table at the end of the report to organize key points in the report, organized and easy to read."""
             + get_language_instruction()
         )
+
+        if is_augury_enabled("signal_states", "get_signal_states"):
+            tools.append(get_signal_states)
+            system_message += (
+                " Use `get_signal_states` for Augury's versioned trigger states for "
+                "the technical families sma_streak, sma_cross, rsi_cross, macd_cross, "
+                "bb_cross, adx_breakout, and psar_flip. Include the signal date and "
+                "formula version when reporting a state."
+            )
 
         if is_augury_enabled("ai_forecast", "get_ai_forecast"):
             tools.append(get_ai_forecast)
