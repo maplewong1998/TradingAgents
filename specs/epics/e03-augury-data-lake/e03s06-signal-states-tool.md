@@ -6,7 +6,7 @@
 **risk:** P1 (new read-only tool over versioned PIT signals)
 **context:** domain
 **bcps:** 3
-**status:** planned (e45s06 ledger — tasks start `failing`, flip only on green verify)
+**status:** passing (e45s06 ledger — all 5 tasks green)
 
 **Context:** Augury's `/api/v1/signals/{ticker}` serves versioned,
 point-in-time trigger states for its signal families — seven technical families

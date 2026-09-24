@@ -1,7 +1,7 @@
 story_id: e03s06
 title: "Signal-family trigger states tool (get_signal_states) for market + fundamentals analysts"
 spec: e03s06-signal-states-tool.md
-status: failing
+status: passing
 bcps: 3
 # TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
 # its verify command exits 0.
@@ -15,7 +15,7 @@ tasks:
       Scenarios SC-e03s06-P1-01/02/03.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k signal --collect-only"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "tools", "RED"]
@@ -27,7 +27,7 @@ tasks:
       signals/registry.py; 422/unknown family → helpful message, not a crash.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'signal and vendor'"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "signals"]
@@ -37,7 +37,7 @@ tasks:
       + OPTIONAL_CATEGORIES (fail-open enrichment; interface.py pattern).
     verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'registration or routing'"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "routing", "fail-open"]
@@ -51,15 +51,15 @@ tasks:
       families per analyst.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'signal and (tool or binding or prompt)'"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "binding-gate", "prompts"]
   - id: 5
     description: "Full Preflight."
-    verify: ".venv/bin/python -m pytest -q && ruff check ."
+    verify: ".venv/bin/python -m pytest -q && .venv/bin/ruff check ."
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["preflight"]

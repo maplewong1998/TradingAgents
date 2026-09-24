@@ -12,7 +12,7 @@ development_status:
   e03s03: done
   e03s04: done
   e03s05: done
-  e03s06: planned
+  e03s06: done
   e03s07: planned
   e03s08: planned
 epics:
@@ -178,14 +178,14 @@ stories:
     tasks_failing: 0
     risk_max: P0
   e03s06:
-    status: planned
+    status: done
     title: Signal-family trigger states tool (get_signal_states) for market + fundamentals
       analysts
     bcps: 3
     epic: e03
     tasks_total: 5
-    tasks_passing: 0
-    tasks_failing: 5
+    tasks_passing: 5
+    tasks_failing: 0
     risk_max: P1
   e03s07:
     status: planned
