@@ -507,7 +507,9 @@ def test_routing_augury_indicator_fallback_and_mapped_hit(monkeypatch):
         return FakeResponse(_features({"trade_date": "2025-01-15", "rsi_14": 61.2}))
 
     monkeypatch.setattr(_augury().requests, "get", fake_get)
-    fallback = lambda *args, **kwargs: "yfinance indicator"
+    def fallback(*args, **kwargs):
+        return "yfinance indicator"
+
     monkeypatch.setitem(interface.VENDOR_METHODS["get_indicators"], "yfinance", fallback)
     set_config({"data_vendors": {"technical_indicators": "augury,yfinance"}})
 

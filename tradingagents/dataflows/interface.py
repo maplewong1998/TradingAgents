@@ -16,6 +16,8 @@ from .augury import (
     get_augury_cashflow,
     get_augury_fundamentals,
     get_augury_income_statement,
+    get_augury_indicators,
+    get_augury_news,
     get_augury_stock,
 )
 from .config import get_config
@@ -117,6 +119,7 @@ VENDOR_METHODS = {
     "get_indicators": {
         "alpha_vantage": get_alpha_vantage_indicator,
         "yfinance": get_stock_stats_indicators_window,
+        "augury": get_augury_indicators,
     },
     # fundamental_data
     "get_fundamentals": {
@@ -146,6 +149,7 @@ VENDOR_METHODS = {
     "get_news": {
         "alpha_vantage": get_alpha_vantage_news,
         "yfinance": get_news_yfinance,
+        "augury": get_augury_news,
     },
     "get_global_news": {
         "yfinance": get_global_news_yfinance,

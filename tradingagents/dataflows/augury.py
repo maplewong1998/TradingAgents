@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 import os
-from datetime import date
+from datetime import date, datetime, timedelta
 
 import requests
 
@@ -101,6 +101,18 @@ _FUNDAMENTAL_LABELS = {
     "ingested_at": "Ingested At",
 }
 
+# This is the exact intersection of market_analyst.py's advertised names and the
+# columns assembled by augury signals/daily_features.py:121-141 (#e03s03).
+_INDICATOR_MAP = {
+    "close_200_sma": "sma_200",
+    "macd": "macd_line",
+    "macdh": "macd_histogram",
+    "macds": "macd_signal",
+    "mfi": "mfi_14",
+    "rsi": "rsi_14",
+    "atr": "atr_14",
+}
+
 _FINANCIALS_FIELDS = (
     "ticker",
     "statement",
@@ -184,6 +196,8 @@ def _financial_rows(ticker: str, curr_date: str | None) -> tuple[str, list[dict]
 def _date_value(value) -> date | None:
     if value is None:
         return None
+    if isinstance(value, datetime):
+        return value.date()
     if isinstance(value, date):
         return value
     try:
@@ -290,6 +304,119 @@ def get_augury_income_statement(
 ) -> str:
     """Return Augury point-in-time income-statement facts."""
     return _get_augury_statement(ticker, "income", freq, curr_date)
+
+
+def get_augury_indicators(
+    symbol: str,
+    indicator: str,
+    curr_date: str,
+    look_back_days: int,
+) -> str:
+    """Return one mapped technical indicator from Augury's feature rows.
+
+    The technical-indicator tool clamps ``curr_date`` to the analysis date before
+    this vendor is called. Unmapped stockstats vocabulary is deliberately declined
+    so a configured fallback can calculate it without guessing a lake column
+    (#e03s03, D4).
+    """
+    canonical = normalize_symbol(symbol)
+    mapped = _INDICATOR_MAP.get(indicator)
+    if mapped is None:
+        served = ", ".join(sorted(set(_INDICATOR_MAP.values())))
+        raise NoMarketDataError(
+            symbol,
+            canonical,
+            f"augury does not serve indicator '{indicator}'; served set: {served}",
+        )
+
+    end_date = datetime.strptime(curr_date, "%Y-%m-%d").date()
+    start_date = end_date - timedelta(days=look_back_days)
+    path = f"/api/v1/features/{canonical}"
+    try:
+        payload = _request(
+            path,
+            {
+                "start": start_date.isoformat(),
+                "end": curr_date,
+                "fields": mapped,
+                "page": 1,
+                "page_size": 200,
+            },
+        )
+    except NoMarketDataError as exc:
+        raise NoMarketDataError(symbol, canonical, exc.detail) from exc
+
+    rows = payload.get("data", []) if isinstance(payload, dict) else []
+    rows = [row for row in rows if isinstance(row, dict)]
+    if not rows:
+        raise NoMarketDataError(
+            symbol,
+            canonical,
+            f"no {mapped} rows between {start_date} and {curr_date}",
+        )
+
+    lines = [
+        f"## {indicator} values from {start_date} to {curr_date}:",
+        "",
+        f"| Date | {mapped} |",
+        "| --- | ---: |",
+    ]
+    for row in rows:
+        lines.append(f"| {_format_value(row.get('trade_date'))} | {_format_value(row.get(mapped))} |")
+    return "\n".join(lines) + "\n"
+
+
+def get_augury_news(ticker: str, start_date: str, end_date: str) -> str:
+    """Return Augury news filtered to the caller's point-in-time date window.
+
+    Augury's news endpoint has no ``as_of`` parameter, so filtering its response
+    locally is mandatory: future articles must not enter a backtest report
+    (#e03s03, SC-e03s03-P0-01).
+    """
+    canonical = normalize_symbol(ticker)
+    start = date.fromisoformat(start_date)
+    end = date.fromisoformat(end_date)
+    window_days = (end - start).days + 1
+    if window_days < 1:
+        raise NoMarketDataError(ticker, canonical, f"invalid news window {start_date} to {end_date}")
+
+    path = f"/news/{canonical}"
+    try:
+        payload = _request(path, {"days": window_days + 7})
+    except NoMarketDataError as exc:
+        raise NoMarketDataError(ticker, canonical, exc.detail) from exc
+
+    rows = payload.get("data", []) if isinstance(payload, dict) else []
+    filtered = [
+        row
+        for row in rows
+        if isinstance(row, dict)
+        and (published := _date_value(row.get("published_at"))) is not None
+        and start <= published <= end
+    ]
+    if not filtered:
+        raise NoMarketDataError(
+            ticker,
+            canonical,
+            f"no news between {start_date} and {end_date} after client-side PIT filtering",
+        )
+
+    lines = [f"## {canonical} News, from {start_date} to {end_date}:", ""]
+    for row in filtered:
+        lines.extend(
+            [
+                f"### {_format_value(row.get('title'))}",
+                f"- URL: {_format_value(row.get('url'))}",
+                f"- Tickers: {_format_value(row.get('tickers'))}",
+                f"- Source: {_format_value(row.get('source'))}",
+                f"- Summary: {_format_value(row.get('summary'))}",
+                f"- Sentiment: {_format_value(row.get('sentiment_score'))} ({_format_value(row.get('sentiment_label'))})",
+                f"- Topics: {_format_value(row.get('topics'))}",
+                f"- Published At: {_format_value(row.get('published_at'))}",
+                "",
+            ]
+        )
+    return "\n".join(lines)
 
 
 def get_augury_stock(symbol: str, start_date: str, end_date: str) -> str:
