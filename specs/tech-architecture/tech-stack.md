@@ -63,9 +63,12 @@ tradingagents/agents/**   ← one factory per node, each returns a partial node 
 tradingagents/agents/utils/*_tools.py  ← LangChain @tool wrappers
     ▼
 tradingagents/dataflows/interface.py   ← route_to_vendor(): the ONLY vendor seam
+    │  imports the data-only vendor_registry.py tables
     ▼
 tradingagents/dataflows/<vendor>.py    ← yfinance, alpha_vantage, fred, sec_edgar,
-                                         polymarket, augury, reddit, stocktwits
+                                         polymarket, augury family, reddit, stocktwits
+tradingagents/dataflows/augury.py      ← compatibility umbrella for augury_core.py
+                                         plus augury_market/fundamentals/signals/news.py
 tradingagents/llm_clients/**           ← provider clients behind BaseLLMClient ABC
 ```
 
@@ -89,16 +92,25 @@ Data flow of a run (`TradingAgentsGraph.propagate`):
 
 ### The vendor seam
 
-`dataflows/interface.py` holds `TOOLS_CATEGORIES`, `VENDOR_METHODS`, and `route_to_vendor(method, *args, **kwargs)`. Selection is per-category (`data_vendors`) with per-method override (`tool_vendors`). **The configured list *is* the fallback chain** — there is deliberately no silent fallback to unconfigured vendors (#988/#289). The loop catches the `VendorError` taxonomy and reacts by behavior:
+`dataflows/interface.py` owns `route_to_vendor(method, *args, **kwargs)` and the
+configuration/error seam; the data-only `dataflows/vendor_registry.py` owns
+`TOOLS_CATEGORIES`, `VENDOR_LIST`, `OPTIONAL_CATEGORIES`, and `VENDOR_METHODS`.
+Selection is per-category (`data_vendors`) with per-method override (`tool_vendors`).
+**The configured list *is* the fallback chain** — there is deliberately no silent
+fallback to unconfigured vendors (#988/#289). The loop catches the `VendorError`
+taxonomy and reacts by behavior:
 
 The vendor registry includes `augury` alongside the existing live and filing vendors.
-The current tree has 10 tool categories: the six established data categories plus the
-four Augury-only opt-in categories `ai_forecast`, `valuation`, `signal_states`, and
-`cross_sectional`. Augury is registered for the nine mapped methods
+A grep count of `description` entries in `vendor_registry.py` is 10 tool categories:
+the six established data categories plus the four Augury-only opt-in categories
+`ai_forecast`, `valuation`, `signal_states`, and `cross_sectional`. A grep count of
+`"augury":` entries is 15 method registrations: the nine established mapped methods
 `get_stock_data`, `get_indicators`, `get_fundamentals`, `get_balance_sheet`,
 `get_cashflow`, `get_income_statement`, `get_news`, `get_macro_indicators`, and
-`get_prediction_markets`; its indicator registration is the served-column
-intersection map.
+`get_prediction_markets`, plus six opt-in methods for forecasts, valuation, signals,
+and cross-sectional context. `augury.py` remains the public compatibility umbrella;
+its shared HTTP/error machinery is in `augury_core.py`, with market,
+fundamental, signal, and news slices in the four family modules.
 
 | Exception | Router reaction |
 |-----------|-----------------|
