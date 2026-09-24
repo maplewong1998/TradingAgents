@@ -62,7 +62,9 @@ All six ledger verifies passed before their corresponding ledger flips:
 6. Full preflight below — **passed**.
 
 The implementation commit was `39399a1` (`feat(dataflows): add augury stock vendor seam`;
-`Story: e03s01`).
+`Story: e03s01`). A follow-up hardening commit, `510445b` (`fix(dataflows): preserve augury
+requested symbols`; `Story: e03s01`), keeps the requested symbol and canonical symbol distinct
+when a normalized ticker receives a 404.
 
 ## Final preflight
 
@@ -80,6 +82,8 @@ environmental skips remained unchanged.
 ## Story commits
 
 ```text
+510445b fix(dataflows): preserve augury requested symbols
+bc23311 docs(specs): record e03s01 verification
 39399a1 feat(dataflows): add augury stock vendor seam
 617d13b test(dataflows): add augury vendor tracer tests
 f89b85b docs(specs): plan e03 augury data lake integration
