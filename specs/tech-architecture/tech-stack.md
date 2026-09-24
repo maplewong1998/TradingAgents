@@ -6,8 +6,11 @@
      refreshed from the code in this pass. Each count is a line/marker count taken with
      grep on this tree; where a count disagreed with the earlier one it was re-measured
      rather than adjusted. -->
+<!-- story: e03s08 — augury's vendor seam, four opt-in tool categories, and the
+     counts below were refreshed from the current tree. Counts are grep/line counts,
+     re-measured rather than hand-adjusted when they differed from the prior scan. -->
 
-> Derived by `map-codebase` on 2026-09-20 from the `.codegraph` index plus targeted
+> Derived by `map-codebase` on 2026-09-24 from the `.codegraph` index plus targeted
 > reads of manifests, entry points, and gray-area modules. Cold analysis only: every
 > claim below traces to a file in this repo. Where the code surprised the scan, it is
 > called out under § Signals rather than smoothed over.
@@ -62,7 +65,7 @@ tradingagents/agents/utils/*_tools.py  ← LangChain @tool wrappers
 tradingagents/dataflows/interface.py   ← route_to_vendor(): the ONLY vendor seam
     ▼
 tradingagents/dataflows/<vendor>.py    ← yfinance, alpha_vantage, fred, sec_edgar,
-                                         polymarket, reddit, stocktwits
+                                         polymarket, augury, reddit, stocktwits
 tradingagents/llm_clients/**           ← provider clients behind BaseLLMClient ABC
 ```
 
@@ -87,6 +90,15 @@ Data flow of a run (`TradingAgentsGraph.propagate`):
 ### The vendor seam
 
 `dataflows/interface.py` holds `TOOLS_CATEGORIES`, `VENDOR_METHODS`, and `route_to_vendor(method, *args, **kwargs)`. Selection is per-category (`data_vendors`) with per-method override (`tool_vendors`). **The configured list *is* the fallback chain** — there is deliberately no silent fallback to unconfigured vendors (#988/#289). The loop catches the `VendorError` taxonomy and reacts by behavior:
+
+The vendor registry includes `augury` alongside the existing live and filing vendors.
+The current tree has 10 tool categories: the six established data categories plus the
+four Augury-only opt-in categories `ai_forecast`, `valuation`, `signal_states`, and
+`cross_sectional`. Augury is registered for the nine mapped methods
+`get_stock_data`, `get_indicators`, `get_fundamentals`, `get_balance_sheet`,
+`get_cashflow`, `get_income_statement`, `get_news`, `get_macro_indicators`, and
+`get_prediction_markets`; its indicator registration is the served-column
+intersection map.
 
 | Exception | Router reaction |
 |-----------|-----------------|
@@ -136,7 +148,7 @@ The `NO_EXTERNAL_TOOLS` constant exists because schema-only binding means a mode
 
 ### Observability
 
-- **Stdlib `logging` with module-level `logger = logging.getLogger(__name__)`** in 15 modules. No structured/JSON logging, no correlation IDs, no log aggregation config.
+- **Stdlib `logging` with module-level `logger = logging.getLogger(__name__)`** in 16 modules. No structured/JSON logging, no correlation IDs, no log aggregation config.
 - The CLI owns presentation: 72 `console.print(...)` calls across 5 `cli/` modules that import Rich, with `cli/stats_handler.py` as a callback handler streaming token/cost stats into the live display.
 - No health-check endpoint (it is a CLI/library, not a service). Dockerfile and `docker-compose.yml` exist for containerized runs.
 - Run artifacts are written to `results_dir` (`~/.tradingagents/logs` by default): per-run report trees, `message_tool.log`, and `full_states_log_<date>.json`.
@@ -145,7 +157,7 @@ The `NO_EXTERNAL_TOOLS` constant exists because schema-only binding means a mode
 
 - **75 test files, 428 `pytest.mark.unit` tests**, `pytest-subtests`, `--strict-markers -ra`. Markers: `unit`, `integration`, `smoke` (6 `integration` tests: 4 in `test_debate_gate.py`, 1 in `test_cli_display.py`, 1 live-API test in `test_deepseek_reasoning.py`).
 - `tests/conftest.py` is the load-bearing piece: an **autouse fixture injects placeholder API keys for 14 providers** so a keyless CI cannot hang or silently skip, and a second autouse fixture **deep-copies `DEFAULT_CONFIG` around every test** because `set_config` merges and would otherwise leak vendor routing between tests.
-- **Mocks over network**: 36 files use `monkeypatch`, 14 patch/mock. Vendor tests patch at the `requests`/client boundary.
+- **Mocks over network**: 40 files use `monkeypatch`, 14 use `mock.patch`/`Mock`. Vendor tests patch at the `requests`/client boundary.
 - Tests are named behaviorally and reference issue numbers in comments (e.g. `test_unparseable_signal_is_review_not_silent_hold`), which doubles as a regression ledger.
 - CI runs `pytest -q` on four Python versions, a **clean-install smoke job** that catches undeclared runtime deps (#994), and `ruff check .` over the full repo.
 
@@ -181,7 +193,7 @@ Ordered by likely impact. These are planning inputs, not verdicts.
 
 Recorded honestly rather than assumed:
 
-- **Coverage percentage is unknown.** No coverage tool or threshold is configured; 428 unit tests over 12612 source lines is a size signal, not a quality one. `plan-tests` should establish a baseline before any large refactor.
+- **Coverage percentage is unknown.** No coverage tool or threshold is configured; 428 unit tests over 14015 source lines is a size signal, not a quality one. `plan-tests` should establish a baseline before any large refactor.
 - **The suite is timezone-dependent and CI cannot detect it.** CI runs `TZ=UTC`. Establishing the baseline on a `UTC+08:00` workstation surfaced 3 failures in `test_ohlcv_cache_freshness.py`, caused by pandas 3.0's naive `Timestamp.timestamp()` being UTC while `Timestamp.fromtimestamp()` is local. Fixed test-side (`specs/bugs/BUG-2026-09-20-ohlcv-cache-freshness-tz.md`), but any mtime/date arithmetic added later inherits the same blind spot until CI runs a non-UTC job.
 - **No `docs/adr/`** — decisions must be reverse-engineered from comments and issue numbers, as noted in signal 9.
 - **Real-provider behavior is unverified in CI.** All LLM and vendor tests mock at the boundary; nothing exercises a live provider, by design (no keys in CI).

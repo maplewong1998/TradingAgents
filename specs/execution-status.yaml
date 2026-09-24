@@ -6,7 +6,7 @@ development_status:
   e02s01: done
   e02s02: done
   e02s03: done
-  e03: planned
+  e03: done
   e03s01: done
   e03s02: planned
   e03s03: done
@@ -14,7 +14,7 @@ development_status:
   e03s05: done
   e03s06: done
   e03s07: done
-  e03s08: planned
+  e03s08: done
 epics:
   e01:
     status: done
@@ -27,7 +27,7 @@ epics:
     wsjf: 4.8
     total_bcps: 16
   e03:
-    status: planned
+    status: done
     title: Augury Data Lake Integration
     wsjf: 3.4
     total_bcps: 28
@@ -198,11 +198,11 @@ stories:
     tasks_failing: 0
     risk_max: P0
   e03s08:
-    status: planned
+    status: done
     title: Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary)
     bcps: 2
     epic: e03
     tasks_total: 4
-    tasks_passing: 0
-    tasks_failing: 4
+    tasks_passing: 4
+    tasks_failing: 0
     risk_max: P3

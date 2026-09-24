@@ -6,7 +6,7 @@
 **risk:** P3 (documentation only, zero behavioral change)
 **context:** domain
 **bcps:** 2
-**status:** planned (e45s06 ledger — tasks start `failing`, flip only on green verify)
+**status:** passing (e45s06 ledger — all 4 task verifies green)
 
 **Context:** The augury integration is opt-in by design (D3), which makes the
 docs the feature's front door: if the config snippet and the honest-degradation

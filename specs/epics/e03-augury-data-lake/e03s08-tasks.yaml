@@ -1,7 +1,7 @@
 story_id: e03s08
 title: "Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary)"
 spec: e03s08-docs.md
-status: failing
+status: passing
 bcps: 2
 # TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
 # its verify command exits 0.
@@ -13,7 +13,7 @@ tasks:
       defaults-unchanged guarantee (D3).
     verify: "grep -q \"augury\" CHANGELOG.md"
     risk: P3
-    status: failing
+    status: passing
     allure:
       severity: minor
       categories: ["docs", "changelog"]
@@ -26,7 +26,7 @@ tasks:
       DATA_UNAVAILABLE sentinel contract.
     verify: "grep -q \"AUGURY_BASE_URL\" .env.example && grep -q \"augury\" README.md"
     risk: P3
-    status: failing
+    status: passing
     allure:
       severity: minor
       categories: ["docs", "config"]
@@ -38,15 +38,15 @@ tasks:
       data lake / PIT vintage / signal family / binding gate.
     verify: "grep -q \"augury\" specs/tech-architecture/tech-stack.md && grep -q \"signal family\" specs/product/GLOSSARY_LATEST.yaml"
     risk: P3
-    status: failing
+    status: passing
     allure:
       severity: minor
       categories: ["docs", "knowledge"]
   - id: 4
     description: "Full Preflight."
-    verify: ".venv/bin/python -m pytest -q && ruff check ."
+    verify: ".venv/bin/python -m pytest -q && .venv/bin/ruff check ."
     risk: P3
-    status: failing
+    status: passing
     allure:
       severity: minor
       categories: ["preflight"]
