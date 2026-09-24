@@ -6,7 +6,7 @@
 **risk:** P1 (core feature logic; the name map is a documented partial contract)
 **context:** domain
 **bcps:** 3
-**status:** planned (e45s06 ledger — tasks start `failing`, flip only on green verify)
+**status:** passing (e45s06 ledger — all tasks green)
 
 **Context:** Two mapped methods with known shape gaps the grill settled. (1)
 `get_indicators`: augury serves feature columns `rsi_14`, `macd` (12/26/9),

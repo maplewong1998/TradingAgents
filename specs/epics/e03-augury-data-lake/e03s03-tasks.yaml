@@ -1,7 +1,7 @@
 story_id: e03s03
 title: "Indicators (intersection name map) + news (client-side PIT filter)"
 spec: e03s03-indicators-news.md
-status: failing
+status: passing
 bcps: 3
 # TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
 # its verify command exits 0.
@@ -16,7 +16,7 @@ tasks:
       Scenarios SC-e03s03-P0-01, P1-01/02.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'indicator or news' --collect-only"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "RED"]
@@ -28,7 +28,7 @@ tasks:
       as_of-clamped curr_date, start from look_back_days, version current.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k indicator"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "indicators"]
@@ -40,7 +40,7 @@ tasks:
       as_of; all-filtered page → NoMarketDataError, never an empty table.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k news"
     risk: P0
-    status: failing
+    status: passing
     allure:
       severity: critical
       categories: ["unit", "augury", "news", "PIT"]
@@ -51,7 +51,7 @@ tasks:
       to mocked yfinance, mapped indicator served by augury alone.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'registration or routing'"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "routing", "fallback"]
@@ -59,7 +59,7 @@ tasks:
     description: "Full Preflight."
     verify: ".venv/bin/python -m pytest -q && ruff check ."
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["preflight"]

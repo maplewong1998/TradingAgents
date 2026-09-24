@@ -108,7 +108,6 @@ _INDICATOR_MAP = {
     "macd": "macd_line",
     "macdh": "macd_histogram",
     "macds": "macd_signal",
-    "mfi": "mfi_14",
     "rsi": "rsi_14",
     "atr": "atr_14",
 }

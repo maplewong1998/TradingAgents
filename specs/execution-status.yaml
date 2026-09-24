@@ -150,13 +150,13 @@ stories:
     tasks_failing: 0
     risk_max: P1
   e03s03:
-    status: planned
+    status: done
     title: Indicators (intersection name map) + news (client-side PIT filter)
     bcps: 3
     epic: e03
     tasks_total: 5
-    tasks_passing: 0
-    tasks_failing: 5
+    tasks_passing: 5
+    tasks_failing: 0
     risk_max: P0
   e03s04:
     status: planned
