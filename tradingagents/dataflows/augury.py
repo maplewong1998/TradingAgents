@@ -419,6 +419,56 @@ def get_augury_news(ticker: str, start_date: str, end_date: str) -> str:
     return "\n".join(lines)
 
 
+DEFAULT_MACRO_LOOKBACK_DAYS = 365
+
+
+def get_augury_macro_data(
+    indicator: str,
+    curr_date: str,
+    look_back_days: int | None = None,
+) -> str:
+    """Return Augury's calendar observations for a macro indicator.
+
+    The lake stores release-calendar rows rather than FRED series metadata. Keep
+    that distinction visible so callers do not mistake an event table for a
+    revised time series (#e03s04).
+    """
+    if look_back_days is None:
+        look_back_days = DEFAULT_MACRO_LOOKBACK_DAYS
+
+    payload = _request("/macro", {"indicator": indicator, "days": look_back_days})
+    rows = payload.get("data", []) if isinstance(payload, dict) else []
+    rows = [row for row in rows if isinstance(row, dict)]
+    if not rows:
+        raise NoMarketDataError(indicator, detail=f"no macro observations for '{indicator}'")
+
+    lines = [
+        f'## Augury macro observations for "{indicator}" (calendar-style observations)',
+        "- Calendar-style observations; the lake does not serve series metadata.",
+        "- Rows marked [PIT approximate] use an approximate point-in-time value.",
+        "",
+        "| Date | Actual | Forecast | Previous |",
+        "| --- | ---: | ---: | ---: |",
+    ]
+    for row in rows:
+        observed_date = _format_value(row.get("date"))
+        if row.get("pit_approximate"):
+            observed_date += " [PIT approximate]"
+        lines.append(
+            "| "
+            + " | ".join(
+                (
+                    observed_date,
+                    _format_value(row.get("actual")),
+                    _format_value(row.get("forecast")),
+                    _format_value(row.get("previous")),
+                )
+            )
+            + " |"
+        )
+    return "\n".join(lines) + "\n"
+
+
 def get_augury_stock(symbol: str, start_date: str, end_date: str) -> str:
     """Return augury daily bars as a chronological markdown table.
 

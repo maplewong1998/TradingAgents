@@ -788,7 +788,6 @@ def test_augury_optional_categories_fail_open_when_lake_is_unreachable(monkeypat
         raise requests.ConnectionError("lake unreachable")
 
     monkeypatch.setattr(_augury().requests, "get", raise_connection_error)
-    interface = importlib.import_module("tradingagents.dataflows.interface")
     set_config(
         {
             "data_vendors": {
@@ -807,10 +806,10 @@ def test_augury_optional_categories_fail_open_when_lake_is_unreachable(monkeypat
     assert "optional" in prediction
 
 
-def test_augury_is_registered_for_optional_macro_and_prediction_methods():
+def test_augury_is_registered_for_optional_methods():
     interface = importlib.import_module("tradingagents.dataflows.interface")
 
-    assert interface.OPTIONAL_CATEGORIES == {"macro_data", "prediction_markets"}
+    assert {"macro_data", "prediction_markets"} == interface.OPTIONAL_CATEGORIES
     assert interface.VENDOR_METHODS["get_macro_indicators"]["augury"] is _augury().get_augury_macro_data
     assert (
         interface.VENDOR_METHODS["get_prediction_markets"]["augury"]
