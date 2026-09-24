@@ -265,6 +265,25 @@ _INDICATOR_MAP = {
     "atr": "atr_14",
 }
 
+# Keep this client vocabulary pinned to the lake registry's SIGNAL_FAMILIES in
+# signals/registry.py so a caller gets a useful validation message instead of
+# leaking the upstream KeyError for a mistyped family (#e03s06).
+AUGURY_SIGNAL_FAMILIES = (
+    "sma_streak",
+    "sma_cross",
+    "rsi_cross",
+    "macd_cross",
+    "bb_cross",
+    "adx_breakout",
+    "psar_flip",
+    "hurst",
+    "regime",
+    "sentiment",
+    "insider",
+    "earnings_surprise",
+    "quality",
+)
+
 _FINANCIALS_FIELDS = (
     "ticker",
     "statement",
@@ -516,6 +535,83 @@ def get_augury_indicators(
     for row in rows:
         lines.append(f"| {_format_value(row.get('trade_date'))} | {_format_value(row.get(mapped))} |")
     return "\n".join(lines) + "\n"
+
+
+def _signal_family_error(family: str, detail: str | None = None) -> str:
+    valid = ", ".join(AUGURY_SIGNAL_FAMILIES)
+    reason = f" ({detail})" if detail else ""
+    return f"Unknown signal family '{family}'{reason}. Valid families: {valid}."
+
+
+def get_augury_signal_states(ticker: str, family: str, curr_date: str) -> str:
+    """Return versioned point-in-time trigger states for one signal family.
+
+    The lake requires both ``family`` and ``as_of``. Invalid families are a
+    caller/tool-input error, so they return an instructive message rather than
+    raising through the optional enrichment category (#e03s06).
+    """
+    canonical = normalize_symbol(ticker)
+    if family not in AUGURY_SIGNAL_FAMILIES:
+        return _signal_family_error(family)
+
+    path = f"/api/v1/signals/{canonical}"
+    try:
+        payload = _request(path, {"family": family, "as_of": curr_date})
+    except requests.HTTPError as exc:
+        response = exc.response
+        status_code = getattr(response, "status_code", None)
+        if status_code == 422:
+            try:
+                body = response.json()
+            except (TypeError, ValueError):
+                body = {}
+            detail = body.get("detail") if isinstance(body, dict) else None
+            return _signal_family_error(family, detail)
+        raise
+    except NoMarketDataError as exc:
+        raise NoMarketDataError(ticker, canonical, exc.detail) from exc
+
+    rows = payload.get("data", []) if isinstance(payload, dict) else []
+    rows = [row for row in rows if isinstance(row, dict)]
+    if not rows:
+        raise NoMarketDataError(
+            ticker,
+            canonical,
+            f"no '{family}' signal states as of {curr_date}",
+        )
+
+    lines = [
+        f"## Augury {family} signal states for {canonical} as of {curr_date}",
+        "",
+        "| Signal Date | Triggered | Detail | Version |",
+        "| --- | --- | --- | ---: |",
+    ]
+    for row in rows:
+        detail = row.get("detail")
+        if detail is None:
+            direction = row.get("direction")
+            value = row.get("value")
+            detail = ", ".join(
+                part for part in (
+                    f"direction={direction}" if direction is not None else None,
+                    f"value={value}" if value is not None else None,
+                ) if part
+            ) or "none"
+        version = row.get("formula_version", row.get("version"))
+        lines.append(
+            "| "
+            + " | ".join(
+                _format_value(value)
+                for value in (
+                    row.get("signal_date"),
+                    row.get("triggered"),
+                    detail,
+                    version,
+                )
+            )
+            + " |"
+        )
+    return "\\n".join(lines) + "\\n"
 
 
 def get_augury_news(ticker: str, start_date: str, end_date: str) -> str:
