@@ -6,7 +6,7 @@
 **risk:** P1 (new read-only tools; per-item failure slots must never be smoothed over)
 **context:** domain
 **bcps:** 5
-**status:** planned (e45s06 ledger — tasks start `failing`, flip only on green verify)
+**status:** passing (e45s06 ledger — all 5 tasks green)
 
 **Context:** The cross-sectional pack (D1), placed per D5: the Portfolio
 Manager has no tool loop today and the confirmed constraint is zero graph

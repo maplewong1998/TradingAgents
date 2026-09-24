@@ -1,7 +1,7 @@
 story_id: e03s07
 title: "Cross-sectional context, analyst-bound: liquidity + feature vector (market), universe membership (fundamentals)"
 spec: e03s07-cross-sectional-context.md
-status: failing
+status: passing
 bcps: 5
 # TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
 # its verify command exits 0.
@@ -16,7 +16,7 @@ tasks:
       Scenarios SC-e03s07-P0-01, P1-01/02/03.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'liquidity or feature_vector or universe' --collect-only"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "tools", "RED"]
@@ -30,7 +30,7 @@ tasks:
       joins requests.get at the same _request-mapped boundary.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'vendor and (liquidity or feature_vector or universe)'"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "cross-sectional", "PIT"]
@@ -41,7 +41,7 @@ tasks:
       interface.py pattern).
     verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'registration or routing'"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "routing", "fail-open"]
@@ -56,7 +56,7 @@ tasks:
       builds with no Portfolio Manager ToolNode and an unchanged node/edge set.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'cross_sectional or binding or prompt'"
     risk: P0
-    status: failing
+    status: passing
     allure:
       severity: critical
       categories: ["unit", "augury", "binding-gate", "graph-integrity"]
@@ -64,7 +64,7 @@ tasks:
     description: "Full Preflight."
     verify: ".venv/bin/python -m pytest -q && ruff check ."
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["preflight"]

@@ -13,7 +13,7 @@ development_status:
   e03s04: done
   e03s05: done
   e03s06: done
-  e03s07: planned
+  e03s07: done
   e03s08: planned
 epics:
   e01:
@@ -188,14 +188,14 @@ stories:
     tasks_failing: 0
     risk_max: P1
   e03s07:
-    status: planned
+    status: done
     title: 'Cross-sectional context, analyst-bound: liquidity + feature vector (market),
       universe membership (fundamentals)'
     bcps: 5
     epic: e03
     tasks_total: 5
-    tasks_passing: 0
-    tasks_failing: 5
+    tasks_passing: 5
+    tasks_failing: 0
     risk_max: P0
   e03s08:
     status: planned
