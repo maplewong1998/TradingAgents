@@ -6,6 +6,15 @@ development_status:
   e02s01: done
   e02s02: done
   e02s03: done
+  e03: done   # all 8 stories done 2026-09-24 (delegated develop-tdd, orchestrator-verified); capsule archive is the orchestrator's close ceremony
+  e03s01: done
+  e03s02: done
+  e03s03: done
+  e03s04: done
+  e03s05: done
+  e03s06: done
+  e03s07: done
+  e03s08: done
 epics:
   e01:
     status: done
@@ -17,6 +26,11 @@ epics:
     title: Conditional Bull/Bear Debate Gate
     wsjf: 4.8
     total_bcps: 16
+  e03:
+    status: done   # stories e03s01-s08 all green: 1091 passed / 5 skipped / 88 subtests, ruff clean (orchestrator-reproduced)
+    title: Augury Data Lake Integration
+    wsjf: 3.4
+    total_bcps: 28
 stories:
   e01s01:
     status: done
@@ -115,3 +129,80 @@ stories:
     landed_via: 'step 8 — merged to main as MERGE COMMIT 26f3916 (parents 37dbc93 + 8d930cc) and pushed
       37dbc93..26f3916; worktree .worktrees/e02s03 removed, branches kept (CI unverified: gh absent —
       accepted by explicit user decision); epic e02 complete, capsule not archived (orchestrator ceremony)'
+  e03s01:
+    status: done
+    title: 'Tracer bullet: augury vendor core + OHLCV through the seam (opt-in)'
+    bcps: 5
+    epic: e03
+    tasks_total: 6
+    tasks_passing: 6
+    tasks_failing: 0
+    risk_max: P0
+    started_at: '2026-09-24T09:00:00Z'
+    completed_at: '2026-09-24T10:22:00Z'
+  e03s02:
+    status: done
+    title: 'PIT fundamentals pack: fundamentals + balance sheet + cashflow + income statement'
+    bcps: 3
+    epic: e03
+    tasks_total: 5
+    tasks_passing: 5
+    tasks_failing: 0
+    risk_max: P1
+  e03s03:
+    status: done
+    title: Indicators (intersection name map) + news (client-side PIT filter)
+    bcps: 3
+    epic: e03
+    tasks_total: 5
+    tasks_passing: 5
+    tasks_failing: 0
+    risk_max: P0
+  e03s04:
+    status: done
+    title: Macro + prediction markets via augury (optional categories)
+    bcps: 2
+    epic: e03
+    tasks_total: 5
+    tasks_passing: 5
+    tasks_failing: 0
+    risk_max: P1
+  e03s05:
+    status: done
+    title: 'AI forecast pack: get_ai_forecast + get_valuation tools for market/fundamentals
+      analysts'
+    bcps: 5
+    epic: e03
+    tasks_total: 6
+    tasks_passing: 6
+    tasks_failing: 0
+    risk_max: P0
+  e03s06:
+    status: done
+    title: Signal-family trigger states tool (get_signal_states) for market + fundamentals
+      analysts
+    bcps: 3
+    epic: e03
+    tasks_total: 5
+    tasks_passing: 5
+    tasks_failing: 0
+    risk_max: P1
+  e03s07:
+    status: done
+    title: 'Cross-sectional context, analyst-bound: liquidity + feature vector (market),
+      universe membership (fundamentals)'
+    bcps: 5
+    epic: e03
+    tasks_total: 5
+    tasks_passing: 5
+    tasks_failing: 0
+    risk_max: P0
+  e03s08:
+    status: done
+    title: Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary)
+    bcps: 2
+    epic: e03
+    tasks_total: 4
+    tasks_passing: 4
+    tasks_failing: 0
+    risk_max: P3

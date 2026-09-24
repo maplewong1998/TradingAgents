@@ -1,0 +1,74 @@
+id: e03
+title: Augury Data Lake Integration
+wsjf: 3.4          # (BV 7 + TC 5 + RR 5) / JS 5 — PIT-quality data + three new analyst
+                   # signal surfaces on every opted-in run; lake is live and waiting;
+                   # one seam, one vendor module, no graph change keeps the job small
+total_bcps: 28
+status: planned
+note: >-
+  Wire the augury data lake (~/Repo_Private/augury, FastAPI :8765, PIT-native,
+  cache-first) into TradingAgents: (a) `augury` vendor behind the existing
+  route_to_vendor seam for six mapped methods — opt-in via data_vendors strings,
+  defaults unchanged; (b) four new augury-only tool categories (ai_forecast,
+  valuation, signal_states, cross_sectional) bound to the existing market and
+  fundamentals analysts only when configured. Decisions D1–D5 confirmed via
+  grill-with-docs 2026-09-24. Scope: specs/product/SCOPE_LATEST.yaml
+  (initiative augury-data-lake-integration); research:
+  specs/product/RESEARCH-2026-09-24-augury-data-source.md.
+stories:
+  - id: e03s01
+    title: "Tracer bullet: augury vendor core + OHLCV through the seam (opt-in)"
+    bcps: 5
+    status: planned
+    delta: ADDED   # new vendor module + config surface; existing chains untouched
+    spec: e03s01-augury-vendor-core.md
+    tasks: e03s01-tasks.yaml
+  - id: e03s02
+    title: "PIT fundamentals pack: fundamentals + balance sheet + cashflow + income statement"
+    bcps: 3
+    status: planned
+    delta: ADDED
+    spec: e03s02-pit-fundamentals-pack.md
+    tasks: e03s02-tasks.yaml
+  - id: e03s03
+    title: "Indicators (intersection name map) + news (client-side PIT filter)"
+    bcps: 3
+    status: planned
+    delta: ADDED
+    spec: e03s03-indicators-news.md
+    tasks: e03s03-tasks.yaml
+  - id: e03s04
+    title: "Macro + prediction markets via augury (optional categories)"
+    bcps: 2
+    status: planned
+    delta: ADDED
+    spec: e03s04-macro-prediction-markets.md
+    tasks: e03s04-tasks.yaml
+  - id: e03s05
+    title: "AI forecast pack: get_ai_forecast + get_valuation tools for market/fundamentals analysts"
+    bcps: 5
+    status: planned
+    delta: ADDED
+    spec: e03s05-ai-forecast-pack.md
+    tasks: e03s05-tasks.yaml
+  - id: e03s06
+    title: "Signal-family trigger states tool (get_signal_states) for market + fundamentals analysts"
+    bcps: 3
+    status: planned
+    delta: ADDED
+    spec: e03s06-signal-states-tool.md
+    tasks: e03s06-tasks.yaml
+  - id: e03s07
+    title: "Cross-sectional context, analyst-bound: liquidity + feature vector (market), universe membership (fundamentals)"
+    bcps: 5
+    status: planned
+    delta: ADDED
+    spec: e03s07-cross-sectional-context.md
+    tasks: e03s07-tasks.yaml
+  - id: e03s08
+    title: "Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary)"
+    bcps: 2
+    status: planned
+    delta: ADDED
+    spec: e03s08-docs.md
+    tasks: e03s08-tasks.yaml

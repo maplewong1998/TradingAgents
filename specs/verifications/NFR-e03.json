@@ -1,0 +1,31 @@
+{
+  "epic": "e03",
+  "generated_by": "verify-work step 5b (P0 stories: e03s01, e03s05, e03s07)",
+  "date": "2026-09-24",
+  "thresholds_source": "no specs/tech-architecture/e03-TEST_PLAN_LATEST.md exists (plan-tests not run for e03); thresholds below are the standing house expectations asserted by tests",
+  "performance": {
+    "verdict": "OK",
+    "evidence": [
+      "All vendor HTTP calls bounded by REQUEST_TIMEOUT=30s (augury.py:91,100); no unbounded waits possible",
+      "Pagination bounded by the requested date window (page_size=200, newest-first reversal); proven by multi-page test",
+      "Feature reads use required fields= projections (no full-row transfers); batch feature-vector body is one ticker"
+    ]
+  },
+  "reliability": {
+    "verdict": "OK",
+    "evidence": [
+      "Error taxonomy drives router behavior: 404->NoMarketDataError (job-hint detail), 429->VendorRateLimitError, unset base URL->VendorNotConfiguredError (tests/test_augury_vendor.py)",
+      "Fail-closed on core data (U3 probe: ConnectionError surfaces), fail-open on enrichment (U4 probe: DATA_UNAVAILABLE sentinel, run continues)",
+      "Look-ahead guards: kronos data_asof withholding, news published_at filter, prediction-market past-date withholding (tests/test_augury_tools.py)",
+      "Real-environment UAT (lake genuinely absent): U3/U4/U5 all PASS"
+    ]
+  },
+  "operability": {
+    "verdict": "OK",
+    "evidence": [
+      "Module-level logging with status/code only (no URLs with credentials, no payloads) — security REVIEW-e03.md",
+      "Router logs every vendor skip loudly (#989); NO_DATA sentinels name the matching augury POST /data/* job for the operator",
+      "Health endpoint exists lake-side (/health); the vendor deliberately does not probe it per call (cache-first contract documented in README)"
+    ]
+  }
+}

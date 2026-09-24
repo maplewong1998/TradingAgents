@@ -1,0 +1,36 @@
+story_id: e03s08
+verified_at: "2026-09-24T14:28:00Z"
+verifier: verify-work (orchestrator-run; delegated develop-tdd evidence in e03s08-tdd-evidence.md)
+risk: P3
+phases:
+  smoke:
+    passed: true
+    note: "P3 — skipped per risk-scaled depth (docs story)"
+  build:
+    passed: true
+    note: "P3 — docs only; clean-install smoke ran at epic level (PASS)"
+  typecheck:
+    passed: true
+    note: "N/A — no type gate in this project"
+  lint:
+    passed: true
+    command: ".venv/bin/python -m ruff check ."
+    note: "orchestrator gap-fix to the probe file (import sort) applied and re-verified green"
+  tests:
+    passed: true
+    note: "docs greps: CHANGELOG/.env.example/README/tech-stack/glossary — e03-phase1a-verify-commands.txt"
+  terminal_verdict:
+    command: ".venv/bin/python -m pytest -q"
+    exit_code: 0
+    output: "1091 passed, 5 skipped, 22 warnings, 88 subtests passed in 11.14s"
+    captured_at: "2026-09-24T14:28:00Z"
+    note: "Single contiguous run — e03-terminal-verdict.txt"
+  manual:
+    steps:
+      - step: "README cold-read"
+        expected: "opt-in snippets, lake prerequisite, sentinel contract documented"
+        actual: "verified during gaps loop; credential-in-URL warning added (gap found + fixed in-gate)"
+        passed: true
+  gaps:
+    closed: true
+    note: "the doc gap is recorded here and in REVIEW-e03.md LOW-1"

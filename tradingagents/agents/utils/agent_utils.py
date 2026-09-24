@@ -7,7 +7,13 @@ import yfinance as yf
 from langchain_core.messages import HumanMessage, RemoveMessage
 
 # Import tools from separate utility files
+from tradingagents.agents.utils.ai_forecast_tools import get_ai_forecast, get_valuation
 from tradingagents.agents.utils.core_stock_tools import get_stock_data
+from tradingagents.agents.utils.cross_sectional_tools import (
+    get_feature_vector,
+    get_liquidity,
+    get_universe_membership,
+)
 from tradingagents.agents.utils.fundamental_data_tools import (
     get_balance_sheet,
     get_cashflow,
@@ -22,12 +28,18 @@ from tradingagents.agents.utils.news_data_tools import (
     get_news,
 )
 from tradingagents.agents.utils.prediction_markets_tools import get_prediction_markets
+from tradingagents.agents.utils.signal_states_tools import get_signal_states
 from tradingagents.agents.utils.technical_indicators_tools import get_indicators
 
 # Public surface: the data tools are imported here so agents and the graph
 # import them from one place, plus the instrument/language helpers defined below.
 __all__ = [
     "get_stock_data",
+    "get_liquidity",
+    "get_feature_vector",
+    "get_universe_membership",
+    "get_ai_forecast",
+    "get_valuation",
     "get_indicators",
     "get_fundamentals",
     "get_balance_sheet",
@@ -38,6 +50,7 @@ __all__ = [
     "get_insider_transactions",
     "get_macro_indicators",
     "get_prediction_markets",
+    "get_signal_states",
     "get_verified_market_snapshot",
     "build_instrument_context",
     "resolve_instrument_identity",

@@ -1,0 +1,65 @@
+story_id: e03s03
+title: "Indicators (intersection name map) + news (client-side PIT filter)"
+spec: e03s03-indicators-news.md
+status: passing
+bcps: 3
+# TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
+# its verify command exits 0.
+tasks:
+  - id: 1
+    description: >-
+      RED: extend tests/test_augury_vendor.py (# story: e03s03) — name-map hits
+      render mapped columns (rsi → rsi_14 etc.); advertised-but-unserved names
+      (close_50_sma, close_10_ema, boll, boll_ub) raise NoMarketDataError whose
+      detail lists the served set; news rows outside [start_date, end_date] or
+      after the analysis date are excluded; sentiment_label renders verbatim.
+      Scenarios SC-e03s03-P0-01, P1-01/02.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'indicator or news' --collect-only"
+    risk: P1
+    status: passing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "RED"]
+  - id: 2
+    description: >-
+      GREEN: _INDICATOR_MAP (comment cites daily_features.py serving columns)
+      + get_augury_indicators(symbol, indicator, curr_date, look_back_days) →
+      GET /api/v1/features/{ticker} with required fields projection, end =
+      as_of-clamped curr_date, start from look_back_days, version current.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k indicator"
+    risk: P1
+    status: passing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "indicators"]
+  - id: 3
+    description: >-
+      GREEN: get_augury_news(ticker, start_date, end_date) → GET
+      /news/{ticker} with days sized to the window (plus headroom); client-side
+      published_at ∈ [start_date, end_date] filter because the endpoint has no
+      as_of; all-filtered page → NoMarketDataError, never an empty table.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k news"
+    risk: P0
+    status: passing
+    allure:
+      severity: critical
+      categories: ["unit", "augury", "news", "PIT"]
+  - id: 4
+    description: >-
+      Register get_indicators + get_news under "augury" in VENDOR_METHODS;
+      routing test: chain "augury,yfinance" — unmapped indicator falls through
+      to mocked yfinance, mapped indicator served by augury alone.
+    verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'registration or routing'"
+    risk: P1
+    status: passing
+    allure:
+      severity: high
+      categories: ["unit", "augury", "routing", "fallback"]
+  - id: 5
+    description: "Full Preflight."
+    verify: ".venv/bin/python -m pytest -q && ruff check ."
+    risk: P1
+    status: passing
+    allure:
+      severity: high
+      categories: ["preflight"]

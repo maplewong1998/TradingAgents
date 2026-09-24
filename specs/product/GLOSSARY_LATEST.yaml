@@ -5,6 +5,8 @@
 # after a domain conversation to extend this file.
 # story: e02s03 — Debate Gate, Alignment Marker and debate_gate policy added, and the
 # Checkpoint run-signature list extended with the gate mode, all sourced from the code.
+# story: e03s08 — Augury data-lake vocabulary added from the shipped vendor,
+# optional tool binding, and point-in-time signal code.
 
 terms:
   - term: Analyst
@@ -189,3 +191,34 @@ terms:
       realized outcomes against the benchmark.
     source: tradingagents/backtest.py, cli/main.py (backtest command)
     aliases: [iter_grid, BacktestSummary]
+
+  - term: data lake
+    definition: >-
+      Augury's read-only, cache-first service for point-in-time market data and
+      optional signal and cross-sectional enrichment. TradingAgents reads it through
+      the vendor seam and never starts its POST /data/* refresh jobs.
+    source: tradingagents/dataflows/augury.py, tradingagents/dataflows/interface.py
+    aliases: [Augury data lake, augury]
+
+  - term: PIT vintage
+    definition: >-
+      The data version available as of a specified analysis date. Augury fundamentals,
+      financials, bars, news, signals, and universe reads preserve the requested
+      as-of boundary; live-vintage-only enrichment is withheld for historical runs.
+    source: tradingagents/dataflows/augury.py, tradingagents/dataflows/date_window.py
+    aliases: [point-in-time vintage, PIT]
+
+  - term: signal family
+    definition: >-
+      A named Augury signal grouping whose versioned trigger state can be requested
+      for a ticker and analysis date, such as sma_cross, rsi_cross, regime, or quality.
+    source: tradingagents/dataflows/augury.py (AUGURY_SIGNAL_FAMILIES)
+    aliases: [signal-family, signal state]
+
+  - term: binding gate
+    definition: >-
+      The configuration check that adds an Augury-only tool to an existing analyst's
+      ToolNode only when its category or per-method vendor chain explicitly names
+      augury. It keeps the default graph and prompts unchanged.
+    source: tradingagents/agents/utils/ai_forecast_tools.py, tradingagents/graph/trading_graph.py
+    aliases: [is_augury_enabled, opt-in binding]

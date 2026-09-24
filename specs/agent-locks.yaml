@@ -17,4 +17,31 @@
 # close — the branch is pushed for the PR decision and this cycle holds no writer. That is the last
 # story of epic e02, so re-acquire (a new lock) only if the story reopens — e.g. if the landing-time
 # reconcile must resolve specs/state.yaml against the advanced origin/main.
+# 2026-09-24T10:42Z: e03s01 completed via delegated writer (orchestrator-verified preflight
+# 1039 passed/5 skipped/88 subtests, ruff clean) — the delegation bootstrap predated the lock;
+# discipline re-established at e03s02. e03s01 needs no release (done, unlanded on feat/e03).
+# 2026-09-24T10:42Z: e03s02 cycle opened by orchestrator — lock acquired ahead of the
+# delegated develop-tdd run (branch-only mode: feat/e03 checked out in the main repo dir).
+# 2026-09-24T11:1xZ: e03s02 TDD cycle closed by orchestrator (preflight 1046/5/88, ruff clean;
+# ledger header flip applied post-run) — lock RELEASED; story unlanded on feat/e03 like e03s01.
+# Same timestamp: e03s03 cycle opened — lock acquired ahead of the delegated develop-tdd run.
+# 2026-09-24T11:3xZ: e03s03 cycle closed by orchestrator (preflight 1056/5/88, ruff clean;
+# supervisor ruling included mfi→mfi_14; one transient Windows file-lock flake documented and
+# verified non-reproducible) — lock RELEASED. e03s04 cycle opened — lock acquired.
+# 2026-09-24T11:5xZ: e03s04 cycle closed by orchestrator (preflight 1061/5/88, ruff clean;
+# development_status flat-entry flip applied post-run) — lock RELEASED. e03s05 cycle opened —
+# lock acquired ahead of the delegated develop-tdd run (AI forecast pack; binding gate).
+# 2026-09-24T12:1xZ: e03s05 cycle closed by orchestrator (preflight 1074/5/88, ruff clean;
+# OPTIONAL_CATEGORIES pin updated under a supervisor ruling; binding-gate + byte-identical-default
+# matrices green) — lock RELEASED. e03s06 cycle opened — lock acquired (signal-family states tool).
+# 2026-09-24T12:3xZ: e03s06 cycle closed by orchestrator (preflight 1080/5/88, ruff clean; both
+# execution-status entries flipped correctly by the worker) — lock RELEASED. e03s07 cycle opened —
+# lock acquired (cross-sectional context, analyst-bound per D5; last code story of e03).
+# 2026-09-24T13:0xZ: e03s07 cycle closed by orchestrator (preflight 1091/5/88, ruff clean;
+# graph-shape pin verified: exact node/edge sets incl. Portfolio Manager→END, no PM ToolNode) —
+# lock RELEASED. e03s08 cycle opened — lock acquired (docs + knowledge refresh; final story).
+# 2026-09-24T13:3xZ: e03s08 cycle closed + EPIC e03 CLOSED at code level by the orchestrator
+# (all 8 stories done; preflight 1091/5/88, ruff clean, docs-only s08 boundary verified) —
+# lock RELEASED. Landing decision (release-branch) is pending the user; re-acquire a lock
+# only if a story reopens (e.g. verify-work gap closure).
 locks: []

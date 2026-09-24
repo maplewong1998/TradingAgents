@@ -1,277 +1,304 @@
 # specs/product/SCOPE_LATEST.yaml — what is in and out of scope.
 # Produced by the scope-work skill (planning spine step 1).
-# STATUS: BOUNDED — 2026-09-20, after grill-with-docs confirmation of all four
-# design decisions (LLM-judge node; default auto with full config surface;
-# conservative skip criterion; risk debate out of scope with reusable design).
+# STATUS: BOUNDED — 2026-09-24, after grill-with-docs confirmation of five design
+# decisions (D1 packs, D2 distribute-to-existing-agents, D3 opt-in routing,
+# D4 intersection-only indicator map, D5 analyst-bound cross-sectional) recorded in
+# specs/product/RESEARCH-2026-09-24-augury-data-source.md §6.
+# Supersedes the e02 scope (frozen at snapshots/release-0.6.0/SCOPE_LATEST.yaml).
 
 scope:
-  initiative: conditional-bull-bear-debate-gate
-  feature_name: Conditional Bull/Bear Debate Gate
+  initiative: augury-data-lake-integration
+  feature_name: Augury Data Lake Integration
   status: bounded
-  epic: e02   # story IDs assigned by slice-tasks; in_scope items map to e02sNN
+  epic: e03   # story IDs assigned by slice-tasks; in_scope items map to e03sNN
 
   core_value: >-
-    Pay for adversarial debate only when the evidence actually conflicts:
-    aligned runs get cheaper and faster, conflicted runs keep the full
-    bull/bear adversarial structure, and nothing silently changes decision
-    behavior in between.
+    Point-in-time, lake-quality market data and augury-only AI signals for the
+    existing agents through the one vendor seam — strictly opt-in, honestly
+    degraded, never fabricated.
 
   summary: >-
-    The Bull/Bear investment debate currently runs on every analysis, but its
-    value presupposes divergence in the evidence (Liang et al. 2024), and
-    unconditional debate is often no better than cheaper baselines (Smit et al.
-    2024; Khan et al. 2025). When all analyst signals align, the debate burns
-    2 x max_debate_rounds full LLM calls re-arguing a settled question.
+    TradingAgents' analysts are served by live-vendor snapshots (yfinance first)
+    whose present-day vintage is a known look-ahead risk in backtests, while the
+    user's augury data lake (~/Repo_Private/augury, FastAPI on :8765) already
+    serves PIT-native bars, features, fundamentals, financials, news, macro, and
+    prediction markets — plus surfaces no TradingAgents method exists for
+    (Kronos AI forecasts, multi-method valuation, versioned signal-family
+    trigger states, cross-sectional feature vectors, universe, liquidity).
 
-    This initiative adds an internal gate between the analyst phase and the
-    investment debate that decides, per run, whether genuine tension exists.
-    The gate is an LLM judge producing a typed verdict over the four analyst
-    reports (the only analyst with typed output today is Sentiment; the others
-    are free prose and may be non-English). Skipping is conservative: only
-    clear alignment with adequate confidence skips; disagreement, ambiguity,
-    thin evidence, or any gate failure runs the debate — current behavior is
-    the fallback. A skipped debate reaches downstream agents as an explicit
-    alignment marker, never an empty transcript (house pattern #1176).
+    This initiative wires augury in twice: (a) as a new `augury` vendor behind
+    the existing `route_to_vendor` seam for six mapped methods, raising the
+    existing `VendorError` taxonomy and selectable purely through `data_vendors`
+    config strings — defaults unchanged, zero new dependencies, no router
+    changes; and (b) as four new augury-only tool categories (ai_forecast,
+    valuation, signal_states, cross_sectional) bound to the existing market and
+    fundamentals analysts' ToolNodes and prompts only when the corresponding
+    category is configured — the Portfolio Manager and the graph itself are
+    untouched (D2, D5).
 
-    Policy is configurable (always / auto / never, default auto) across config,
-    environment, and the CLI; the mode joins the checkpoint run signature
-    (#1089) so resumes cannot cross policies. The gate mechanism is designed
-    for reuse by the risk debate later, but the risk loop is untouched now.
+    Degradation is explicit by construction: augury's frozen ErrorResponse
+    contract (e51s01: 404→not_found, 429→rate_limited) maps deterministically
+    onto the VendorError taxonomy; an unmapped indicator, an unbackfilled
+    ticker, or a stopped lake produces the standard NO_DATA / DATA_UNAVAILABLE
+    sentinels — and the four new categories join the OPTIONAL_CATEGORIES
+    fail-open pattern so enrichment can never abort a run.
 
   in_scope:
     - id: S1
       item: >-
-        Typed gate verdict (alignment, confidence, direction, rationale) as a
-        first-class schema alongside the existing agent schemas
-      maps_to: e02
+        Augury vendor core: `dataflows/augury.py` HTTP client (requests, 30s
+        timeout, ErrorResponse-aware error mapping), base-URL config surface
+        (`augury_base_url` key + `AUGURY_BASE_URL` env override, default
+        http://localhost:8765), `augury` registered in VENDOR_LIST /
+        VENDOR_METHODS, and get_stock_data (OHLCV from /api/v1/bars) as the
+        end-to-end tracer bullet
+      maps_to: e03s01
     - id: S2
       item: >-
-        Debate Gate agent (LLM judge over the four analyst reports; structured
-        output; fail-safe to debate on any failure) following the house
-        agent-factory pattern
-      maps_to: e02
+        PIT fundamentals pack: get_fundamentals (/api/v1/fundamentals?as_of=)
+        plus get_balance_sheet / get_cashflow / get_income_statement
+        (/api/v1/financials, split by its `statement` field, newest restatement
+        per metric)
+      maps_to: e03s02
     - id: S3
       item: >-
-        Graph routing — gate sits between the analyst phase and the debate;
-        routes to the debate or straight to the Research Manager; every routing
-        target statically reachable (path-map completeness per #1088)
-      maps_to: e02
+        get_indicators via an intersection-only name map onto served feature
+        columns (D4 — unmapped advertised indicators raise NoMarketDataError so
+        the chain falls through, e.g. to yfinance) and get_news via
+        /news/{ticker} with a client-side `published_at <= curr_date` PIT
+        filter (polymarket withholding precedent)
+      maps_to: e03s03
     - id: S4
       item: >-
-        Skipped-debate semantics downstream — explicit alignment marker in the
-        debate transcript; Research Manager prompt handles "no debate happened"
-        without fabricating conflict or drifting to Hold
-      maps_to: e02
+        get_macro_indicators (/macro calendar rows: actual/forecast/previous,
+        `pit_approximate` rendered honestly) and get_prediction_markets
+        (/prediction-markets, keyword-filtered by topic, withheld for past
+        analysis dates like the live polymarket vendor)
+      maps_to: e03s04
     - id: S5
       item: >-
-        Policy surface — debate_gate config key (always|auto|never, default
-        auto) + TRADINGAGENTS_DEBATE_GATE env override + input validation;
-        always/never make zero LLM calls
-      maps_to: e02
+        AI forecast pack (D1): new get_ai_forecast (Kronos bull/bear/neutral
+        signals, predicted return, upside probability, degraded/stale flags
+        rendered verbatim) and get_valuation (multi-method fair value, margin
+        of safety) tools, bound to the market and fundamentals analysts
+        respectively — only when their category is configured (D3 binding gate)
+      maps_to: e03s05
     - id: S6
       item: >-
-        Checkpoint integration — gate mode joins the run signature (#1089) so a
-        resume under a different policy starts fresh
-      maps_to: e02
+        Signal-family pack (D1): get_signal_states tool over
+        /api/v1/signals/{ticker}?family=&as_of= exposing the versioned trigger
+        families (sma_streak, sma_cross, rsi_cross, macd_cross, bb_cross,
+        adx_breakout, psar_flip, hurst, regime, sentiment, insider,
+        earnings_surprise, quality), bound to the market and fundamentals
+        analysts under the same binding gate
+      maps_to: e03s06
     - id: S7
       item: >-
-        CLI — gate choice in the interactive flow; live display shows the
-        debate as skipped instead of stuck "pending"; gate verdict + rationale
-        visible in run output and saved reports
-      maps_to: e02
+        Cross-sectional pack, analyst-bound per D5: get_liquidity and
+        get_feature_vector (single-ticker view of the batch endpoint, per-item
+        `failed` slots rendered honestly) for the market analyst;
+        get_universe_membership (PIT universe, delisted included) for the
+        fundamentals analyst — no Portfolio Manager tool loop, zero graph change
+      maps_to: e03s07
     - id: S8
       item: >-
-        Test coverage per plan-tests (P1) — gate routing matrix, graph-level
-        skip/resume, RM prompt variant, CLI precedence; TDD
-      maps_to: e02
+        Honest degradation everywhere: 404/not_found → NoMarketDataError whose
+        detail names the matching `POST /data/*` refresh job; 429 →
+        VendorRateLimitError; unreachable/unconfigured lake →
+        VendorNotConfiguredError or loud skip per the existing router
+        reactions; new categories fail-open
+      maps_to: e03   # acceptance woven through e03s01–e03s07
     - id: S9
       item: >-
-        Docs — CHANGELOG entry, .env.example, README config section
-      maps_to: e02
+        Test coverage per house TDD — every story RED-first, requests mocked at
+        the vendor boundary (no live lake in CI), routing/fallback matrices,
+        sentinel paths, and binding-gate on/off tests; Preflight
+        (pytest -q && ruff check .) green at every story
+      maps_to: e03   # all stories
+    - id: S10
+      item: >-
+        Docs + knowledge refresh: CHANGELOG, .env.example (AUGURY_BASE_URL +
+        opt-in data_vendors example), README config section, tech-stack.md
+        vendor-seam refresh with re-measured counts, glossary terms (lake, PIT
+        vintage, signal family)
+      maps_to: e03s08
 
   out_of_scope:
-    - item: Gating the risk debate (Aggressive/Neutral/Conservative loop)
+    - item: Social sentiment pack (augury /social) + retiring the direct reddit/stocktwits imports
       reason: >-
-        Deferred by explicit decision. The risk loop consumes the trader plan,
-        not the debate transcript, so it is structurally independent. Revisit
-        with observed skip-rate and decision-quality data after the investment
-        gate ships; the gate mechanism is designed reusable.
-    - item: Structured (typed-direction) output for Market/News/Fundamentals analysts
+        Declined in D1 (2026-09-24). The sentiment analyst pre-fetches and
+        prompt-injects reddit/stocktwits (C5), so this is a data-path refactor,
+        not a tool addition — revisit as its own initiative once the augury
+        vendor pattern has shipped.
+    - item: Augury-side schema/feature changes (sma_50, ema_10, Bollinger serving columns)
       reason: >-
-        Deferred, not rejected. Would enable a deterministic gate, but touches
-        three agents, their prompts, schemas, renderers, and tests — a much
-        larger change. The LLM judge removes the need for it in this initiative;
-        it remains the right long-term move for machine-readable reports.
-    - item: Scored tension threshold (0-10) with a tunable skip cutoff
+        D4 chose the intersection-only map so this repo ships without waiting on
+        a lake release; extending daily_feature serving is a versioned augury
+        change owned by that repo's own cycle.
+    - item: CLI vendor picker / interactive augury configuration
       reason: >-
-        Deferred (YAGNI). The conservative binary criterion (aligned AND
-        confident) was chosen; a threshold knob needs calibration data we do
-        not have yet.
-    - item: Changing debate depth semantics (max_debate_rounds / research_depth)
+        Config surface is `set_config` + `AUGURY_BASE_URL` env only (C6 — no
+        vendor surface exists in the CLI today, and cli/main.py is the repo's
+        highest-risk module, tech-stack signal 1). Docs show the config
+        snippet instead.
+    - item: TradingAgents triggering augury jobs (POST /data/* backfill/refresh)
       reason: >-
-        Not valuable here. The gate decides WHETHER to debate; depth still
-        decides HOW LONG. Existing behavior preserved.
-    - item: Backtest A/B harness measuring gated-vs-ungated decision quality
+        TA is a read-only consumer of the lake; job scheduling is augury's own
+        domain (augury AGENTS.md). The vendor only *hints* the matching job in
+        its NO_DATA detail text.
+    - item: get_global_news and get_insider_transactions via augury
       reason: >-
-        Deferred to the risk-debate follow-up decision; needs the gate shipped
-        first to produce comparable runs.
-    - item: Non-UTC CI job / timezone hardening of the test suite
+        No lake read endpoints exist for either (research §3); those methods
+        stay on yfinance/alpha_vantage. A future augury endpoint can register
+        later with zero seam changes.
+    - item: Graph-shape changes (new analyst node, PM tool loop, debate-gate input changes)
       reason: >-
-        Unrelated discovered defect follow-up (BUG-2026-09-20-ohlcv-cache-
-        freshness-tz). Separate initiative; do not fold into this epic.
+        D2/D5 chose distribution to existing agents; adding a PM ToolNode or a
+        5th analyst would contradict the confirmed zero-graph-change constraint
+        (and hit tech-stack signal 3's triple-encoding hazard).
+    - item: Changing default vendor chains (augury as default primary or fallback)
+      reason: >-
+        D3 opt-in only — augury's default universe is HK-centric and reads are
+        cache-first (C4), so a default augury chain would silently degrade
+        US-ticker runs for anyone without a populated lake.
+    - item: Live-lake integration tests in CI
+      reason: >-
+        House pattern mocks the vendor boundary (tests/conftest.py injects
+        placeholder keys precisely so CI needs no services); augury's own Bruno
+        contract suite owns the server side of the wire contract.
 
   constraints:
-    - No new runtime dependencies; langgraph floor >=0.4.8 already provides Command routing (verified on installed 1.2.11)
-    - Python >=3.10; Preflight (pytest -q && ruff check .) green at every step; ruff strict select unchanged
-    - Gate failure must never silently degrade — any error/unparseable verdict routes to the debate with a logged warning
-    - Gate verdict must be language-independent — non-English output_language runs gate identically (structured verdict, English-internal marker text)
-    - Checkpoint backward behavior — a mode change invalidates resume via the run signature; no migration of old checkpoints
-    - Default behavior changes (auto) — must be announced in CHANGELOG + README, with always available to restore exact current behavior
-    - CLI display must not hang or leave agents stuck at "pending" on skip (existing status logic hardcodes Bull/Bear transitions)
+    - No new runtime dependencies — `requests` is already pinned; the augury
+      Python package is never imported (it pins Python >=3.12, this repo
+      supports >=3.10; HTTP is the boundary per both repos' "one API app" rule)
+    - VendorError taxonomy only — no new `except` clause in route_to_vendor;
+      new vendor behavior expressed through the existing base types
+    - Defaults unchanged — a run with a stock config never calls augury;
+      binding gate and prompt paragraphs are conditional on configuration (D3)
+    - Fail-open on enrichment, fail-closed on data — the four new categories
+      join OPTIONAL_CATEGORIES-style sentinels; mapped core categories keep
+      raising per the existing taxonomy
+    - Never fabricate — degraded/stale/withheld states are rendered verbatim
+      (Kronos `degraded`, `stale_days`, `data_asof`; macro `pit_approximate`);
+      unparseable or absent data yields sentinels, not estimates
+    - Python >=3.10; Preflight (pytest -q && ruff check .) green at every step;
+      ruff strict select unchanged; no repo-wide ruff format
+    - Agent nodes stay closures from create_* factories; new tools follow the
+      agents/utils/*_tools.py @tool + InjectedState(trade_date) + as_of clamp
+      pattern (macro_data_tools.py precedent)
+    - No API keys or payloads in logs — the base URL is the only
+      secret-adjacent config and is not logged
 
   success_criteria:
-    - Aligned-evidence run — debate skipped, gate verdict + rationale recorded in state and saved report; RM plan carries a 5-tier rating and the alignment marker; no fabricated debate content
-    - Conflicted/ambiguous/thin-evidence run — full debate exactly as today
-    - debate_gate=always — graph path identical to current behavior, zero judge calls
-    - debate_gate=never — debate never runs, zero judge calls, explicit "disabled by configuration" marker downstream
-    - Gate structured-call failure in auto mode — debate runs, warning logged
-    - Resume with a different gate mode — fresh run (new thread signature); same mode resumes correctly
-    - CLI on skip — research team shows skipped (not pending); report tree renders the gate section
-    - Preflight green including the new tests; ruff clean
+    - Opted-in run (data_vendors core_stock_apis="augury,yfinance", lake up) —
+      the market analyst's OHLCV evidence comes from augury bars, visible in
+      the saved report; yfinance untouched when augury answers
+    - Lake down mid-chain — core categories raise/surface per the taxonomy and
+      the fallback vendor serves; the four new categories return
+      DATA_UNAVAILABLE sentinels and the run completes
+    - Unbackfilled ticker — NO_DATA_AVAILABLE sentinel whose detail names the
+      matching POST /data/* job; agents report "unavailable", never estimate
+    - Unmapped indicator (close_50_sma, close_10_ema, boll, boll_ub) requested
+      with chain "augury,yfinance" — augury declines via NoMarketDataError,
+      yfinance serves, log line shows the handoff
+    - get_ai_forecast on a backtest date earlier than the forecast's data_asof —
+      withheld with an explicit look-ahead explanation (polymarket precedent)
+    - Stock config run — no augury tool bound, no augury paragraph in any
+      prompt, byte-identical analyst prompts to today
+    - get_signal_states with an unknown family — helpful message listing the
+      valid families, no crash, no aborted run
+    - Preflight green including the new mocked tests; ruff clean
 
   references:
-    - specs/tech-architecture/tech-stack.md (architecture + signals 2/3 — graph-shape duplication)
-    - specs/tech-architecture/IMPACT_LATEST.md (blast radius — graph wiring, checkpoint, CLI)
-    - Prior Art block below (research-first, 2026-09-20)
-    - "In-repo precedents: #1088 path maps, #1089 run signature, #1176 absence markers, #1170 REVIEW sentinel"
-    - https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph (Command judge-node pattern)
-    - https://docs.langchain.com/oss/python/langgraph/choosing-apis (conditional routing)
+    - specs/product/RESEARCH-2026-09-24-augury-data-source.md (dataflow research + Prior Art + grill decisions D1–D5)
+    - specs/tech-architecture/tech-stack.md (§ The vendor seam; § Observability; signals 1/3/6)
+    - ~/Repo_Private/augury/openapi.json (checked-in OpenAPI = http://localhost:8765/docs content)
+    - ~/Repo_Private/augury/README.md (endpoint table, cache-first reads, Page[T] envelope)
+    - ~/Repo_Private/augury/AGENTS.md (one-API-app boundary, jobs are the lake's domain)
+    - ~/Repo_Private/augury/src/augury_record/api/errors.py (e51s01 frozen ErrorResponse contract)
+    - "In-repo precedents: #988/#289 (configured chain IS the fallback), #989 (loud vendor failure), #1170 (REVIEW sentinel), date_window.as_of (PIT clamp)"
 
 # ---------------------------------------------------------------------------
-# Prior Art  (research-first, 2026-09-20)
+# Prior Art  (research-first, 2026-09-24 — full table with evidence in
+# specs/product/RESEARCH-2026-09-24-augury-data-source.md)
 # Search order: this repo -> bigpowers skills -> package registries/opensrc -> web docs.
 # ---------------------------------------------------------------------------
 prior_art:
 
   in_repo:
-    - name: "should_continue_debate + DEBATE_PATH_MAP (#1088)"
-      path: tradingagents/graph/conditional_logic.py, tradingagents/graph/setup.py
+    - name: "route_to_vendor seam (TOOLS_CATEGORIES / VENDOR_METHODS / VENDOR_LIST)"
+      path: tradingagents/dataflows/interface.py
       fit: extend
       note: >-
-        Routing around/through the debate already uses conditional edges with a
-        COMPLETE path map so a drift return can never crash mid-run. The gate
-        must follow the same pattern (map every reachable target).
-    - name: "report_or_absent / opponent_argument_or_opening (#1176)"
-      path: tradingagents/agents/utils/agent_utils.py
+        Registration-only addition: `augury` key per mapped method plus four new
+        categories for the augury-only tools. The configured list IS the chain
+        (#988/#289); no router change, no new except clause.
+    - name: "VendorError taxonomy"
+      path: tradingagents/dataflows/errors.py
+      fit: adopt
+      note: >-
+        Sized to router reactions by design; augury's e51 ErrorResponse codes
+        (404 not_found / 429 rate_limited) map onto NoMarketDataError /
+        VendorRateLimitError, unreachable lake onto VendorNotConfiguredError.
+    - name: "polymarket.py vendor module"
+      path: tradingagents/dataflows/polymarket.py
       fit: extend
       note: >-
-        House pattern for absence: an empty input interpolated into a prompt
-        makes the model FABRICATE content. A skipped debate must reach the
-        Research Manager as an explicit marker, never an empty history
-        (its prompt currently asserts "The debate always contains conflicting
-        arguments").
-    - name: "SentimentReport.overall_band (structured, 6-tier)"
-      path: tradingagents/agents/schemas.py
-      fit: compose
-      note: >-
-        The Sentiment Analyst is the ONLY analyst emitting a typed direction
-        (band + 0-10 score + confidence) with a deterministic rendered header.
-        Market/news/fundamentals reports are free prose and may be non-English
-        (output_language), so a purely deterministic cross-report tension gate
-        has one reliable typed input today.
-    - name: "_run_signature checkpoint keying (#1089)"
-      path: tradingagents/graph/trading_graph.py
+        Template vendor: requests + REQUEST_TIMEOUT=30 + markdown report +
+        live-only PIT self-censorship (withhold when curr_date < today) — the
+        exact discipline reused for kronos/valuation/news/prediction-markets.
+    - name: "fred.py get_api_key() config pattern"
+      path: tradingagents/dataflows/fred.py
+      fit: adopt
+      note: "Lazy config resolution raising VendorNotConfiguredError — reused as get_base_url()."
+    - name: "TRADINGAGENTS_DEBATE_GATE env override (e02s03)"
+      path: tradingagents/default_config.py
       fit: extend
-      note: >-
-        Graph-shape config is keyed into the checkpoint thread ID. A new
-        debate-gate config mode must join the signature or a resume could
-        continue a run under a different gating policy.
-    - name: "research_depth CLI step (max_debate_rounds 1/3/5)"
-      path: cli/main.py, cli/prefs.py
-      fit: extend
-      note: >-
-        Existing config surface for debate DEPTH; the gate controls WHETHER to
-        debate at all. Natural place to surface an always/auto/never choice.
-    - name: "CLI status display hardcodes Bull/Bear transitions"
-      path: cli/main.py (update_research_team_status, ~L881/L915)
-      fit: extend
-      note: >-
-        Live display flips Bull Researcher to in_progress after analysts
-        finish; a skipped debate leaves Bull/Bear stuck at "pending" and the
-        saved report renders empty debate sections unless handled.
+      note: "The env-override map pattern AUGURY_BASE_URL joins."
+    - name: "reddit.py / stocktwits.py direct imports"
+      path: tradingagents/agents/analysts/sentiment_analyst.py
+      fit: build-later
+      note: "Seam-bypass anomaly; augury /social is the natural replacement — deferred by D1."
 
   bigpowers_skills:
-    - name: design-interface
+    - name: develop-tdd
       fit: compose
-      note: "Design It Twice for the gate interface (node+Command vs edge function)."
-    - name: deepen-architecture
+      note: "Every story RED-first with mocked requests boundary; e45s06 failing ledger."
+    - name: plan-tests
       fit: compose
-      note: "Gate belongs in graph/ layer; keeps ConditionalLogic cohesive."
-    - name: spike-prototype
+      note: "Risk-scaled scenario IDs per story if a test plan is requested before build."
+    - name: validate-contracts
       fit: compose
-      note: "If the tension criterion needs empirical tuning before committing."
-    - name: plan-tests / develop-tdd
-      fit: compose
-      note: "P1 risk: routing change touches checkpoint resume + CLI display."
+      note: " augury's checked-in openapi.json is the wire contract to assert against in tests."
 
   external:
-    - name: "LangGraph conditional edges (official docs)"
-      url: https://docs.langchain.com/oss/python/langgraph/choosing-apis
-      fit: adopt
-      note: >-
-        "Use the Graph API for complex decision trees and branching logic...
-        workflow.add_conditional_edges(source, should_continue)" — runtime
-        routing around a branch; nodes are never "spawned" per run, they are
-        compiled once and skipped by routing.
-    - name: "LangGraph Command(update=..., goto=...) (official docs)"
-      url: https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph
-      fit: adopt
-      note: >-
-        Canonical LLM-judge routing pattern: a node does
-        structured_llm.invoke(...) then returns Command(update={...}, goto=...)
-        — state update + routing in one checkpointed, stream-visible step.
-        Verified importable in installed langgraph 1.2.11 (floor >=0.4.8 also
-        supports Command; no dependency change needed).
-    - name: "Adaptive-RAG (LangGraph tutorial pattern)"
-      url: https://github.com/AbhinaavRamesh/langgraph-ollama-tutorial/blob/main/docs/rag_patterns/11-adaptive-rag.md
+    - name: "augury_record FastAPI surface (checked-in OpenAPI)"
+      url: http://localhost:8765/docs
       fit: compose
-      note: "Router LLM picks the path by input complexity — same shape as a debate gate."
-    - name: "Smit et al., Should we be going MAD? (ICML 2024)"
-      url: https://ar5iv.labs.arxiv.org/html/2311.17371
-      fit: adopt-evidence
       note: >-
-        Multi-agent debate is hyperparameter-sensitive and often no better than
-        cheaper single-agent baselines — evidence that unconditional debate
-        wastes compute when there is nothing to resolve.
-    - name: "Khan et al., If Multi-Agent Debate is the Answer, What is the Question? (2025)"
-      url: https://ar5iv.labs.arxiv.org/html/2502.08788
-      fit: adopt-evidence
-      note: "MAD gains shrink against proper baselines; debate pays off on specific task conditions, not universally."
-    - name: "Liang et al., Encouraging Divergent Thinking through Multi-Agent Debate (EMNLP 2024)"
-      url: https://aclanthology.org/2024.emnlp-main.992/
-      fit: adopt-evidence
-      note: "The adversarial-duel design this repo borrows; its value is surfacing divergence — presupposes tension exists."
-    - name: "Du et al., Improving Factuality and Reasoning through Multiagent Debate (ICML 2024)"
-      url: https://dl.acm.org/doi/abs/10.5555/3692070.3692537
-      fit: adopt-evidence
-      note: "Foundational pro-debate result; motivates keeping debate when evidence conflicts."
-    - name: "SELENE: Selective and Evidence-Weighted LLM Debating (EACL 2026 industry)"
-      url: https://aclanthology.org/2026.eacl-industry.7/
-      fit: adopt-evidence
-      note: "SELECTIVE debate — invoke debate only where it adds reliability; direct precedent for a gate."
-    - name: "Wald-SPRT compute governor for multi-agent debates (2026)"
-      url: https://ar5iv.labs.arxiv.org/html/2605.19193
-      fit: adopt-evidence
-      note: "Statistical early-stopping when agents converge — the 'stop debating on agreement' analogue."
+        Verified 2026-09-24 against ~/Repo_Private/augury/openapi.json:
+        GET /api/v1/bars/{ticker} (start,end,fields,page,page_size max 200,
+        newest-first); /api/v1/fundamentals/{ticker} (as_of required);
+        /api/v1/financials/{ticker} (statement field, period_end desc);
+        /news/{ticker} (days only — client-side PIT filter); /macro
+        (actual/forecast/previous + pit_approximate); /prediction-markets
+        (category/limit — client-side topic filter); /signals/{ticker}/kronos
+        (degraded/data_available/stale_days flags); /valuation/{ticker} (404
+        when no cached fundamentals); /api/v1/signals/{ticker} (family+as_of
+        required, version pin optional); POST /api/v1/batch/feature-vector
+        (1–500 tickers, per-item failed slots); /api/v1/universe (as_of, q;
+        delisted included); /liquidity/{ticker}. Errors: frozen
+        ErrorResponse{detail, code, request_id, errors[]}.
     - name: "opensrc cache"
       path: npx opensrc
       fit: none
-      note: "Installed opensrc CLI has no `search` subcommand (only `fetch`); fell through to web docs per skill."
+      note: "Augury is a local first-party repo, not a registry package — read directly; no new dependency to look up."
 
 verdict: >-
-  COMPOSE + EXTEND, no new dependencies. Adopt LangGraph's conditional-edge /
-  Command routing (already a dependency; verified in langgraph 1.2.11). Extend
-  the repo's own patterns: complete path maps (#1088), absence markers (#1176),
-  checkpoint signature keying (#1089), research_depth config surface. Nothing
-  needs to be built from scratch except the tension criterion itself, whose
-  mechanism (LLM judge) was confirmed via grill-with-docs on 2026-09-20.
+  COMPOSE + EXTEND, no new dependencies. One new vendor module
+  (dataflows/augury.py) composed over augury's HTTP API via the already-pinned
+  requests package; extensions are registration-only at the seam plus four new
+  optional tool categories bound conditionally to existing analysts. Defaults
+  unchanged (D3); indicator vocabulary is intersection-only (D4); the graph is
+  untouched (D2/D5). Design decisions D1–D5 confirmed by grill-with-docs on
+  2026-09-24.

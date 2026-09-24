@@ -1,156 +1,37 @@
+"""The only vendor seam: select configured implementations and route calls.
+
+The vendor registry is kept in ``vendor_registry.py`` so this module remains
+focused on configuration lookup, fallback-chain semantics, and error handling.
+"""
+
+from __future__ import annotations
+
 import logging
 
-from .alpha_vantage import (
-    get_balance_sheet as get_alpha_vantage_balance_sheet,
-    get_cashflow as get_alpha_vantage_cashflow,
-    get_fundamentals as get_alpha_vantage_fundamentals,
-    get_global_news as get_alpha_vantage_global_news,
-    get_income_statement as get_alpha_vantage_income_statement,
-    get_indicator as get_alpha_vantage_indicator,
-    get_insider_transactions as get_alpha_vantage_insider_transactions,
-    get_news as get_alpha_vantage_news,
-    get_stock as get_alpha_vantage_stock,
-)
 from .config import get_config
 from .errors import (
     NoMarketDataError,
     VendorNotConfiguredError,
     VendorRateLimitError,
 )
-from .fred import get_macro_data as get_fred_macro_data
-from .polymarket import get_prediction_markets as get_polymarket_prediction_markets
-from .sec_edgar import (
-    get_balance_sheet as get_sec_edgar_balance_sheet,
-    get_cashflow as get_sec_edgar_cashflow,
-    get_income_statement as get_sec_edgar_income_statement,
+from .vendor_registry import (
+    OPTIONAL_CATEGORIES,
+    TOOLS_CATEGORIES,
+    VENDOR_LIST,
+    VENDOR_METHODS,
 )
-from .y_finance import (
-    get_balance_sheet as get_yfinance_balance_sheet,
-    get_cashflow as get_yfinance_cashflow,
-    get_fundamentals as get_yfinance_fundamentals,
-    get_income_statement as get_yfinance_income_statement,
-    get_insider_transactions as get_yfinance_insider_transactions,
-    get_stock_stats_indicators_window,
-    get_YFin_data_online,
-)
-from .yfinance_news import get_global_news_yfinance, get_news_yfinance
 
-logger = logging.getLogger(__name__)
-
-# Tools organized by category
-TOOLS_CATEGORIES = {
-    "core_stock_apis": {
-        "description": "OHLCV stock price data",
-        "tools": [
-            "get_stock_data"
-        ]
-    },
-    "technical_indicators": {
-        "description": "Technical analysis indicators",
-        "tools": [
-            "get_indicators"
-        ]
-    },
-    "fundamental_data": {
-        "description": "Company fundamentals",
-        "tools": [
-            "get_fundamentals",
-            "get_balance_sheet",
-            "get_cashflow",
-            "get_income_statement"
-        ]
-    },
-    "news_data": {
-        "description": "News and insider data",
-        "tools": [
-            "get_news",
-            "get_global_news",
-            "get_insider_transactions",
-        ]
-    },
-    "macro_data": {
-        "description": "Macroeconomic indicators (rates, inflation, labor, growth)",
-        "tools": [
-            "get_macro_indicators",
-        ]
-    },
-    "prediction_markets": {
-        "description": "Market-implied probabilities for forward-looking events",
-        "tools": [
-            "get_prediction_markets",
-        ]
-    }
-}
-
-VENDOR_LIST = [
-    "yfinance",
-    "sec_edgar",
-    "fred",
-    "polymarket",
-    "alpha_vantage",
+__all__ = [
+    "TOOLS_CATEGORIES",
+    "VENDOR_LIST",
+    "OPTIONAL_CATEGORIES",
+    "VENDOR_METHODS",
+    "get_category_for_method",
+    "get_vendor",
+    "route_to_vendor",
 ]
 
-# Optional enrichment categories. These add macro/event context to the news
-# analyst but are not core to a decision, so a vendor failure here degrades to a
-# sentinel instead of aborting the run (a bad LLM-supplied indicator, a missing
-# key, or a network blip should not crash an analysis over flavour data). Core
-# categories (prices, fundamentals, news) still raise so a broken primary is loud.
-OPTIONAL_CATEGORIES = {"macro_data", "prediction_markets"}
-
-# Mapping of methods to their vendor-specific implementations
-VENDOR_METHODS = {
-    # core_stock_apis
-    "get_stock_data": {
-        "alpha_vantage": get_alpha_vantage_stock,
-        "yfinance": get_YFin_data_online,
-    },
-    # technical_indicators
-    "get_indicators": {
-        "alpha_vantage": get_alpha_vantage_indicator,
-        "yfinance": get_stock_stats_indicators_window,
-    },
-    # fundamental_data
-    "get_fundamentals": {
-        "alpha_vantage": get_alpha_vantage_fundamentals,
-        "yfinance": get_yfinance_fundamentals,
-    },
-    "get_balance_sheet": {
-        "alpha_vantage": get_alpha_vantage_balance_sheet,
-        "sec_edgar": get_sec_edgar_balance_sheet,
-        "yfinance": get_yfinance_balance_sheet,
-    },
-    "get_cashflow": {
-        "alpha_vantage": get_alpha_vantage_cashflow,
-        "sec_edgar": get_sec_edgar_cashflow,
-        "yfinance": get_yfinance_cashflow,
-    },
-    "get_income_statement": {
-        "alpha_vantage": get_alpha_vantage_income_statement,
-        "sec_edgar": get_sec_edgar_income_statement,
-        "yfinance": get_yfinance_income_statement,
-    },
-    # news_data
-    "get_news": {
-        "alpha_vantage": get_alpha_vantage_news,
-        "yfinance": get_news_yfinance,
-    },
-    "get_global_news": {
-        "yfinance": get_global_news_yfinance,
-        "alpha_vantage": get_alpha_vantage_global_news,
-    },
-    "get_insider_transactions": {
-        "alpha_vantage": get_alpha_vantage_insider_transactions,
-        "yfinance": get_yfinance_insider_transactions,
-    },
-    # macro_data
-    "get_macro_indicators": {
-        "fred": get_fred_macro_data,
-    },
-    # prediction_markets
-    "get_prediction_markets": {
-        "polymarket": get_polymarket_prediction_markets,
-    },
-}
+logger = logging.getLogger(__name__)
 
 def get_category_for_method(method: str) -> str:
     """Get the category that contains the specified method."""

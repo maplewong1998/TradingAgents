@@ -1,0 +1,52 @@
+story_id: e03s08
+title: "Docs + knowledge refresh (CHANGELOG, .env.example, README, tech-stack, glossary)"
+spec: e03s08-docs.md
+status: passing
+bcps: 2
+# TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
+# its verify command exits 0.
+tasks:
+  - id: 1
+    description: >-
+      CHANGELOG entry: feat(dataflows) — augury vendor (six mapped methods) +
+      four opt-in tool categories; names AUGURY_BASE_URL and the
+      defaults-unchanged guarantee (D3).
+    verify: "grep -q \"augury\" CHANGELOG.md"
+    risk: P3
+    status: passing
+    allure:
+      severity: minor
+      categories: ["docs", "changelog"]
+  - id: 2
+    description: >-
+      Config docs: .env.example gains AUGURY_BASE_URL (localhost:8765 default,
+      empty disables); README config section shows opt-in data_vendors /
+      tool_vendors snippets, states the lake-running + backfilled prerequisite
+      (POST /data/* jobs are augury-side), and documents the NO_DATA /
+      DATA_UNAVAILABLE sentinel contract.
+    verify: "grep -q \"AUGURY_BASE_URL\" .env.example && grep -q \"augury\" README.md"
+    risk: P3
+    status: passing
+    allure:
+      severity: minor
+      categories: ["docs", "config"]
+  - id: 3
+    description: >-
+      Knowledge refresh: tech-stack.md vendor-seam section lists augury + the
+      four new categories with counts re-measured by grep on the merged tree
+      (house re-measure rule, e02s03 precedent); GLOSSARY_LATEST.yaml gains
+      data lake / PIT vintage / signal family / binding gate.
+    verify: "grep -q \"augury\" specs/tech-architecture/tech-stack.md && grep -q \"signal family\" specs/product/GLOSSARY_LATEST.yaml"
+    risk: P3
+    status: passing
+    allure:
+      severity: minor
+      categories: ["docs", "knowledge"]
+  - id: 4
+    description: "Full Preflight."
+    verify: ".venv/bin/python -m pytest -q && .venv/bin/ruff check ."
+    risk: P3
+    status: passing
+    allure:
+      severity: minor
+      categories: ["preflight"]

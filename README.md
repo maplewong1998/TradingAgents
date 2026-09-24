@@ -257,6 +257,61 @@ print(decision)
 
 See `tradingagents/default_config.py` for all configuration options.
 
+### Augury data lake (opt-in)
+
+TradingAgents can read cached, point-in-time data from the augury data lake through
+its existing vendor seam. Augury is opt-in: existing vendor defaults remain
+unchanged, and a stock configuration never binds the Augury-only tools. Configure
+category chains with `data_vendors`; the order is the fallback order:
+
+```python
+from tradingagents.dataflows.config import set_config
+
+set_config({
+    "data_vendors": {
+        "core_stock_apis": "augury,yfinance",
+        "technical_indicators": "augury,yfinance",
+        "fundamental_data": "augury,yfinance",
+        "news_data": "augury,yfinance",
+        "macro_data": "augury,fred",
+        "prediction_markets": "augury,polymarket",
+        "ai_forecast": "augury",
+        "valuation": "augury",
+        "signal_states": "augury",
+        "cross_sectional": "augury",
+    },
+})
+```
+
+The Augury-only categories are `ai_forecast`, `valuation`, `signal_states`, and
+`cross_sectional`. A per-method `tool_vendors` entry takes precedence over its
+category, which is useful when only one tool should use the lake:
+
+```python
+set_config({
+    "tool_vendors": {
+        "get_ai_forecast": "augury",
+        "get_valuation": "augury",
+        "get_signal_states": "augury",
+        "get_liquidity": "augury",
+        "get_feature_vector": "augury",
+        "get_universe_membership": "augury",
+    },
+})
+```
+
+Set `AUGURY_BASE_URL` in `.env` to choose the lake endpoint; it defaults to
+`http://localhost:8765`, and an explicit empty value disables Augury. Never embed
+credentials in the URL — request URLs appear verbatim in vendor error logs. The lake must
+be running and backfilled before a configured chain can return data. The
+`POST /data/*` refresh and backfill jobs are augury-side jobs: TradingAgents is a
+read-only consumer and never starts them.
+
+A cache miss or unbackfilled ticker returns the `NO_DATA_AVAILABLE` sentinel. A
+stopped or unavailable configured vendor returns `DATA_UNAVAILABLE` where the
+category can degrade. Agents report either condition as unavailable; they must
+never estimate or fabricate a value.
+
 ### The debate gate
 
 The Bull/Bear investment debate is held only when the analyst reports actually disagree. Before the debate, a gate asks a quick model to judge the four reports as one structured verdict: `evidence_aligned` (true only when they point the same way on shared evidence), a `confidence` of `low` / `medium` / `high`, the shared `aligned_direction`, and a short `rationale`. The gate routes into the debate, or past it straight to the Research Manager, where the rationale is handed over as the record of why no debate was held.

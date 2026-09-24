@@ -1,0 +1,34 @@
+story_id: e03s06
+verified_at: "2026-09-24T14:28:00Z"
+verifier: verify-work (orchestrator-run; delegated develop-tdd evidence in e03s06-tdd-evidence.md)
+risk: P1
+phases:
+  smoke:
+    passed: true
+    mode: --cli (shared epic evidence, see e03s01-verify.yaml)
+  build:
+    passed: true
+    note: "clean-install import smoke PASS (shared epic evidence)"
+  typecheck:
+    passed: true
+    note: "N/A — no type gate in this project"
+  lint:
+    passed: true
+    command: ".venv/bin/python -m ruff check ."
+  tests:
+    passed: true
+    note: "trigger-state markdown (version visible), unknown-family valid-set message, binding matrix — e03-phase1a-verify-commands.txt"
+  terminal_verdict:
+    command: ".venv/bin/python -m pytest -q"
+    exit_code: 0
+    output: "1091 passed, 5 skipped, 22 warnings, 88 subtests passed in 11.14s"
+    captured_at: "2026-09-24T14:28:00Z"
+    note: "Single contiguous run — e03-terminal-verdict.txt"
+  manual:
+    steps:
+      - step: "U1/U2 binding matrix (shared probes)"
+        expected: "signal_states bound to BOTH market and fundamentals only when configured (SC-e03s06-P1-03 default off)"
+        actual: "default: absent; opt-in: present in both nodes; news/social untouched"
+        passed: true
+  gaps:
+    closed: true

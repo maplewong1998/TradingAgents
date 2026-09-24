@@ -1,0 +1,34 @@
+story_id: e03s04
+verified_at: "2026-09-24T14:28:00Z"
+verifier: verify-work (orchestrator-run; delegated develop-tdd evidence in e03s04-tdd-evidence.md)
+risk: P2
+phases:
+  smoke:
+    passed: true
+    mode: "--cli (shared epic evidence, see e03s01-verify.yaml)"
+  build:
+    passed: true
+    note: "clean-install import smoke PASS (shared epic evidence)"
+  typecheck:
+    passed: true
+    note: "N/A — no type gate in this project"
+  lint:
+    passed: true
+    command: ".venv/bin/python -m ruff check ."
+  tests:
+    passed: true
+    note: "macro calendar honesty (pit_approximate rendered, no fabricated series metadata); prediction-markets withholding + keyword filter; OPTIONAL_CATEGORIES membership unchanged — e03-phase1a-verify-commands.txt"
+  terminal_verdict:
+    command: ".venv/bin/python -m pytest -q"
+    exit_code: 0
+    output: "1091 passed, 5 skipped, 22 warnings, 88 subtests passed in 11.14s"
+    captured_at: "2026-09-24T14:28:00Z"
+    note: "Single contiguous run — e03-terminal-verdict.txt"
+  manual:
+    steps:
+      - step: "U4: macro_data chain 'augury', lake absent (real connection refused)"
+        expected: "fail-open — DATA_UNAVAILABLE optional sentinel, run continues"
+        actual: "sentinel returned with the connection error embedded; no exception propagated"
+        passed: true
+  gaps:
+    closed: true

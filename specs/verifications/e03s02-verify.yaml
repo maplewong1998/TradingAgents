@@ -1,0 +1,34 @@
+story_id: e03s02
+verified_at: "2026-09-24T14:28:00Z"
+verifier: verify-work (orchestrator-run; delegated develop-tdd evidence in e03s02-tdd-evidence.md)
+risk: P1
+phases:
+  smoke:
+    passed: true
+    mode: --cli (shared epic evidence, see e03s01-verify.yaml)
+  build:
+    passed: true
+    note: "clean-install import smoke PASS (shared epic evidence)"
+  typecheck:
+    passed: true
+    note: "N/A — no type gate in this project"
+  lint:
+    passed: true
+    command: ".venv/bin/python -m ruff check ."
+  tests:
+    passed: true
+    note: "fundamentals/statements/freq/404 matrix green — e03-phase1a-verify-commands.txt"
+  terminal_verdict:
+    command: ".venv/bin/python -m pytest -q"
+    exit_code: 0
+    output: "1091 passed, 5 skipped, 22 warnings, 88 subtests passed in 11.14s"
+    captured_at: "2026-09-24T14:28:00Z"
+    note: "Single contiguous run — e03-terminal-verdict.txt"
+  manual:
+    steps:
+      - step: "PIT fundamentals contract"
+        expected: "as_of forwarded verbatim; statement field splits the three methods; newest restatement wins"
+        actual: "pinned by tests (pit.py:128-156 contract quoted in the spec); 404 → NoMarketDataError with POST /data/* job hint"
+        passed: true
+  gaps:
+    closed: true
