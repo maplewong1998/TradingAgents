@@ -27,6 +27,7 @@ _ENV_OVERRIDES = {
     "TRADINGAGENTS_GOOGLE_THINKING_LEVEL":   "google_thinking_level",
     "TRADINGAGENTS_OPENAI_REASONING_EFFORT": "openai_reasoning_effort",
     "TRADINGAGENTS_ANTHROPIC_EFFORT":        "anthropic_effort",
+    "AUGURY_BASE_URL":                    "augury_base_url",
 }
 
 
@@ -164,15 +165,18 @@ DEFAULT_CONFIG = _apply_env_overrides({
         "oil commodities supply chain energy",
     ],
     # Data vendor configuration
+    # ``augury`` is opt-in for cache-first lake reads; defaults remain on live
+    # vendors so an unconfigured lake cannot alter an existing run (D3/e03s01).
+    "augury_base_url": "http://localhost:8765",
     # Category-level configuration (default for all tools in category).
     # The configured value is the exact vendor chain — requests are NOT silently
     # routed to vendors you didn't choose. For ordered fallback, list several,
     # e.g. "yfinance,alpha_vantage". "default" uses all available vendors.
     "data_vendors": {
-        "core_stock_apis": "yfinance",       # Options: alpha_vantage, yfinance
-        "technical_indicators": "yfinance",  # Options: alpha_vantage, yfinance
-        "fundamental_data": "yfinance",      # Options: alpha_vantage, yfinance
-        "news_data": "yfinance",             # Options: alpha_vantage, yfinance
+        "core_stock_apis": "yfinance",       # Options: alpha_vantage, yfinance, augury
+        "technical_indicators": "yfinance",  # Options: alpha_vantage, yfinance, augury
+        "fundamental_data": "yfinance",      # Options: alpha_vantage, yfinance, augury
+        "news_data": "yfinance",             # Options: alpha_vantage, yfinance, augury
         "macro_data": "fred",                # Options: fred (needs FRED_API_KEY)
         "prediction_markets": "polymarket",  # Options: polymarket (keyless)
     },

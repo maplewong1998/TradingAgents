@@ -11,6 +11,7 @@ from .alpha_vantage import (
     get_news as get_alpha_vantage_news,
     get_stock as get_alpha_vantage_stock,
 )
+from .augury import get_augury_stock
 from .config import get_config
 from .errors import (
     NoMarketDataError,
@@ -88,6 +89,7 @@ VENDOR_LIST = [
     "fred",
     "polymarket",
     "alpha_vantage",
+    "augury",
 ]
 
 # Optional enrichment categories. These add macro/event context to the news
@@ -103,6 +105,7 @@ VENDOR_METHODS = {
     "get_stock_data": {
         "alpha_vantage": get_alpha_vantage_stock,
         "yfinance": get_YFin_data_online,
+        "augury": get_augury_stock,
     },
     # technical_indicators
     "get_indicators": {

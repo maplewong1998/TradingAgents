@@ -16,7 +16,6 @@ from tradingagents.dataflows.errors import (
 )
 from tradingagents.dataflows.interface import route_to_vendor
 
-
 pytestmark = pytest.mark.unit
 
 
@@ -133,7 +132,7 @@ def test_stock_data_reverses_newest_first_pages_to_chronological_markdown(monkey
 
     report = _augury().get_augury_stock("AAPL", "2025-01-01", "2025-01-03")
 
-    assert report.index("2025-01-01") < report.index("2025-01-02") < report.index("2025-01-03")
+    assert report.index("| 2025-01-01 |") < report.index("| 2025-01-02 |") < report.index("| 2025-01-03 |")
     assert calls == [
         (
             "http://localhost:8765/api/v1/bars/AAPL",
@@ -177,7 +176,7 @@ def test_stock_data_fetches_all_newest_first_pages(monkeypatch):
 
     assert calls[0]["page"] == 1
     assert calls[1]["page"] == 2
-    assert report.index("2025-01-01") < report.index("2025-01-03")
+    assert report.index("| 2025-01-01 |") < report.index("| 2025-01-03 |")
 
 
 def test_empty_stock_coverage_raises_no_data(monkeypatch):
@@ -212,6 +211,8 @@ def test_augury_config_defaults_and_env_override(monkeypatch):
     monkeypatch.setenv("AUGURY_BASE_URL", "https://env.example.invalid")
     reloaded = importlib.reload(default_config)
     assert reloaded.DEFAULT_CONFIG["augury_base_url"] == "https://env.example.invalid"
+    monkeypatch.delenv("AUGURY_BASE_URL", raising=False)
+    importlib.reload(default_config)
 
 
 def test_augury_404_falls_through_to_yfinance(monkeypatch):
