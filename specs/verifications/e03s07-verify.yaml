@@ -1,0 +1,44 @@
+story_id: e03s07
+verified_at: "2026-09-24T14:28:00Z"
+verifier: verify-work (orchestrator-run; delegated develop-tdd evidence in e03s07-tdd-evidence.md)
+risk: P1
+phases:
+  smoke:
+    passed: true
+    mode: --cli (shared epic evidence, see e03s01-verify.yaml)
+  build:
+    passed: true
+    note: "clean-install import smoke PASS (shared epic evidence)"
+  typecheck:
+    passed: true
+    note: "N/A — no type gate in this project"
+  lint:
+    passed: true
+    command: ".venv/bin/python -m ruff check ."
+  tests:
+    passed: true
+    note: "failed-slot honesty, universe trichotomy, liquidity vintage pinning — e03-phase1a-verify-commands.txt"
+  terminal_verdict:
+    command: ".venv/bin/python -m pytest -q"
+    exit_code: 0
+    output: "1091 passed, 5 skipped, 22 warnings, 88 subtests passed in 11.14s"
+    captured_at: "2026-09-24T14:28:00Z"
+    note: "Single contiguous run — e03-terminal-verdict.txt"
+  manual:
+    steps:
+      - step: "Graph integrity (SC-e03s07-P0-01, D5 zero-graph-change)"
+        expected: "no Portfolio Manager ToolNode; node/edge sets unchanged"
+        actual: "pinned by test b700a70 asserting exact node/edge sets incl. Portfolio Manager→END; orchestrator re-verified the pin exists and passes"
+        passed: true
+      - step: "U2 cross-sectional binding"
+        expected: "market ← get_liquidity + get_feature_vector; fundamentals ← get_universe_membership"
+        actual: "exactly those bound under opt-in; absent by default"
+        passed: true
+  security:
+    passed: true
+    evidence: "specs/security/REVIEW-e03.md"
+  nfr:
+    passed: true
+    evidence: "specs/verifications/NFR-e03.json"
+  gaps:
+    closed: true

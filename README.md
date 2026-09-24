@@ -301,7 +301,8 @@ set_config({
 ```
 
 Set `AUGURY_BASE_URL` in `.env` to choose the lake endpoint; it defaults to
-`http://localhost:8765`, and an explicit empty value disables Augury. The lake must
+`http://localhost:8765`, and an explicit empty value disables Augury. Never embed
+credentials in the URL — request URLs appear verbatim in vendor error logs. The lake must
 be running and backfilled before a configured chain can return data. The
 `POST /data/*` refresh and backfill jobs are augury-side jobs: TradingAgents is a
 read-only consumer and never starts them.

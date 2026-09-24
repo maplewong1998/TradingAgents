@@ -1,0 +1,33 @@
+﻿unique verify commands: 31
+[0] .venv/bin/python -m pytest -q && .venv/bin/ruff check .  =>  All checks passed!
+[0] .venv/bin/python -m pytest -q && ruff check&& ruff check .venv/bin/ruff check .  =>  verify-phase1a.sh: line 11: ruff: command not found
+[0] .venv/bin/python -m pytest -q tests/test_augury_tools.py --collect-only  =>  30 tests collected in 0.87s
+[0] .venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'binding or prompt' && .venv/bin/python -m pytest -q tests/test_structured_agent_prompts.py  =>  6 passed in 1.43s
+[0] .venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'cross_sectional or binding or prompt'  =>  8 passed, 22 deselected in 1.46s
+[0] .venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'liquidity or feature_vector or universe' --collect-only  =>  7/30 tests collected (23 deselected) in 0.84s
+[0] .venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'registration or routing'  =>  4 passed, 26 deselected in 0.86s
+[0] .venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'signal and (tool or binding or prompt)'  =>  6 passed, 24 deselected in 1.42s
+[0] .venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'signal and vendor'  =>  1 passed, 29 deselected in 0.89s
+[0] .venv/bin/python -m pytest -q tests/test_augury_tools.py -k 'vendor and (liquidity or feature_vector or universe)'  =>  7 passed, 23 deselected in 0.84s
+[0] .venv/bin/python -m pytest -q tests/test_augury_tools.py -k signal --collect-only  =>  6/30 tests collected (24 deselected) in 0.84s
+[0] .venv/bin/python -m pytest -q tests/test_augury_tools.py -k tool  =>  30 passed in 1.48s
+[0] .venv/bin/python -m pytest -q tests/test_augury_tools.py -k vendor  =>  13 passed, 17 deselected in 1.47s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py --collect-only  =>  37 tests collected in 0.86s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'balance_sheet or cashflow or income_statement'  =>  4 passed, 33 deselected in 0.85s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'base_url or error'  =>  6 passed, 31 deselected in 0.86s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'fundamentals or balance_sheet or cashflow or income_statement' --collect-only  =>  5/37 tests collected (32 deselected) in 0.86s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'indicator or news' --collect-only  =>  10/37 tests collected (27 deselected) in 0.83s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'macro or prediction' --collect-only  =>  3/37 tests collected (34 deselected) in 0.87s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'registration or config' && .venv/bin/python -m pytest -q tests/test_env_overrides.py  =>  23 passed in 0.09s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'registration or routing'  =>  6 passed, 31 deselected in 0.90s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k fundamentals  =>  1 passed, 36 deselected in 0.89s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k indicator  =>  8 passed, 29 deselected in 0.90s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k macro  =>  1 passed, 36 deselected in 0.90s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k news  =>  3 passed, 34 deselected in 0.95s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k prediction  =>  2 passed, 35 deselected in 0.83s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k routing  =>  6 passed, 31 deselected in 0.88s
+[0] .venv/bin/python -m pytest -q tests/test_augury_vendor.py -k stock  =>  5 passed, 32 deselected in 0.86s
+[0] grep -q \"AUGURY_BASE_URL\" .env.example && grep -q \"augury\" README.md  =>  
+[0] grep -q \"augury\" CHANGELOG.md  =>  
+[0] grep -q \"augury\" specs/tech-architecture/tech-stack.md && grep -q \"signal family\" specs/product/GLOSSARY_LATEST.yaml  =>  
+=== phase1a: 31 passed, 0 failed ===

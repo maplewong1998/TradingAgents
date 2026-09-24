@@ -1,0 +1,48 @@
+story_id: e03s05
+verified_at: "2026-09-24T14:28:00Z"
+verifier: verify-work (orchestrator-run; delegated develop-tdd evidence in e03s05-tdd-evidence.md)
+risk: P0
+phases:
+  smoke:
+    passed: true
+    mode: --cli (shared epic evidence, see e03s01-verify.yaml)
+  build:
+    passed: true
+    note: "clean-install import smoke PASS (shared epic evidence)"
+  typecheck:
+    passed: true
+    note: "N/A — no type gate in this project"
+  lint:
+    passed: true
+    command: ".venv/bin/python -m ruff check ."
+  tests:
+    passed: true
+    note: "withholding + honesty-block + binding-gate matrices green; structured prompt regressions 6/6 — e03-phase1a-verify-commands.txt"
+  terminal_verdict:
+    command: ".venv/bin/python -m pytest -q"
+    exit_code: 0
+    output: "1091 passed, 5 skipped, 22 warnings, 88 subtests passed in 11.14s"
+    captured_at: "2026-09-24T14:28:00Z"
+    note: "Single contiguous run — e03-terminal-verdict.txt"
+  manual:
+    steps:
+      - step: "U1: default config (real TradingAgentsGraph construction)"
+        expected: "zero augury tools bound; prompts byte-identical (SC-e03s05-P0-02)"
+        actual: "market/social/news/fundamentals tool lists contain no augury tools"
+        passed: true
+      - step: "U2: opt-in all four augury categories"
+        expected: "market ← get_ai_forecast; fundamentals ← get_valuation (D2)"
+        actual: "exactly those bound; news/social untouched"
+        passed: true
+      - step: "Look-ahead withholding (SC-e03s05-P0-01)"
+        expected: "forecast with data_asof later than the analysis date is refused with no numbers"
+        actual: "pinned by unit test (both dates named in the refusal)"
+        passed: true
+  security:
+    passed: true
+    evidence: "specs/security/REVIEW-e03.md"
+  nfr:
+    passed: true
+    evidence: "specs/verifications/NFR-e03.json"
+  gaps:
+    closed: true

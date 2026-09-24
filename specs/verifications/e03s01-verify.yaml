@@ -1,0 +1,51 @@
+story_id: e03s01
+verified_at: "2026-09-24T14:28:00Z"
+verifier: verify-work (orchestrator-run; delegated develop-tdd evidence in e03s01-tdd-evidence.md)
+risk: P0
+phases:
+  smoke:
+    passed: true
+    mode: --cli (library/CLI, no server)
+    evidence: "tradingagents --help exit 0 with Usage; invalid flag exit 2 with error message"
+  build:
+    passed: true
+    command: "uv pip install (non-editable) into a throwaway venv + import tradingagents.dataflows.augury"
+    note: "clean-install import smoke PASS — no undeclared runtime deps (#994 class)"
+  typecheck:
+    passed: true
+    note: "N/A — project has no mypy/pyright gate (tech-stack § Type safety); ruff is the style/bugbear gate"
+  lint:
+    passed: true
+    command: ".venv/bin/python -m ruff check ."
+  tests:
+    passed: true
+    note: "ledger verify matrix: specs/verifications/e03-phase1a-verify-commands.txt (31/31 exit 0)"
+  terminal_verdict:
+    command: ".venv/bin/python -m pytest -q"
+    exit_code: 0
+    output: "1091 passed, 5 skipped, 22 warnings, 88 subtests passed in 11.14s"
+    captured_at: "2026-09-24T14:28:00Z"
+    note: "Single contiguous run post all changes — specs/verifications/e03-terminal-verdict.txt"
+  manual:
+    steps:
+      - step: "U3: chain 'augury' alone, lake absent (real connection refused)"
+        expected: "core category fails closed — exception surfaces, loudly logged"
+        actual: "ConnectionError raised; vendor warning logged (#989)"
+        passed: true
+      - step: "U5: AUGURY_BASE_URL explicitly empty"
+        expected: "VendorNotConfiguredError surfaced by the router"
+        actual: "VendorNotConfiguredError: 'Augury is not configured: set AUGURY_BASE_URL or augury_base_url.'"
+        passed: true
+  security:
+    passed: true
+    evidence: "specs/security/REVIEW-e03.md — 0 HIGH / 0 MEDIUM / 2 LOW (1 fixed in-gate, 1 parity-accepted)"
+  nfr:
+    passed: true
+    evidence: "specs/verifications/NFR-e03.json"
+  gaps:
+    closed: true
+    note: "1 doc gap found+fixed in-gate (credential-in-URL warning, .env.example + README.md)"
+  unavailable_checks:
+    - "scripts/check-blind-spots.sh — scripts/ symlink absent in this checkout"
+    - "scripts/lib/completeness-critic.sh — same"
+    - "gh pr checks — gh absent, no PR open (documented; e02 precedent)"
