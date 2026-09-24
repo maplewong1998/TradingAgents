@@ -12,6 +12,7 @@ from .alpha_vantage import (
     get_stock as get_alpha_vantage_stock,
 )
 from .augury import (
+    get_augury_ai_forecast,
     get_augury_balance_sheet,
     get_augury_cashflow,
     get_augury_fundamentals,
@@ -21,6 +22,7 @@ from .augury import (
     get_augury_news,
     get_augury_prediction_markets,
     get_augury_stock,
+    get_augury_valuation,
 )
 from .config import get_config
 from .errors import (
@@ -90,6 +92,18 @@ TOOLS_CATEGORIES = {
         "tools": [
             "get_prediction_markets",
         ]
+    },
+    "ai_forecast": {
+        "description": "Cached AI price forecasts",
+        "tools": [
+            "get_ai_forecast",
+        ]
+    },
+    "valuation": {
+        "description": "Cached multi-method valuations",
+        "tools": [
+            "get_valuation",
+        ]
     }
 }
 
@@ -107,7 +121,8 @@ VENDOR_LIST = [
 # sentinel instead of aborting the run (a bad LLM-supplied indicator, a missing
 # key, or a network blip should not crash an analysis over flavour data). Core
 # categories (prices, fundamentals, news) still raise so a broken primary is loud.
-OPTIONAL_CATEGORIES = {"macro_data", "prediction_markets"}
+# Forecasts and valuations are optional enrichment; a cache miss must not abort a run.
+OPTIONAL_CATEGORIES = {"macro_data", "prediction_markets", "ai_forecast", "valuation"}
 
 # Mapping of methods to their vendor-specific implementations
 VENDOR_METHODS = {
@@ -170,6 +185,13 @@ VENDOR_METHODS = {
     "get_prediction_markets": {
         "polymarket": get_polymarket_prediction_markets,
         "augury": get_augury_prediction_markets,
+    },
+    # ai_forecast and valuation
+    "get_ai_forecast": {
+        "augury": get_augury_ai_forecast,
+    },
+    "get_valuation": {
+        "augury": get_augury_valuation,
     },
 }
 

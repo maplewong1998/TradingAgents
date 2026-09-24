@@ -15,6 +15,7 @@ from langgraph.prebuilt import ToolNode
 from tradingagents.agents.gate.debate_gate import coerce_debate_gate_mode
 from tradingagents.agents.utils.agent_utils import (
     build_instrument_context,
+    get_ai_forecast,
     get_balance_sheet,
     get_cashflow,
     get_fundamentals,
@@ -26,9 +27,11 @@ from tradingagents.agents.utils.agent_utils import (
     get_news,
     get_prediction_markets,
     get_stock_data,
+    get_valuation,
     get_verified_market_snapshot,
     resolve_instrument_identity,
 )
+from tradingagents.agents.utils.ai_forecast_tools import is_augury_enabled
 from tradingagents.agents.utils.memory import TradingMemoryLog
 from tradingagents.dataflows.config import set_config
 from tradingagents.dataflows.utils import get_current_date, safe_ticker_component
@@ -202,19 +205,33 @@ class TradingAgentsGraph:
 
     def _create_tool_nodes(self) -> dict[str, ToolNode]:
         """Create tool nodes for different data sources using abstract methods."""
+        market_tools = [
+            # Core stock data tools
+            get_stock_data,
+            # Technical indicators
+            get_indicators,
+            # Deterministic verification snapshot (bound to the analyst
+            # LLM and required by its prompt; must be executable here or
+            # the call fails and the model reports it "unavailable").
+            get_verified_market_snapshot,
+        ]
+        fundamentals_tools = [
+            # Fundamental analysis tools
+            get_fundamentals,
+            get_balance_sheet,
+            get_cashflow,
+            get_income_statement,
+        ]
+        # Augury is opt-in: tool existence follows the same explicit category
+        # chain as routing, so a default run cannot silently acquire live data
+        # or prompt text (#e03s05, D3).
+        if is_augury_enabled("ai_forecast", "get_ai_forecast"):
+            market_tools.append(get_ai_forecast)
+        if is_augury_enabled("valuation", "get_valuation"):
+            fundamentals_tools.append(get_valuation)
+
         return {
-            "market": ToolNode(
-                [
-                    # Core stock data tools
-                    get_stock_data,
-                    # Technical indicators
-                    get_indicators,
-                    # Deterministic verification snapshot (bound to the analyst
-                    # LLM and required by its prompt; must be executable here or
-                    # the call fails and the model reports it "unavailable").
-                    get_verified_market_snapshot,
-                ]
-            ),
+            "market": ToolNode(market_tools),
             "social": ToolNode(
                 [
                     # News tools for social media analysis
@@ -231,15 +248,7 @@ class TradingAgentsGraph:
                     get_prediction_markets,
                 ]
             ),
-            "fundamentals": ToolNode(
-                [
-                    # Fundamental analysis tools
-                    get_fundamentals,
-                    get_balance_sheet,
-                    get_cashflow,
-                    get_income_statement,
-                ]
-            ),
+            "fundamentals": ToolNode(fundamentals_tools),
         }
 
     def _resolve_benchmark(self, ticker: str) -> str:

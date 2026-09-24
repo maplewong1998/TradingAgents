@@ -47,6 +47,8 @@ def _job_hint(path: str) -> str:
         return "the lake may need the matching POST /data/fundamentals refresh job first"
     if "/financials/" in path:
         return "the lake may need the matching POST /data/financials refresh job first"
+    if "/valuation/" in path or "/kronos" in path:
+        return "the lake may need the matching POST /data/kronos or fundamentals refresh job first"
     return "the lake may need the matching POST /data/* refresh job first"
 
 
@@ -90,6 +92,154 @@ def _format_value(value) -> str:
     if value is None:
         return ""
     return str(value)
+
+
+def _as_of_date(value: str | None) -> date:
+    """Parse an API date or timestamp for the forecast vintage guard."""
+    parsed = _date_value(value)
+    return parsed or date.today()
+
+
+def get_augury_ai_forecast(ticker: str, curr_date: str | None) -> str:
+    """Return a point-in-time-safe Kronos forecast report.
+
+    Kronos is a live-vintage cache read. A prediction newer than the analysis
+    date is withheld rather than exposing look-ahead information (#e03s05,
+    SC-e03s05-P0-01); cache misses use the normal no-data sentinel.
+    """
+    canonical = normalize_symbol(ticker)
+    path = f"/signals/{canonical}/kronos"
+    try:
+        payload = _request(path, {})
+    except NoMarketDataError as exc:
+        raise NoMarketDataError(ticker, canonical, exc.detail) from exc
+
+    if not isinstance(payload, dict) or not payload.get("data_available", False):
+        hint = payload.get("hint") if isinstance(payload, dict) else None
+        raise NoMarketDataError(
+            ticker,
+            canonical,
+            hint or "Kronos forecast is not cached; POST /data/kronos may be required",
+        )
+
+    analysis_date = _as_of_date(curr_date)
+    data_asof = payload.get("data_asof")
+    if data_asof and _as_of_date(data_asof) > analysis_date:
+        return (
+            f"## Augury Kronos AI forecast for {canonical}\n\n"
+            f"Forecast withheld: its data_asof date ({data_asof}) is later than the "
+            f"as-of analysis date ({curr_date or analysis_date.isoformat()}). Serving "
+            "it would introduce look-ahead information into this analysis."
+        )
+
+    lines = [
+        f"## Augury Kronos AI forecast for {canonical}",
+        "",
+        "### Forecast",
+        f"- predicted_return_pct: {_format_value(payload.get('predicted_return_pct'))}",
+        f"- forecast_window: {_format_value(payload.get('forecast_window'))}",
+        f"- bull_signal: {_format_value(payload.get('bull_signal'))}",
+        f"- bear_signal: {_format_value(payload.get('bear_signal'))}",
+        f"- neutral_signal: {_format_value(payload.get('neutral_signal'))}",
+        f"- upside_probability: {_format_value(payload.get('upside_probability'))}",
+        f"- model_name: {_format_value(payload.get('model_name'))}",
+        "",
+        "### Data honesty",
+        f"- data_available: {_format_value(payload.get('data_available'))}",
+        f"- degraded: {_format_value(payload.get('degraded'))}",
+        f"- stale_days: {_format_value(payload.get('stale_days'))}",
+        f"- data_asof: {_format_value(payload.get('data_asof'))}",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+_VALUATION_SUMMARY_FIELDS = (
+    "average_value",
+    "median_value",
+    "min_value",
+    "max_value",
+    "current_price",
+    "average_premium_discount",
+    "margin_of_safety",
+    "undervalued_count",
+    "overvalued_count",
+    "fair_count",
+    "reliable_count",
+    "total_methods",
+)
+
+
+def get_augury_valuation(ticker: str, curr_date: str | None) -> str:
+    """Return Augury's cached multi-method valuation as markdown.
+
+    Valuation has no historical-vintage parameter. The report therefore names
+    that live-vintage limitation for past analysis dates, while a 404 is raised
+    as typed no-data so the optional category can fail open (#e03s05).
+    """
+    canonical = normalize_symbol(ticker)
+    path = f"/valuation/{canonical}"
+    try:
+        payload = _request(path, {})
+    except NoMarketDataError as exc:
+        raise NoMarketDataError(ticker, canonical, exc.detail) from exc
+
+    if not isinstance(payload, dict):
+        raise NoMarketDataError(ticker, canonical, "valuation response was not an object")
+
+    lines = [f"## Augury valuation for {canonical}", ""]
+    if curr_date and curr_date < get_current_date():
+        lines.extend(
+            [
+                f"> Live-vintage caveat: Augury valuation is served from the current "
+                f"cache and has no historical vintage for {curr_date}.",
+                "",
+            ]
+        )
+
+    methods = payload.get("methods") or []
+    lines.extend(
+        [
+            "### Valuation methods",
+            "",
+            "| Method | Fair Value | Current Price | Premium/Discount | Assessment | Confidence | Reliable |",
+            "| --- | ---: | ---: | ---: | --- | --- | --- |",
+        ]
+    )
+    for method in methods:
+        if not isinstance(method, dict):
+            continue
+        lines.append(
+            "| "
+            + " | ".join(
+                _format_value(method.get(field))
+                for field in (
+                    "method",
+                    "fair_value",
+                    "current_price",
+                    "premium_discount",
+                    "assessment",
+                    "confidence",
+                    "is_reliable",
+                )
+            )
+            + " |"
+        )
+
+    summary = payload.get("summary")
+    if isinstance(summary, dict):
+        lines.extend(
+            [
+                "",
+                "### Valuation summary",
+                "",
+                "| Measure | Value |",
+                "| --- | ---: |",
+            ]
+        )
+        for field in _VALUATION_SUMMARY_FIELDS:
+            lines.append(f"| {field} | {_format_value(summary.get(field))} |")
+
+    return "\n".join(lines) + "\n"
 
 
 _FUNDAMENTAL_LABELS = {

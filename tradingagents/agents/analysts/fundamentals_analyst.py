@@ -7,7 +7,9 @@ from tradingagents.agents.utils.agent_utils import (
     get_income_statement,
     get_instrument_context_from_state,
     get_language_instruction,
+    get_valuation,
 )
+from tradingagents.agents.utils.ai_forecast_tools import is_augury_enabled
 
 
 def create_fundamentals_analyst(llm):
@@ -28,6 +30,14 @@ def create_fundamentals_analyst(llm):
             + " Use the available tools: `get_fundamentals` for comprehensive company analysis, `get_balance_sheet`, `get_cashflow`, and `get_income_statement` for specific financial statements."
             + get_language_instruction()
         )
+
+        if is_augury_enabled("valuation", "get_valuation"):
+            tools.append(get_valuation)
+            system_message += (
+                " Use `get_valuation` for Augury's cached multi-method valuation. "
+                "State its live-vintage caveat and report unavailable data rather "
+                "than estimating missing values."
+            )
 
         prompt = ChatPromptTemplate.from_messages(
             [
