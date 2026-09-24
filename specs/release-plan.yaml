@@ -7,7 +7,7 @@
 release:
   version: "0.7.0"              # mirror of next expected tag, NOT authoritative — gh release view wins
   codename: "Augury Data Lake Integration"
-  status: planning              # planning | in_progress | released
+  status: in_progress              # e03 code complete on feat/e03 (unlanded); landing via release-branch
   semantic_release: true
   bump_hint: minor              # feat(dataflows) — CI decides at merge
 

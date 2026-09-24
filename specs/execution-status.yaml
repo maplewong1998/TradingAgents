@@ -6,7 +6,7 @@ development_status:
   e02s01: done
   e02s02: done
   e02s03: done
-  e03: planned
+  e03: done   # all 8 stories done 2026-09-24 (delegated develop-tdd, orchestrator-verified); capsule archive is the orchestrator's close ceremony
   e03s01: done
   e03s02: planned
   e03s03: done
@@ -27,7 +27,7 @@ epics:
     wsjf: 4.8
     total_bcps: 16
   e03:
-    status: planned
+    status: done   # stories e03s01-s08 all green: 1091 passed / 5 skipped / 88 subtests, ruff clean (orchestrator-reproduced)
     title: Augury Data Lake Integration
     wsjf: 3.4
     total_bcps: 28

@@ -40,8 +40,8 @@
 # 2026-09-24T13:0xZ: e03s07 cycle closed by orchestrator (preflight 1091/5/88, ruff clean;
 # graph-shape pin verified: exact node/edge sets incl. Portfolio Manager→END, no PM ToolNode) —
 # lock RELEASED. e03s08 cycle opened — lock acquired (docs + knowledge refresh; final story).
-locks:
-  - story_id: e03s08
-    locked_by: 'agent: orchestrator (delegated writer for e03s08)'
-    locked_at: '2026-09-24T13:00:00Z'
-    files_touched: []
+# 2026-09-24T13:3xZ: e03s08 cycle closed + EPIC e03 CLOSED at code level by the orchestrator
+# (all 8 stories done; preflight 1091/5/88, ruff clean, docs-only s08 boundary verified) —
+# lock RELEASED. Landing decision (release-branch) is pending the user; re-acquire a lock
+# only if a story reopens (e.g. verify-work gap closure).
+locks: []

@@ -84,14 +84,12 @@ epic_cycle:
   metrics:
     story_start: '2026-09-20T08:41:06Z'
 handoff:
-  next_skill: develop-tdd   # e03s01 DONE + orchestrator-verified (1039 passed/5 skipped/88 subtests,
-    # ruff clean, on feat/e03 @ 0f84021). Delegation mode: per-story worker runs on
-    # github-copilot/gpt-5.6-luna:high, branch-only (feat/e03 in the main repo dir — the bigpowers
-    # Pi hook reads host cwd for branch detection, worktrees false-positive its commit guard).
-    # Next: e03s08 (docs + knowledge refresh — FINAL story). Done so far: e03s01 (vendor core),
-    # e03s02 (PIT fundamentals), e03s03 (indicators map + PIT news), e03s04 (macro + prediction
-    # markets), e03s05 (AI forecast pack + binding gate), e03s06 (signal-family states),
-    # e03s07 (cross-sectional, analyst-bound) — all 7 code stories done, 1091/5/88, ruff clean.
+  next_skill: verify-work   # EPIC e03 CODE-COMPLETE 2026-09-24: all 8 stories done on feat/e03
+    # via delegated develop-tdd (5 worker runs, github-copilot/gpt-5.6-luna:high, each
+    # orchestrator-verified). Final preflight 1091 passed / 5 skipped / 88 subtests, ruff clean.
+    # Evidence: specs/verifications/e03sNN-tdd-evidence.md ×8. Next gates: verify-work →
+    # audit-code → release-branch (landing decision belongs to the user; gh absent, so the
+    # team-pr flow lands locally per the e02 precedent).
   e02s03_landed: 'LANDED 2026-09-20T10:0xZ: the user''s Safety gate chose "Merge commit locally" (preserving
     git-effort attribution) and "run Phase 5 VERIFY automatically". `git merge --no-ff feat/e02s03` produced
     the MERGE COMMIT 26f3916 on main (parents 37dbc93 + 8d930cc) with the persisted landing subject and
