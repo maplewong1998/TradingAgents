@@ -37,8 +37,11 @@
 # 2026-09-24T12:3xZ: e03s06 cycle closed by orchestrator (preflight 1080/5/88, ruff clean; both
 # execution-status entries flipped correctly by the worker) — lock RELEASED. e03s07 cycle opened —
 # lock acquired (cross-sectional context, analyst-bound per D5; last code story of e03).
+# 2026-09-24T13:0xZ: e03s07 cycle closed by orchestrator (preflight 1091/5/88, ruff clean;
+# graph-shape pin verified: exact node/edge sets incl. Portfolio Manager→END, no PM ToolNode) —
+# lock RELEASED. e03s08 cycle opened — lock acquired (docs + knowledge refresh; final story).
 locks:
-  - story_id: e03s07
-    locked_by: 'agent: orchestrator (delegated writer for e03s07)'
-    locked_at: '2026-09-24T12:30:00Z'
+  - story_id: e03s08
+    locked_by: 'agent: orchestrator (delegated writer for e03s08)'
+    locked_at: '2026-09-24T13:00:00Z'
     files_touched: []
