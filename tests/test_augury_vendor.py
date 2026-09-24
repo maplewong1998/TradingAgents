@@ -174,8 +174,7 @@ def test_augury_balance_sheet_404_includes_financials_refresh_hint(monkeypatch):
     with pytest.raises(NoMarketDataError) as exc_info:
         _augury().get_augury_balance_sheet("AAPL", curr_date="2024-06-30")
 
-    assert "POST /data/" in exc_info.value.detail
-    assert "financials" in exc_info.value.detail
+    assert "POST /data/financials" in exc_info.value.detail
 
 
 def test_augury_cashflow_empty_statement_names_statement_in_error(monkeypatch):
@@ -326,6 +325,43 @@ def test_augury_is_registered_for_stock_data():
 
     assert "augury" in interface.VENDOR_LIST
     assert interface.VENDOR_METHODS["get_stock_data"]["augury"] is _augury().get_augury_stock
+
+
+# story: e03s02
+
+def test_augury_is_registered_for_all_fundamental_methods():
+    interface = importlib.import_module("tradingagents.dataflows.interface")
+    expected = {
+        "get_fundamentals": "get_augury_fundamentals",
+        "get_balance_sheet": "get_augury_balance_sheet",
+        "get_cashflow": "get_augury_cashflow",
+        "get_income_statement": "get_augury_income_statement",
+    }
+
+    for method, implementation in expected.items():
+        assert interface.VENDOR_METHODS[method]["augury"] is getattr(_augury(), implementation)
+
+
+def test_routing_augury_fundamental_404_falls_through_to_yfinance(monkeypatch):
+    response = FakeResponse(_error_response("not_found", "AAPL fundamentals are not cached"), 404)
+    monkeypatch.setattr(_augury().requests, "get", lambda *args, **kwargs: response)
+    interface = importlib.import_module("tradingagents.dataflows.interface")
+    replacements = {
+        "get_fundamentals": lambda *args, **kwargs: "yfinance fundamentals",
+        "get_balance_sheet": lambda *args, **kwargs: "yfinance balance sheet",
+        "get_cashflow": lambda *args, **kwargs: "yfinance cash flow",
+        "get_income_statement": lambda *args, **kwargs: "yfinance income statement",
+    }
+    for method, fallback in replacements.items():
+        original = interface.VENDOR_METHODS[method]["yfinance"]
+        monkeypatch.setitem(interface.VENDOR_METHODS[method], "yfinance", fallback)
+        set_config({"data_vendors": {"fundamental_data": "augury,yfinance"}})
+        if method == "get_fundamentals":
+            result = route_to_vendor(method, "AAPL", "2024-06-30")
+        else:
+            result = route_to_vendor(method, "AAPL", curr_date="2024-06-30")
+        assert result == fallback()
+        monkeypatch.setitem(interface.VENDOR_METHODS[method], "yfinance", original)
 
 
 def test_augury_config_defaults_and_env_override(monkeypatch):

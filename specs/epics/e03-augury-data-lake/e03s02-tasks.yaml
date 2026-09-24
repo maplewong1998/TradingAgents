@@ -16,7 +16,7 @@ tasks:
       Scenarios SC-e03s02-P1-01/02/03.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'fundamentals or balance_sheet or cashflow or income_statement' --collect-only"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "RED"]

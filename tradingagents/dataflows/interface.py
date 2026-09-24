@@ -11,7 +11,13 @@ from .alpha_vantage import (
     get_news as get_alpha_vantage_news,
     get_stock as get_alpha_vantage_stock,
 )
-from .augury import get_augury_stock
+from .augury import (
+    get_augury_balance_sheet,
+    get_augury_cashflow,
+    get_augury_fundamentals,
+    get_augury_income_statement,
+    get_augury_stock,
+)
 from .config import get_config
 from .errors import (
     NoMarketDataError,
@@ -116,21 +122,25 @@ VENDOR_METHODS = {
     "get_fundamentals": {
         "alpha_vantage": get_alpha_vantage_fundamentals,
         "yfinance": get_yfinance_fundamentals,
+        "augury": get_augury_fundamentals,
     },
     "get_balance_sheet": {
         "alpha_vantage": get_alpha_vantage_balance_sheet,
         "sec_edgar": get_sec_edgar_balance_sheet,
         "yfinance": get_yfinance_balance_sheet,
+        "augury": get_augury_balance_sheet,
     },
     "get_cashflow": {
         "alpha_vantage": get_alpha_vantage_cashflow,
         "sec_edgar": get_sec_edgar_cashflow,
         "yfinance": get_yfinance_cashflow,
+        "augury": get_augury_cashflow,
     },
     "get_income_statement": {
         "alpha_vantage": get_alpha_vantage_income_statement,
         "sec_edgar": get_sec_edgar_income_statement,
         "yfinance": get_yfinance_income_statement,
+        "augury": get_augury_income_statement,
     },
     # news_data
     "get_news": {
