@@ -628,3 +628,191 @@ def test_routing_default_stock_config_never_calls_augury(monkeypatch):
 
     assert route_to_vendor("get_stock_data", "AAPL", "2025-01-01", "2025-01-03") == "yfinance data"
     assert called is False
+
+
+# story: e03s04
+# scenario: SC-e03s04-P2-01
+
+
+def _macro(*rows: dict) -> dict:
+    return {
+        "data": list(rows),
+        "pagination": {
+            "page": 1,
+            "page_size": 50,
+            "total_items": len(rows),
+            "total_pages": 1,
+        },
+    }
+
+
+def _prediction_markets(*rows: dict) -> dict:
+    return {
+        "data": list(rows),
+        "pagination": {
+            "page": 1,
+            "page_size": 50,
+            "total_items": len(rows),
+            "total_pages": 1,
+        },
+    }
+
+
+def test_augury_macro_renders_calendar_observations_without_fred_metadata(monkeypatch):
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return FakeResponse(
+            _macro(
+                {
+                    "indicator": "cpi",
+                    "date": "2025-01-15",
+                    "country": "US",
+                    "actual": 3.0,
+                    "forecast": 2.9,
+                    "previous": 2.8,
+                    "pit_approximate": True,
+                }
+            )
+        )
+
+    monkeypatch.setattr(_augury().requests, "get", fake_get)
+
+    report = _augury().get_augury_macro_data("cpi", "2025-01-15", look_back_days=30)
+
+    assert "calendar-style observations" in report.lower()
+    assert "| Date | Actual | Forecast | Previous |" in report
+    assert "| 2025-01-15 [PIT approximate] | 3.0 | 2.9 | 2.8 |" in report
+    assert "Units:" not in report
+    assert "Frequency:" not in report
+    assert "FRED" not in report
+    assert calls == [
+        (
+            "http://localhost:8765/macro",
+            {"params": {"indicator": "cpi", "days": 30}, "timeout": 30},
+        )
+    ]
+
+
+# scenario: SC-e03s04-P1-01
+
+
+def test_augury_prediction_markets_filters_topic_keywords_and_renders_odds(monkeypatch):
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return FakeResponse(
+            _prediction_markets(
+                {
+                    "market_id": "fed-1",
+                    "question": "Will the Fed cut rates in 2026?",
+                    "slug": "fed-rate-cut-2026",
+                    "outcomes": ["Yes", "No"],
+                    "outcome_prices": [0.72, 0.28],
+                    "category": "fed",
+                    "end_date": "2099-01-01",
+                    "volume": 12000,
+                    "active": True,
+                    "closed": False,
+                },
+                {
+                    "market_id": "slug-1",
+                    "question": "Central bank policy decision",
+                    "slug": "rate-cut-by-june",
+                    "outcomes": ["Yes", "No"],
+                    "outcome_prices": [0.55, 0.45],
+                    "category": "fed",
+                    "end_date": "2099-01-01",
+                    "volume": 8000,
+                    "active": True,
+                    "closed": False,
+                },
+                {
+                    "market_id": "other-1",
+                    "question": "Will Bitcoin reach a new high?",
+                    "slug": "bitcoin-high",
+                    "outcomes": ["Yes", "No"],
+                    "outcome_prices": [0.40, 0.60],
+                    "category": "crypto",
+                    "end_date": "2099-01-01",
+                    "volume": 99999,
+                    "active": True,
+                    "closed": False,
+                },
+            )
+        )
+
+    monkeypatch.setattr(_augury().requests, "get", fake_get)
+
+    report = _augury().get_augury_prediction_markets("Fed rate cut", limit=2)
+
+    assert "Augury prediction markets" in report
+    assert "Will the Fed cut rates in 2026?" in report
+    assert "Central bank policy decision" in report
+    assert "Bitcoin" not in report
+    assert "72%" in report
+    assert "$12,000" in report
+    assert "2099-01-01" in report
+    assert calls == [
+        (
+            "http://localhost:8765/prediction-markets",
+            {"params": {"category": "fed", "limit": 2}, "timeout": 30},
+        )
+    ]
+
+
+def test_augury_prediction_markets_withholds_past_analysis_without_fetch(monkeypatch):
+    called = False
+
+    def unexpected_get(*args, **kwargs):
+        nonlocal called
+        called = True
+        raise AssertionError("past analysis date must not fetch cached odds")
+
+    monkeypatch.setattr(_augury().requests, "get", unexpected_get)
+
+    report = _augury().get_augury_prediction_markets("Fed rate cut", curr_date="2020-01-01")
+
+    assert "withheld" in report.lower()
+    assert "2020-01-01" in report
+    assert called is False
+
+
+# scenario: SC-e03s04-P1-02
+
+
+def test_augury_optional_categories_fail_open_when_lake_is_unreachable(monkeypatch):
+    def raise_connection_error(*args, **kwargs):
+        raise requests.ConnectionError("lake unreachable")
+
+    monkeypatch.setattr(_augury().requests, "get", raise_connection_error)
+    interface = importlib.import_module("tradingagents.dataflows.interface")
+    set_config(
+        {
+            "data_vendors": {
+                "macro_data": "augury",
+                "prediction_markets": "augury",
+            }
+        }
+    )
+
+    macro = route_to_vendor("get_macro_indicators", "cpi", "2025-01-15")
+    prediction = route_to_vendor("get_prediction_markets", "Fed rate cut", curr_date=None)
+
+    assert "DATA_UNAVAILABLE" in macro
+    assert "DATA_UNAVAILABLE" in prediction
+    assert "optional" in macro
+    assert "optional" in prediction
+
+
+def test_augury_is_registered_for_optional_macro_and_prediction_methods():
+    interface = importlib.import_module("tradingagents.dataflows.interface")
+
+    assert interface.OPTIONAL_CATEGORIES == {"macro_data", "prediction_markets"}
+    assert interface.VENDOR_METHODS["get_macro_indicators"]["augury"] is _augury().get_augury_macro_data
+    assert (
+        interface.VENDOR_METHODS["get_prediction_markets"]["augury"]
+        is _augury().get_augury_prediction_markets
+    )
