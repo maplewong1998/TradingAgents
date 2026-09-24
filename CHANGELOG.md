@@ -8,6 +8,19 @@ Breaking changes within the 0.x line are called out explicitly.
 
 ## [Unreleased]
 
+`feat(dataflows)`: augury data-lake reads are available as an opt-in vendor. The mapped
+methods are `get_stock_data`, `get_indicators` (the served-column intersection map),
+`get_fundamentals`, `get_balance_sheet`, `get_cashflow`, `get_income_statement`,
+`get_news`, `get_macro_indicators`, and `get_prediction_markets`.
+
+- **Augury-only tool categories:** `ai_forecast`, `valuation`, `signal_states`, and
+  `cross_sectional` can be enabled independently through the existing routing and
+  tool-binding configuration.
+- **Base URL:** `AUGURY_BASE_URL` (default `http://localhost:8765`) selects the
+  read-only lake endpoint; an explicit empty value disables Augury.
+- **Defaults stay unchanged (D3).** Existing vendor chains and prompts do not opt
+  into Augury unless a user explicitly configures an Augury category or method.
+
 ## [0.6.0] - 2026-09-20
 
 `feat(graph)`: the Bull/Bear investment debate becomes conditional. The debate used
