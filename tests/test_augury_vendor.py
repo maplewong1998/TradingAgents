@@ -215,7 +215,7 @@ def test_augury_config_defaults_and_env_override(monkeypatch):
     importlib.reload(default_config)
 
 
-def test_augury_404_falls_through_to_yfinance(monkeypatch):
+def test_routing_augury_404_falls_through_to_yfinance(monkeypatch):
     response = FakeResponse(_error_response("not_found", "AAPL is not cached"), 404)
     monkeypatch.setattr(_augury().requests, "get", lambda *args, **kwargs: response)
     interface = importlib.import_module("tradingagents.dataflows.interface")
@@ -227,7 +227,7 @@ def test_augury_404_falls_through_to_yfinance(monkeypatch):
     monkeypatch.setitem(interface.VENDOR_METHODS["get_stock_data"], "yfinance", yfinance)
 
 
-def test_augury_connection_error_falls_through_and_logs(monkeypatch, caplog):
+def test_routing_augury_connection_error_falls_through_and_logs(monkeypatch, caplog):
     def raise_connection_error(*args, **kwargs):
         raise requests.ConnectionError("lake unreachable")
 
@@ -243,7 +243,7 @@ def test_augury_connection_error_falls_through_and_logs(monkeypatch, caplog):
     monkeypatch.setitem(interface.VENDOR_METHODS["get_stock_data"], "yfinance", yfinance)
 
 
-def test_augury_only_404_returns_no_data_sentinel(monkeypatch):
+def test_routing_augury_only_404_returns_no_data_sentinel(monkeypatch):
     response = FakeResponse(_error_response("not_found", "AAPL is not cached"), 404)
     monkeypatch.setattr(_augury().requests, "get", lambda *args, **kwargs: response)
     set_config({"data_vendors": {"core_stock_apis": "augury"}})
@@ -255,7 +255,7 @@ def test_augury_only_404_returns_no_data_sentinel(monkeypatch):
     assert "POST /data/ohlcv" in result
 
 
-def test_default_stock_config_never_calls_augury(monkeypatch):
+def test_routing_default_stock_config_never_calls_augury(monkeypatch):
     called = False
 
     def unexpected_call(*args, **kwargs):

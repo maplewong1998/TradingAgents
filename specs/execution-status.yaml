@@ -7,7 +7,7 @@ development_status:
   e02s02: done
   e02s03: done
   e03: planned
-  e03s01: planned
+  e03s01: done
   e03s02: planned
   e03s03: planned
   e03s04: planned
@@ -130,14 +130,16 @@ stories:
       37dbc93..26f3916; worktree .worktrees/e02s03 removed, branches kept (CI unverified: gh absent —
       accepted by explicit user decision); epic e02 complete, capsule not archived (orchestrator ceremony)'
   e03s01:
-    status: planned
+    status: done
     title: 'Tracer bullet: augury vendor core + OHLCV through the seam (opt-in)'
     bcps: 5
     epic: e03
     tasks_total: 6
-    tasks_passing: 0
-    tasks_failing: 6
+    tasks_passing: 6
+    tasks_failing: 0
     risk_max: P0
+    started_at: '2026-09-24T09:00:00Z'
+    completed_at: '2026-09-24T10:22:00Z'
   e03s02:
     status: planned
     title: 'PIT fundamentals pack: fundamentals + balance sheet + cashflow + income statement'

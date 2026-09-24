@@ -1,7 +1,7 @@
 story_id: e03s01
 title: "Tracer bullet: augury vendor core + OHLCV through the seam (opt-in)"
 spec: e03s01-augury-vendor-core.md
-status: failing
+status: passing
 bcps: 5
 # TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
 # its verify command exits 0.
@@ -18,7 +18,7 @@ tasks:
       Scenarios SC-e03s01-P0-01/02/03, P1-01/02.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py --collect-only"
     risk: P0
-    status: failing
+    status: passing
     allure:
       severity: critical
       categories: ["unit", "augury", "RED"]
@@ -32,7 +32,7 @@ tasks:
       taxonomy mapping; loud logging, no URL/payload in logs (#989).
     verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'base_url or error'"
     risk: P0
-    status: failing
+    status: passing
     allure:
       severity: critical
       categories: ["unit", "augury", "vendor-core"]
@@ -45,7 +45,7 @@ tasks:
       NoMarketDataError(symbol, canonical, detail).
     verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k stock"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "ohlcv"]
@@ -58,7 +58,7 @@ tasks:
       comments list augury as an option. Existing chains untouched (D3).
     verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'registration or config' && .venv/bin/python -m pytest -q tests/test_env_overrides.py"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "config", "augury"]
@@ -70,7 +70,7 @@ tasks:
       default config performs zero lake HTTP calls.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k routing"
     risk: P0
-    status: failing
+    status: passing
     allure:
       severity: critical
       categories: ["unit", "augury", "routing", "fallback"]
@@ -78,7 +78,7 @@ tasks:
     description: "Full Preflight."
     verify: ".venv/bin/python -m pytest -q && ruff check ."
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["preflight"]

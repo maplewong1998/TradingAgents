@@ -6,7 +6,7 @@
 **risk:** P0 (new external integration; every later e03 story builds on this client)
 **context:** infra
 **bcps:** 5
-**status:** planned (e45s06 ledger — tasks start `failing`, flip only on green verify)
+**status:** passing (e45s06 ledger — all six tasks passed their verify commands)
 
 **Context:** TradingAgents reaches every external data source through one seam —
 `route_to_vendor` in `dataflows/interface.py` — and every vendor is a module that
