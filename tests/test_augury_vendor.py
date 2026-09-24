@@ -62,6 +62,137 @@ def _bars(*rows: dict, total_pages: int = 1) -> dict:
     }
 
 
+def _financials(*rows: dict, total_pages: int = 1) -> dict:
+    return {
+        "data": list(rows),
+        "pagination": {
+            "page": 1,
+            "page_size": 200,
+            "total_items": len(rows),
+            "total_pages": total_pages,
+        },
+    }
+
+
+# story: e03s02
+# scenario: SC-e03s02-P1-01
+
+def test_augury_fundamentals_forwards_as_of_and_renders_pit_snapshot(monkeypatch):
+    response = FakeResponse(
+        {
+            "ticker": "AAPL",
+            "pe_ratio": 24.5,
+            "pb_ratio": 8.2,
+            "market_cap": 3_000_000_000_000,
+            "sector": "Technology",
+            "dividend_yield": 0.005,
+        }
+    )
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return response
+
+    monkeypatch.setattr(_augury().requests, "get", fake_get)
+
+    report = _augury().get_augury_fundamentals("aapl", "2024-06-30")
+
+    assert "# Company Fundamentals for AAPL" in report
+    assert "PE Ratio: 24.5" in report
+    assert "Sector: Technology" in report
+    assert calls == [
+        (
+            "http://localhost:8765/api/v1/fundamentals/AAPL",
+            {"params": {"as_of": "2024-06-30"}, "timeout": 30},
+        )
+    ]
+
+
+# scenario: SC-e03s02-P1-03
+
+def test_augury_balance_sheet_cashflow_income_statement_split_mixed_statements(monkeypatch):
+    rows = [
+        {"ticker": "AAPL", "statement": "income", "metric": "Revenue", "period_end": "2024-06-30", "value": 100},
+        {"ticker": "AAPL", "statement": "balance", "metric": "Assets", "period_end": "2024-06-30", "value": 200},
+        {"ticker": "AAPL", "statement": "cashflow", "metric": "Operating Cash Flow", "period_end": "2024-06-30", "value": 50},
+    ]
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return FakeResponse(_financials(*rows))
+
+    monkeypatch.setattr(_augury().requests, "get", fake_get)
+
+    reports = {
+        "balance": _augury().get_augury_balance_sheet("AAPL", curr_date="2024-06-30"),
+        "cashflow": _augury().get_augury_cashflow("AAPL", curr_date="2024-06-30"),
+        "income": _augury().get_augury_income_statement("AAPL", curr_date="2024-06-30"),
+    }
+
+    assert "Assets" in reports["balance"] and "Revenue" not in reports["balance"]
+    assert "Operating Cash Flow" in reports["cashflow"] and "Assets" not in reports["cashflow"]
+    assert "Revenue" in reports["income"] and "Assets" not in reports["income"]
+    assert all(call[1]["params"]["as_of"] == "2024-06-30" for call in calls)
+    assert all("fields" in call[1]["params"] for call in calls)
+
+
+# scenario: SC-e03s02-P1-01
+
+def test_augury_income_statement_selects_annual_or_quarterly_period_spacing(monkeypatch):
+    rows = [
+        {"ticker": "AAPL", "statement": "income", "metric": "Revenue", "period_end": "2024-12-31", "value": 120},
+        {"ticker": "AAPL", "statement": "income", "metric": "Revenue", "period_end": "2024-09-30", "value": 30},
+        {"ticker": "AAPL", "statement": "income", "metric": "Revenue", "period_end": "2024-06-30", "value": 28},
+        {"ticker": "AAPL", "statement": "income", "metric": "Revenue", "period_end": "2024-03-31", "value": 27},
+        {"ticker": "AAPL", "statement": "income", "metric": "Revenue", "period_end": "2023-12-31", "value": 110},
+    ]
+    monkeypatch.setattr(
+        _augury().requests,
+        "get",
+        lambda *args, **kwargs: FakeResponse(_financials(*rows)),
+    )
+
+    annual = _augury().get_augury_income_statement("AAPL", freq="annual", curr_date="2024-12-31")
+    quarterly = _augury().get_augury_income_statement(
+        "AAPL", freq="quarterly", curr_date="2024-12-31"
+    )
+
+    assert "| 2024-12-31 |" in annual and "| 2024-09-30 |" not in annual
+    assert "| 2023-12-31 |" in annual
+    assert "| 2024-09-30 |" in quarterly and "| 2024-06-30 |" in quarterly
+    assert "| 2024-12-31 |" not in quarterly
+
+
+# scenario: SC-e03s02-P1-02
+
+def test_augury_balance_sheet_404_includes_financials_refresh_hint(monkeypatch):
+    response = FakeResponse(_error_response("not_found", "AAPL financials are not cached"), 404)
+    monkeypatch.setattr(_augury().requests, "get", lambda *args, **kwargs: response)
+
+    with pytest.raises(NoMarketDataError) as exc_info:
+        _augury().get_augury_balance_sheet("AAPL", curr_date="2024-06-30")
+
+    assert "POST /data/" in exc_info.value.detail
+    assert "financials" in exc_info.value.detail
+
+
+def test_augury_cashflow_empty_statement_names_statement_in_error(monkeypatch):
+    monkeypatch.setattr(
+        _augury().requests,
+        "get",
+        lambda *args, **kwargs: FakeResponse(_financials(
+            {"ticker": "AAPL", "statement": "income", "metric": "Revenue", "period_end": "2024-06-30", "value": 100}
+        )),
+    )
+
+    with pytest.raises(NoMarketDataError) as exc_info:
+        _augury().get_augury_cashflow("AAPL", curr_date="2024-06-30")
+
+    assert "cash flow" in exc_info.value.detail.lower()
+
+
 def test_augury_base_url_defaults_when_env_unset(monkeypatch):
     monkeypatch.delenv("AUGURY_BASE_URL", raising=False)
     set_config({"augury_base_url": "http://localhost:8765"})
