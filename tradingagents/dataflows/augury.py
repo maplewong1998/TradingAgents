@@ -98,15 +98,20 @@ def get_augury_stock(symbol: str, start_date: str, end_date: str) -> str:
     page = 1
 
     while True:
-        payload = _request(
-            path,
-            {
-                "start": start_date,
-                "end": end_date,
-                "page": page,
-                "page_size": 200,
-            },
-        )
+        try:
+            payload = _request(
+                path,
+                {
+                    "start": start_date,
+                    "end": end_date,
+                    "page": page,
+                    "page_size": 200,
+                },
+            )
+        except NoMarketDataError as exc:
+            # Preserve the user's symbol for the router sentinel while retaining
+            # the canonical ticker used on the wire.
+            raise NoMarketDataError(symbol, canonical, exc.detail) from exc
         page_rows = payload.get("data", []) if isinstance(payload, dict) else []
         rows.extend(page_rows)
         pagination = payload.get("pagination", {}) if isinstance(payload, dict) else {}
