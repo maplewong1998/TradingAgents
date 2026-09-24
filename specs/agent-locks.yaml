@@ -28,8 +28,11 @@
 # 2026-09-24T11:3xZ: e03s03 cycle closed by orchestrator (preflight 1056/5/88, ruff clean;
 # supervisor ruling included mfi→mfi_14; one transient Windows file-lock flake documented and
 # verified non-reproducible) — lock RELEASED. e03s04 cycle opened — lock acquired.
+# 2026-09-24T11:5xZ: e03s04 cycle closed by orchestrator (preflight 1061/5/88, ruff clean;
+# development_status flat-entry flip applied post-run) — lock RELEASED. e03s05 cycle opened —
+# lock acquired ahead of the delegated develop-tdd run (AI forecast pack; binding gate).
 locks:
-  - story_id: e03s04
-    locked_by: 'agent: orchestrator (delegated writer for e03s04)'
-    locked_at: '2026-09-24T11:30:00Z'
+  - story_id: e03s05
+    locked_by: 'agent: orchestrator (delegated writer for e03s05)'
+    locked_at: '2026-09-24T11:50:00Z'
     files_touched: []
