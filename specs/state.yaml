@@ -84,11 +84,11 @@ epic_cycle:
   metrics:
     story_start: '2026-09-20T08:41:06Z'
 handoff:
-  next_skill: kickoff-branch   # e03 augury-data-lake: spine complete (scope-work → slice-tasks →
-    # plan-work, 2026-09-24). HARD STOP in effect per user instruction — do NOT invoke
-    # kickoff-branch/develop-tdd without an explicit go-ahead. Evidence base:
-    # specs/product/SCOPE_LATEST.yaml + specs/epics/e03-augury-data-lake/ +
-    # specs/product/RESEARCH-2026-09-24-augury-data-source.md (decisions D1–D5).
+  next_skill: develop-tdd   # e03s01 DONE + orchestrator-verified (1039 passed/5 skipped/88 subtests,
+    # ruff clean, on feat/e03 @ 0f84021). Delegation mode: per-story worker runs on
+    # github-copilot/gpt-5.6-luna:high, branch-only (feat/e03 in the main repo dir — the bigpowers
+    # Pi hook reads host cwd for branch detection, worktrees false-positive its commit guard).
+    # Next: e03s02 (PIT fundamentals pack). Augury is mocked at the requests boundary everywhere.
   e02s03_landed: 'LANDED 2026-09-20T10:0xZ: the user''s Safety gate chose "Merge commit locally" (preserving
     git-effort attribution) and "run Phase 5 VERIFY automatically". `git merge --no-ff feat/e02s03` produced
     the MERGE COMMIT 26f3916 on main (parents 37dbc93 + 8d930cc) with the persisted landing subject and

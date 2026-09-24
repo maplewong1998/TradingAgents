@@ -17,4 +17,13 @@
 # close — the branch is pushed for the PR decision and this cycle holds no writer. That is the last
 # story of epic e02, so re-acquire (a new lock) only if the story reopens — e.g. if the landing-time
 # reconcile must resolve specs/state.yaml against the advanced origin/main.
-locks: []
+# 2026-09-24T10:42Z: e03s01 completed via delegated writer (orchestrator-verified preflight
+# 1039 passed/5 skipped/88 subtests, ruff clean) — the delegation bootstrap predated the lock;
+# discipline re-established at e03s02. e03s01 needs no release (done, unlanded on feat/e03).
+# 2026-09-24T10:42Z: e03s02 cycle opened by orchestrator — lock acquired ahead of the
+# delegated develop-tdd run (branch-only mode: feat/e03 checked out in the main repo dir).
+locks:
+  - story_id: e03s02
+    locked_by: 'agent: orchestrator (delegated writer for e03s02)'
+    locked_at: '2026-09-24T10:42:04Z'
+    files_touched: []
