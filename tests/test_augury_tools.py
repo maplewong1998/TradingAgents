@@ -716,6 +716,53 @@ def test_cross_sectional_binding_gate_and_portfolio_manager_graph_integrity():
     assert "get_universe_membership" in configured_nodes["fundamentals"].tools_by_name
     assert "portfolio_manager" not in configured_nodes
 
+    from tradingagents.graph.conditional_logic import ConditionalLogic
+    from tradingagents.graph.setup import GraphSetup
+
+    workflow = GraphSetup(
+        None,
+        None,
+        configured_nodes,
+        ConditionalLogic(max_debate_rounds=1, max_risk_discuss_rounds=1),
+    ).setup_graph()
+    assert set(workflow.nodes) == {
+        "Market Analyst",
+        "Msg Clear Market",
+        "tools_market",
+        "Sentiment Analyst",
+        "Msg Clear Sentiment",
+        "tools_social",
+        "News Analyst",
+        "Msg Clear News",
+        "tools_news",
+        "Fundamentals Analyst",
+        "Msg Clear Fundamentals",
+        "tools_fundamentals",
+        "Bull Researcher",
+        "Bear Researcher",
+        "Debate Gate",
+        "Research Manager",
+        "Trader",
+        "Aggressive Analyst",
+        "Neutral Analyst",
+        "Conservative Analyst",
+        "Portfolio Manager",
+    }
+    assert set(workflow.edges) == {
+        ("__start__", "Market Analyst"),
+        ("tools_market", "Market Analyst"),
+        ("Msg Clear Market", "Sentiment Analyst"),
+        ("tools_social", "Sentiment Analyst"),
+        ("Msg Clear Sentiment", "News Analyst"),
+        ("tools_news", "News Analyst"),
+        ("Msg Clear News", "Fundamentals Analyst"),
+        ("tools_fundamentals", "Fundamentals Analyst"),
+        ("Msg Clear Fundamentals", "Debate Gate"),
+        ("Research Manager", "Trader"),
+        ("Trader", "Aggressive Analyst"),
+        ("Portfolio Manager", "__end__"),
+    }
+
 
 def test_cross_sectional_prompt_paragraphs_are_conditional_and_analyst_bound():
     default_market, default_market_text = _run_analyst(
