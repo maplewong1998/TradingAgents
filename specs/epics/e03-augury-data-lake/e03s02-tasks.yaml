@@ -1,7 +1,7 @@
 story_id: e03s02
 title: "PIT fundamentals pack: fundamentals + balance sheet + cashflow + income statement"
 spec: e03s02-pit-fundamentals-pack.md
-status: failing
+status: passing
 bcps: 3
 # TDD ledger (e45s06): every task starts `failing`; flip to `passing` only after
 # its verify command exits 0.

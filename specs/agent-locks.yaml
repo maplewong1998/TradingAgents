@@ -22,8 +22,11 @@
 # discipline re-established at e03s02. e03s01 needs no release (done, unlanded on feat/e03).
 # 2026-09-24T10:42Z: e03s02 cycle opened by orchestrator — lock acquired ahead of the
 # delegated develop-tdd run (branch-only mode: feat/e03 checked out in the main repo dir).
+# 2026-09-24T11:1xZ: e03s02 TDD cycle closed by orchestrator (preflight 1046/5/88, ruff clean;
+# ledger header flip applied post-run) — lock RELEASED; story unlanded on feat/e03 like e03s01.
+# Same timestamp: e03s03 cycle opened — lock acquired ahead of the delegated develop-tdd run.
 locks:
-  - story_id: e03s02
-    locked_by: 'agent: orchestrator (delegated writer for e03s02)'
-    locked_at: '2026-09-24T10:42:04Z'
+  - story_id: e03s03
+    locked_by: 'agent: orchestrator (delegated writer for e03s03)'
+    locked_at: '2026-09-24T11:10:00Z'
     files_touched: []
