@@ -6,7 +6,7 @@
 **risk:** P2 (both categories are OPTIONAL_CATEGORIES — failure degrades to a sentinel, never aborts a run)
 **context:** domain
 **bcps:** 2
-**status:** planned (e45s06 ledger — tasks start `failing`, flip only on green verify)
+**status:** passing (e45s06 ledger — all tasks green)
 
 **Context:** The last two mapped methods, both enrichment categories the router
 already treats as fail-open. Augury's `/macro` serves calendar-style rows

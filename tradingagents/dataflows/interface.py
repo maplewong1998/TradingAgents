@@ -17,7 +17,9 @@ from .augury import (
     get_augury_fundamentals,
     get_augury_income_statement,
     get_augury_indicators,
+    get_augury_macro_data,
     get_augury_news,
+    get_augury_prediction_markets,
     get_augury_stock,
 )
 from .config import get_config
@@ -162,10 +164,12 @@ VENDOR_METHODS = {
     # macro_data
     "get_macro_indicators": {
         "fred": get_fred_macro_data,
+        "augury": get_augury_macro_data,
     },
     # prediction_markets
     "get_prediction_markets": {
         "polymarket": get_polymarket_prediction_markets,
+        "augury": get_augury_prediction_markets,
     },
 }
 
