@@ -2,9 +2,11 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 from tradingagents.agents.utils.agent_utils import (
     get_ai_forecast,
+    get_feature_vector,
     get_indicators,
     get_instrument_context_from_state,
     get_language_instruction,
+    get_liquidity,
     get_signal_states,
     get_stock_data,
     get_verified_market_snapshot,
@@ -73,6 +75,19 @@ Write a very detailed and nuanced report of the trends you observe. Provide spec
                 " Use `get_ai_forecast` for Augury's cached Kronos forecast. "
                 "Report its data honesty flags and do not use a forecast withheld "
                 "for look-ahead information."
+            )
+
+        if is_augury_enabled("cross_sectional", "get_liquidity"):
+            tools.append(get_liquidity)
+            system_message += (
+                " Use `get_liquidity` for Augury's liquidity context; report its "
+                "staleness, missing-data, and halt flags rather than estimating."
+            )
+        if is_augury_enabled("cross_sectional", "get_feature_vector"):
+            tools.append(get_feature_vector)
+            system_message += (
+                " Use `get_feature_vector` for Augury's point-in-time cross-sectional "
+                "feature vector and report a failed ticker slot as unavailable."
             )
 
         prompt = ChatPromptTemplate.from_messages(

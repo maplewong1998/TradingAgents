@@ -18,16 +18,19 @@ from tradingagents.agents.utils.agent_utils import (
     get_ai_forecast,
     get_balance_sheet,
     get_cashflow,
+    get_feature_vector,
     get_fundamentals,
     get_global_news,
     get_income_statement,
     get_indicators,
     get_insider_transactions,
+    get_liquidity,
     get_macro_indicators,
     get_news,
     get_prediction_markets,
     get_signal_states,
     get_stock_data,
+    get_universe_membership,
     get_valuation,
     get_verified_market_snapshot,
     resolve_instrument_identity,
@@ -233,6 +236,12 @@ class TradingAgentsGraph:
         if is_augury_enabled("signal_states", "get_signal_states"):
             market_tools.append(get_signal_states)
             fundamentals_tools.append(get_signal_states)
+        if is_augury_enabled("cross_sectional", "get_liquidity"):
+            market_tools.append(get_liquidity)
+        if is_augury_enabled("cross_sectional", "get_feature_vector"):
+            market_tools.append(get_feature_vector)
+        if is_augury_enabled("cross_sectional", "get_universe_membership"):
+            fundamentals_tools.append(get_universe_membership)
 
         return {
             "market": ToolNode(market_tools),

@@ -52,18 +52,8 @@ def _job_hint(path: str) -> str:
     return "the lake may need the matching POST /data/* refresh job first"
 
 
-def _request(path: str, params: dict) -> dict:
-    """GET an augury endpoint and map its frozen ErrorResponse envelope.
-
-    Connection and timeout exceptions intentionally remain untouched. The
-    routing seam logs those failures loudly and can continue to the next
-    configured vendor (#989).
-    """
-    response = requests.get(
-        f"{get_base_url()}/{path.lstrip('/')}",
-        params=params,
-        timeout=REQUEST_TIMEOUT,
-    )
+def _response_payload(path: str, response) -> dict:
+    """Validate an Augury response and map its frozen ErrorResponse envelope."""
     try:
         response.raise_for_status()
     except requests.HTTPError as exc:
@@ -86,6 +76,31 @@ def _request(path: str, params: dict) -> dict:
             raise VendorRateLimitError(detail or "Augury rate limit reached") from exc
         raise
     return response.json()
+
+
+def _request(path: str, params: dict) -> dict:
+    """GET an augury endpoint and map its frozen ErrorResponse envelope.
+
+    Connection and timeout exceptions intentionally remain untouched. The
+    routing seam logs those failures loudly and can continue to the next
+    configured vendor (#989).
+    """
+    response = requests.get(
+        f"{get_base_url()}/{path.lstrip('/')}",
+        params=params,
+        timeout=REQUEST_TIMEOUT,
+    )
+    return _response_payload(path, response)
+
+
+def _request_post(path: str, payload: dict) -> dict:
+    """POST a synchronous Augury read endpoint through the same error seam."""
+    response = requests.post(
+        f"{get_base_url()}/{path.lstrip('/')}",
+        json=payload,
+        timeout=REQUEST_TIMEOUT,
+    )
+    return _response_payload(path, response)
 
 
 def _format_value(value) -> str:
@@ -239,6 +254,181 @@ def get_augury_valuation(ticker: str, curr_date: str | None) -> str:
         for field in _VALUATION_SUMMARY_FIELDS:
             lines.append(f"| {field} | {_format_value(summary.get(field))} |")
 
+    return "\n".join(lines) + "\n"
+
+
+_LIQUIDITY_FIELDS = (
+    "last_date",
+    "last_trade_date",
+    "data_age_days",
+    "warning",
+    "window_days",
+    "trading_days",
+    "zero_volume_days",
+    "stale",
+    "suspended",
+    "adv_shares",
+    "adv_dollar_vol",
+    "median_dollar_vol",
+    "amihud_illiq",
+    "amivest",
+    "roll_spread",
+    "cs_spread",
+    "vol_hhi",
+    "rvol",
+    "latest_price",
+    "avg_close",
+    "currency",
+    "data_missing",
+    "halt_status",
+    "halt_detected_at",
+)
+
+
+def get_augury_liquidity(ticker: str, curr_date: str | None) -> str:
+    """Return Augury's liquidity facts, withholding its live-vintage read in PIT runs.
+
+    The OpenAPI contract exposes only ``window_days`` for this endpoint, with no
+    ``as_of`` or ``vintage`` pin. A historical report must therefore not consume
+    today's computed liquidity (#e03s07, SC-e03s07-P1-03).
+    """
+    canonical = normalize_symbol(ticker)
+    if curr_date and curr_date < get_current_date():
+        return (
+            f"## Augury liquidity for {canonical}\n\n"
+            f"Liquidity withheld for {curr_date}: the Augury liquidity endpoint is "
+            "live-vintage-only and has no as_of or vintage parameter."
+        )
+
+    path = f"/liquidity/{canonical}"
+    try:
+        payload = _request(path, {"window_days": 90})
+    except NoMarketDataError as exc:
+        raise NoMarketDataError(ticker, canonical, exc.detail) from exc
+    if not isinstance(payload, dict):
+        raise NoMarketDataError(ticker, canonical, "liquidity response was not an object")
+
+    lines = [f"## Augury liquidity for {canonical}", ""]
+    for field in _LIQUIDITY_FIELDS:
+        if field in payload:
+            lines.append(f"- {field}: {_format_value(payload.get(field))}")
+    return "\n".join(lines) + "\n"
+
+
+def _feature_vector_failure(failed: list, canonical: str) -> str | None:
+    """Find the requested ticker's failure reason in a batch response."""
+    for failure in failed:
+        if isinstance(failure, dict):
+            failure_ticker = normalize_symbol(str(failure.get("ticker", "")))
+            if failure_ticker != canonical:
+                continue
+            return str(failure.get("reason") or failure.get("detail") or "request failed")
+        text = str(failure)
+        if text.upper() == canonical or text.upper().startswith(f"{canonical}:"):
+            reason = text[len(canonical):].lstrip(" :")
+            return reason or "request failed"
+    return None
+
+
+def get_augury_feature_vector(ticker: str, curr_date: str | None) -> str:
+    """Return one PIT-pinned item from Augury's cross-sectional batch endpoint.
+
+    Although the lake accepts 1--500 tickers, this analyst-bound wrapper sends
+    one ticker so a per-ticker failure remains explicit rather than being
+    mistaken for a batch-level absence (#e03s07, SC-e03s07-P1-01).
+    """
+    canonical = normalize_symbol(ticker)
+    path = "/api/v1/batch/feature-vector"
+    try:
+        payload = _request_post(
+            path,
+            {"tickers": [canonical], "as_of": curr_date, "vintage": "current"},
+        )
+    except NoMarketDataError as exc:
+        raise NoMarketDataError(ticker, canonical, exc.detail) from exc
+    if not isinstance(payload, dict):
+        raise NoMarketDataError(ticker, canonical, "feature-vector response was not an object")
+
+    failed = payload.get("failed") or []
+    reason = _feature_vector_failure(failed, canonical)
+    if reason is not None:
+        return (
+            f"## Augury feature vector for {canonical}\n\n"
+            f"- status: not available: {reason}\n"
+        )
+
+    items = payload.get("items") or []
+    item = next(
+        (
+            candidate
+            for candidate in items
+            if isinstance(candidate, dict)
+            and normalize_symbol(str(candidate.get("ticker", ""))) == canonical
+        ),
+        None,
+    )
+    if item is None:
+        return (
+            f"## Augury feature vector for {canonical}\n\n"
+            "- status: not available: the lake omitted this ticker from the response"
+            "\n"
+        )
+
+    lines = [f"## Augury feature vector for {canonical}", ""]
+    for field in ("as_of", "data_vintage"):
+        if field in payload:
+            lines.append(f"- {field}: {_format_value(payload.get(field))}")
+    for section in ("features", "fundamentals", "ground_truth", "watermark"):
+        values = item.get(section)
+        if not isinstance(values, dict):
+            continue
+        lines.extend(["", f"### {section}"])
+        lines.extend(f"- {key}: {_format_value(value)}" for key, value in values.items())
+    return "\n".join(lines) + "\n"
+
+
+def _universe_row_is_delisted(row: dict) -> bool:
+    """Recognize explicit lifecycle markers without treating absence as delisting."""
+    if row.get("delisted") is True:
+        return True
+    for field in ("lifecycle_status", "status"):
+        if str(row.get(field, "")).casefold() == "delisted":
+            return True
+    return row.get("valid_to") is not None
+
+
+def get_augury_universe_membership(ticker: str, curr_date: str | None) -> str:
+    """Render Augury's PIT universe membership, including delisted evidence."""
+    canonical = normalize_symbol(ticker)
+    as_of = curr_date or get_current_date()
+    path = "/api/v1/universe"
+    try:
+        payload = _request(path, {"as_of": as_of, "q": canonical})
+    except NoMarketDataError as exc:
+        raise NoMarketDataError(ticker, canonical, exc.detail) from exc
+    rows = payload.get("data", []) if isinstance(payload, dict) else []
+    rows = [row for row in rows if isinstance(row, dict)]
+    matching = [
+        row for row in rows if normalize_symbol(str(row.get("ticker", ""))) == canonical
+    ]
+
+    if not matching:
+        status = "absent from the Augury tradeable universe"
+    elif any(_universe_row_is_delisted(row) for row in matching):
+        status = "present but delisted in the Augury tradeable universe"
+    else:
+        status = "member of the Augury tradeable universe"
+
+    lines = [
+        f"## Augury universe membership for {canonical} as of {as_of}",
+        "",
+        f"- status: {status}",
+    ]
+    if matching:
+        row = matching[0]
+        for field in ("source", "valid_from", "valid_to", "sector"):
+            if row.get(field) is not None:
+                lines.append(f"- {field}: {_format_value(row.get(field))}")
     return "\n".join(lines) + "\n"
 
 

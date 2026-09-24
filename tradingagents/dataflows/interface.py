@@ -15,14 +15,17 @@ from .augury import (
     get_augury_ai_forecast,
     get_augury_balance_sheet,
     get_augury_cashflow,
+    get_augury_feature_vector,
     get_augury_fundamentals,
     get_augury_income_statement,
     get_augury_indicators,
+    get_augury_liquidity,
     get_augury_macro_data,
     get_augury_news,
     get_augury_prediction_markets,
     get_augury_signal_states,
     get_augury_stock,
+    get_augury_universe_membership,
     get_augury_valuation,
 )
 from .config import get_config
@@ -111,6 +114,14 @@ TOOLS_CATEGORIES = {
         "tools": [
             "get_signal_states",
         ]
+    },
+    "cross_sectional": {
+        "description": "Cross-sectional liquidity, vectors, and universe context",
+        "tools": [
+            "get_liquidity",
+            "get_feature_vector",
+            "get_universe_membership",
+        ]
     }
 }
 
@@ -135,6 +146,9 @@ OPTIONAL_CATEGORIES = {
     "ai_forecast",
     "valuation",
     "signal_states",
+    # Cross-sectional context is optional enrichment; a lake outage must not
+    # abort an analyst run (#e03s07, D5).
+    "cross_sectional",
 }
 
 # Mapping of methods to their vendor-specific implementations
@@ -208,6 +222,15 @@ VENDOR_METHODS = {
     },
     "get_signal_states": {
         "augury": get_augury_signal_states,
+    },
+    "get_liquidity": {
+        "augury": get_augury_liquidity,
+    },
+    "get_feature_vector": {
+        "augury": get_augury_feature_vector,
+    },
+    "get_universe_membership": {
+        "augury": get_augury_universe_membership,
     },
 }
 

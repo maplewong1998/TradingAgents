@@ -8,6 +8,7 @@ from tradingagents.agents.utils.agent_utils import (
     get_instrument_context_from_state,
     get_language_instruction,
     get_signal_states,
+    get_universe_membership,
     get_valuation,
 )
 from tradingagents.agents.utils.ai_forecast_tools import is_augury_enabled
@@ -47,6 +48,14 @@ def create_fundamentals_analyst(llm):
                 " Use `get_valuation` for Augury's cached multi-method valuation. "
                 "State its live-vintage caveat and report unavailable data rather "
                 "than estimating missing values."
+            )
+
+        if is_augury_enabled("cross_sectional", "get_universe_membership"):
+            tools.append(get_universe_membership)
+            system_message += (
+                " Use `get_universe_membership` to state whether this ticker is a "
+                "member, present but delisted, or absent from Augury's PIT tradeable "
+                "universe as of the analysis date."
             )
 
         prompt = ChatPromptTemplate.from_messages(
