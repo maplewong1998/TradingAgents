@@ -84,12 +84,12 @@ epic_cycle:
   metrics:
     story_start: '2026-09-20T08:41:06Z'
 handoff:
-  next_skill: verify-work   # EPIC e03 CODE-COMPLETE 2026-09-24: all 8 stories done on feat/e03
-    # via delegated develop-tdd (5 worker runs, github-copilot/gpt-5.6-luna:high, each
-    # orchestrator-verified). Final preflight 1091 passed / 5 skipped / 88 subtests, ruff clean.
-    # Evidence: specs/verifications/e03sNN-tdd-evidence.md ×8. Next gates: verify-work →
-    # audit-code → release-branch (landing decision belongs to the user; gh absent, so the
-    # team-pr flow lands locally per the e02 precedent).
+  next_skill: audit-code   # verify-work e03 PASS 2026-09-24T14:28Z (orchestrator-run):
+    # 31/31 ledger verify commands exit 0; CLI smoke PASS; clean-install import PASS;
+    # terminal verdict 1091/5/88 exit 0 (e03-terminal-verdict.txt); UAT U1–U5 PASS
+    # (binding-gate matrix + real lake-down sentinels); security REVIEW-e03.md 0 HIGH;
+    # NFR-e03.json OK×3; 1 doc gap found+fixed in-gate. Evidence: 8× e03sNN-verify.yaml.
+    # blind-spots/completeness-critic unavailable (scripts/ absent — documented).
   e02s03_landed: 'LANDED 2026-09-20T10:0xZ: the user''s Safety gate chose "Merge commit locally" (preserving
     git-effort attribution) and "run Phase 5 VERIFY automatically". `git merge --no-ff feat/e02s03` produced
     the MERGE COMMIT 26f3916 on main (parents 37dbc93 + 8d930cc) with the persisted landing subject and
