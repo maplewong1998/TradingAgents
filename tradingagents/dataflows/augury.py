@@ -110,7 +110,7 @@ def get_augury_stock(symbol: str, start_date: str, end_date: str) -> str:
             )
         except NoMarketDataError as exc:
             # Preserve the user's symbol for the router sentinel while retaining
-            # the canonical ticker used on the wire.
+            # the canonical ticker used on the wire (#e03s01).
             raise NoMarketDataError(symbol, canonical, exc.detail) from exc
         page_rows = payload.get("data", []) if isinstance(payload, dict) else []
         rows.extend(page_rows)
