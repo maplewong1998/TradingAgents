@@ -27,7 +27,7 @@ tasks:
       markdown overview in the shape agents already consume.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k fundamentals"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "fundamentals"]
@@ -42,7 +42,7 @@ tasks:
       the statement.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'balance_sheet or cashflow or income_statement'"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "financials", "PIT"]
@@ -53,7 +53,7 @@ tasks:
       handoff.
     verify: ".venv/bin/python -m pytest -q tests/test_augury_vendor.py -k 'registration or routing'"
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["unit", "augury", "routing", "fallback"]
@@ -61,7 +61,7 @@ tasks:
     description: "Full Preflight."
     verify: ".venv/bin/python -m pytest -q && ruff check ."
     risk: P1
-    status: failing
+    status: passing
     allure:
       severity: high
       categories: ["preflight"]

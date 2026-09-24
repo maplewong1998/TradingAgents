@@ -6,7 +6,7 @@
 **risk:** P1 (core feature logic over the proven e03s01 client)
 **context:** domain
 **bcps:** 3
-**status:** planned (e45s06 ledger — tasks start `failing`, flip only on green verify)
+**status:** passing (e45s06 ledger — all 5 task verifies green)
 
 **Context:** With the vendor core proven by e03s01, this story maps the four
 fundamental-data methods onto augury's PIT endpoints — the lake's strongest

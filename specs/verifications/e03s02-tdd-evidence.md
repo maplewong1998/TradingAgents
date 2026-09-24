@@ -24,4 +24,8 @@ df6fd0d chore(specs): acquire e03s02 lock, hand off to develop-tdd
 
 ## GREEN evidence
 
-Recorded below as each task's frozen `verify:` command exits zero.
+- Task 1 `--collect-only`: **5/22 tests collected**, exit 0.
+- Task 2 `-k fundamentals`: **1 passed, 21 deselected**, exit 0.
+- Task 3 `-k 'balance_sheet or cashflow or income_statement'`: **4 passed, 18 deselected**, exit 0.
+- Task 4 `-k 'registration or routing'`: **5 passed, 17 deselected**, exit 0.
+- Task 5 full preflight: **1046 passed, 5 skipped, 88 subtests passed**; `.venv/bin/ruff check .` passed. The initial bare `ruff` invocation failed only because WSL PATH does not include `.venv/bin`; rerunning with the verified `.venv/bin/ruff` shim passed.

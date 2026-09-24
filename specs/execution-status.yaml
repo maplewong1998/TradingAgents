@@ -141,13 +141,13 @@ stories:
     started_at: '2026-09-24T09:00:00Z'
     completed_at: '2026-09-24T10:22:00Z'
   e03s02:
-    status: planned
+    status: done
     title: 'PIT fundamentals pack: fundamentals + balance sheet + cashflow + income statement'
     bcps: 3
     epic: e03
     tasks_total: 5
-    tasks_passing: 0
-    tasks_failing: 5
+    tasks_passing: 5
+    tasks_failing: 0
     risk_max: P1
   e03s03:
     status: planned
